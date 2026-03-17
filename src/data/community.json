@@ -1,25 +1,101 @@
 {
   "areas": [
-    { "emoji": "💻", "label": "Desarrollo web, apps y software" },
-    { "emoji": "🎨", "label": "Diseño gráfico, UX/UI y multimedia" },
-    { "emoji": "🎬", "label": "Edición de video y motion graphics" },
-    { "emoji": "🎧", "label": "Producción musical y sonido" },
-    { "emoji": "🕹️", "label": "Game dev" },
-    { "emoji": "🤖", "label": "IA aplicada a creatividad" },
-    { "emoji": "🏠", "label": "Domótica, automatización e IoT" },
-    { "emoji": "🖥️", "label": "Informática y tecnología" },
-    { "emoji": "📱", "label": "Creadores de contenido" },
-    { "emoji": "👥", "label": "RRHH y Recruiters tech" }
+    {
+      "emoji": "💻",
+      "label": "Desarrollo web, apps y software"
+    },
+    {
+      "emoji": "🎨",
+      "label": "Diseño gráfico, UX/UI y multimedia"
+    },
+    {
+      "emoji": "🎬",
+      "label": "Edición de video y motion graphics"
+    },
+    {
+      "emoji": "🎧",
+      "label": "Producción musical y sonido"
+    },
+    {
+      "emoji": "🕹️",
+      "label": "Game dev"
+    },
+    {
+      "emoji": "🤖",
+      "label": "IA aplicada a creatividad"
+    },
+    {
+      "emoji": "🏠",
+      "label": "Domótica, automatización e IoT"
+    },
+    {
+      "emoji": "🖥️",
+      "label": "Informática y tecnología"
+    },
+    {
+      "emoji": "📱",
+      "label": "Creadores de contenido"
+    },
+    {
+      "emoji": "👥",
+      "label": "RRHH y Recruiters tech"
+    }
   ],
   "channels": [
-    { "emoji": "💻", "name": "Desarrollo", "desc": "Web, apps, software, código" },
-    { "emoji": "🎨", "name": "Diseño", "desc": "Gráfico, UX/UI, multimedia" },
-    { "emoji": "🎬", "name": "Edición y video", "desc": "Motion graphics, post-producción" },
-    { "emoji": "🎧", "name": "Audio y música", "desc": "Producción musical, sonido" },
-    { "emoji": "🤖", "name": "IA y herramientas", "desc": "Inteligencia artificial, automatización" },
-    { "emoji": "🏠", "name": "Domótica / IoT", "desc": "Smart home, automatización" },
-    { "emoji": "💼", "name": "Ofertas laborales", "desc": "Empleos y oportunidades" },
-    { "emoji": "🚀", "name": "Networking y proyectos", "desc": "Colaboraciones y showcase" },
-    { "emoji": "📂", "name": "Recursos", "desc": "Herramientas, tutoriales, repos" }
+    {
+      "emoji": "💻",
+      "name": "Desarrollo",
+      "desc": "Web, apps, software, código"
+    },
+    {
+      "emoji": "🎨",
+      "name": "Diseño",
+      "desc": "Gráfico, UX/UI, multimedia"
+    },
+    {
+      "emoji": "🎬",
+      "name": "Edición y video",
+      "desc": "Motion graphics, post-producción"
+    },
+    {
+      "emoji": "🎧",
+      "name": "Audio y música",
+      "desc": "Producción musical, sonido"
+    },
+    {
+      "emoji": "🤖",
+      "name": "IA y herramientas",
+      "desc": "Inteligencia artificial, automatización"
+    },
+    {
+      "emoji": "🏠",
+      "name": "Domótica / IoT / Hardware",
+      "desc": "Smart home, automatización"
+    },
+    {
+      "emoji": "💼",
+      "name": "Ofertas laborales",
+      "desc": "Empleos y oportunidades"
+    },
+    {
+      "emoji": "🚀",
+      "name": "Networking y proyectos",
+      "desc": "Colaboraciones y showcase"
+    },
+    {
+      "emoji": "📂",
+      "name": "Recursos",
+      "desc": "Herramientas, tutoriales, repos"
+    },
+    {
+      "emoji": "🎮",
+      "name": "Gaming, Series y Música",
+      "desc": "Lugar de descanso"
+    },
+    {
+      "emoji": "🤠",
+      "name": "Stickers",
+      "desc": "Stickers para WhatsApp"
+    }
   ]
 }
