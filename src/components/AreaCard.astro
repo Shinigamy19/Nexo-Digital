@@ -1,0 +1,17 @@
+---
+import styles from './AreaCard.module.css';
+
+interface Props {
+  emoji: string;
+  label: string;
+  delayIndex: number;
+}
+
+const { emoji, label, delayIndex } = Astro.props;
+---
+
+<div class={`${styles['area-card']} reveal reveal-delay-${(delayIndex % 5) + 1}`}>
+  <span class={styles['area-emoji']} aria-hidden="true">{emoji}</span>
+  <span class={styles['area-label']}>{label}</span>
+</div>
+

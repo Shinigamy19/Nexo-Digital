@@ -1,0 +1,38 @@
+.channel-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  border-radius: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.channel-item:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(0, 245, 255, 0.2);
+  transform: translateX(4px);
+}
+
+.channel-emoji {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.channel-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.channel-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.channel-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}

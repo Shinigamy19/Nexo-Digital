@@ -1,0 +1,67 @@
+---
+import { Image } from 'astro:assets';
+import AreaCard from './AreaCard.astro';
+import styles from './Presentation.module.css';
+
+interface Props {
+  logoImg: any;
+  areas: Array<{ emoji: string; label: string }>;
+}
+
+const { logoImg, areas } = Astro.props;
+---
+
+<section id="presentacion" class={`section ${styles['section-presentation']}`}>
+  <div class="container">
+    <div class={styles['pres-grid']}>
+      <div class={`${styles['pres-visual']} reveal`}>
+        <div class={styles['logo-showcase']}>
+          <div class={styles['logo-glow-ring']} aria-hidden="true"></div>
+          <Image src={logoImg} alt="Logo de Nexo Digital" class={styles['logo-big']} width={200} height={200} />
+        </div>
+      </div>
+
+      <div class="pres-text">
+        <div class="section-badge reveal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Presentación
+        </div>
+        <h2 class="section-title reveal reveal-delay-1">
+          Una red real de<br/><span class="gradient-text">talento digital</span>
+        </h2>
+        <p class="section-subtitle reveal reveal-delay-2">
+          Nexo Digital nació para conectar personas que trabajan o estudian dentro del
+          ecosistema digital. Si te dedicás al desarrollo, diseño, edición, música,
+          domótica, IA o cualquier disciplina creativa y tecnológica, este espacio es para vos.
+        </p>
+        <div class={styles['pres-values']}>
+          <div class={`${styles['value-pill']} reveal reveal-delay-3`}>
+            <span>🤝</span> Comunidad real
+          </div>
+          <div class={`${styles['value-pill']} reveal reveal-delay-3`}>
+            <span>🚫</span> Sin jerarquías
+          </div>
+          <div class={`${styles['value-pill']} reveal reveal-delay-3`}>
+            <span>🚀</span> Proyectos reales
+          </div>
+          <div class={`${styles['value-pill']} reveal reveal-delay-3`}>
+            <span>🌐</span> Red amplia
+          </div>
+        </div>
+        <p class={`${styles['pres-quote']} reveal reveal-delay-4`}>
+          <em>"No es un grupo más de WhatsApp lleno de spam. Es una red real de gente que construye cosas en el mundo digital."</em>
+        </p>
+      </div>
+    </div>
+
+    <!-- Áreas -->
+    <div class="areas-grid">
+      <h3 class={`${styles['areas-title']} reveal`}>¿Para quién es Nexo Digital?</h3>
+      <div class={styles['areas-cards']}>
+        {areas.map((area, i) => (
+          <AreaCard {...area} delayIndex={i} />
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

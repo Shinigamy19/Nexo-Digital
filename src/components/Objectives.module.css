@@ -1,0 +1,75 @@
+.section-objectives {
+  background: var(--bg-primary);
+}
+
+.objectives-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.obj-card {
+  padding: 2rem;
+  border-radius: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: all 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.obj-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.obj-cyan::before { background: var(--gradient-subtle); }
+.obj-purple::before { background: linear-gradient(135deg, rgba(168,85,247,0.06), transparent); }
+.obj-magenta::before { background: linear-gradient(135deg, rgba(255,45,120,0.06), transparent); }
+.obj-indigo::before { background: linear-gradient(135deg, rgba(99,102,241,0.06), transparent); }
+
+.obj-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(168, 85, 247, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.obj-card:hover::before { opacity: 1; }
+
+.obj-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.obj-icon-cyan { background: rgba(0, 245, 255, 0.1); color: var(--cyan); box-shadow: 0 0 20px rgba(0,245,255,0.1); }
+.obj-icon-purple { background: rgba(168, 85, 247, 0.1); color: var(--purple); box-shadow: 0 0 20px rgba(168,85,247,0.1); }
+.obj-icon-magenta { background: rgba(255, 45, 120, 0.1); color: var(--magenta); box-shadow: 0 0 20px rgba(255,45,120,0.1); }
+.obj-icon-indigo { background: rgba(99, 102, 241, 0.1); color: var(--indigo); box-shadow: 0 0 20px rgba(99,102,241,0.1); }
+
+.obj-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  position: relative;
+  z-index: 1;
+}
+
+.obj-desc {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  position: relative;
+  z-index: 1;
+}

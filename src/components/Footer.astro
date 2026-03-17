@@ -1,0 +1,25 @@
+---
+import { Image } from 'astro:assets';
+import styles from './Footer.module.css';
+
+interface Props {
+  logoImg: any;
+}
+
+const { logoImg } = Astro.props;
+---
+
+<footer class={styles.footer}>
+  <div class={`container ${styles['footer-inner']}`}>
+    <div class={styles['footer-logo']}>
+      <Image src={logoImg} alt="Logo Nexo Digital" width={32} height={32} />
+      <span>Nexo <span class="gradient-text">Digital</span></span>
+    </div>
+    <p class={styles['footer-copy']}>© 2025 Nexo Digital · Comunidad para creadores del mundo digital</p>
+    <nav class={styles['footer-links']} aria-label="Links del footer">
+      <a href="#presentacion">Presentación</a>
+      <a href="#objetivos">Objetivos</a>
+      <a href="#invitacion">Invitación</a>
+    </nav>
+  </div>
+</footer>

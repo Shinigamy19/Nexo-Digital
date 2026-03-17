@@ -1,0 +1,26 @@
+---
+import styles from './Philosophy.module.css';
+---
+
+<section class={styles['section-philosophy']}>
+  <div class="container">
+    <div class={`${styles['philosophy-card']} reveal`}>
+      <div class={styles['philosophy-glow']} aria-hidden="true"></div>
+      <div class={styles['philosophy-content']}>
+        <p class={styles['philosophy-label']}>La esencia de Nexo Digital</p>
+        <h2 class={styles['philosophy-title']}>
+          No hay <span class="gradient-text">jerarquías.</span>
+        </h2>
+        <p class={styles['philosophy-text']}>
+          No es un espacio de "expertos vs principiantes". Es un lugar construido por la comunidad.
+          Cada persona que entra aporta algo: una idea, una pregunta, un recurso, una experiencia.
+        </p>
+        <div class={styles['philosophy-pillars']}>
+          <div class={styles.pillar}><span>💬</span> Toda opinión es válida</div>
+          <div class={styles.pillar}><span>🧠</span> Toda pregunta suma</div>
+          <div class={styles.pillar}><span>🚀</span> Toda persona puede aportar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
