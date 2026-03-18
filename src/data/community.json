@@ -45,21 +45,21 @@
     {
       "emoji": "💻",
       "name": "Desarrollo",
-      "desc": "Web, apps, software, código"
+      "desc": "Web, apps, software, game dev, código"
     },
     {
       "emoji": "🎨",
-      "name": "Diseño",
-      "desc": "Gráfico, UX/UI, multimedia"
+      "name": "Diseño y 3D",
+      "desc": "Gráfico, UX/UI, multimedia, 3D, ilustración, game design"
     },
     {
       "emoji": "🎬",
       "name": "Edición y video",
-      "desc": "Motion graphics, post-producción"
+      "desc": "Motion graphics, post-producción, animación"
     },
     {
       "emoji": "🎧",
-      "name": "Audio y música",
+      "name": "Audio y Producción",
       "desc": "Producción musical, sonido"
     },
     {
@@ -93,7 +93,7 @@
       "desc": "Lugar de descanso"
     },
     {
-      "emoji": "🤠",
+      "emoji": "🖼️",
       "name": "Stickers",
       "desc": "Stickers para WhatsApp"
     }
