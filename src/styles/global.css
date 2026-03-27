@@ -122,3 +122,15 @@ section {
   max-width: 620px;
   line-height: 1.8;
 }
+
+/* Section common wrappers */
+.section-header {
+  margin-bottom: 3.5rem;
+}
+
+.section-header.centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
