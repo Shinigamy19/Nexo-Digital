@@ -10,8 +10,8 @@
   --border: rgba(168, 85, 247, 0.15);
   --border-glow: rgba(0, 245, 255, 0.3);
   --text-primary: #f0f0ff;
-  --text-secondary: #a0a0c0;
-  --text-muted: #8a8aa8;
+  --text-secondary: #babac2;
+  --text-muted: #9a9ab0;
   --gradient-main: linear-gradient(135deg, var(--cyan), var(--purple), var(--magenta));
   --gradient-subtle: linear-gradient(135deg, rgba(0,245,255,0.08), rgba(168,85,247,0.08));
   --font-body: 'Inter', sans-serif;
@@ -97,7 +97,7 @@ section {
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--purple);
+  color: #c084fc; /* Un lila más claro para pasar tests de contraste AA */
   margin-bottom: 1.2rem;
 }
 
