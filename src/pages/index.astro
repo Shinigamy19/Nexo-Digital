@@ -19,23 +19,25 @@ const WHATSAPP_LINK = "https://chat.whatsapp.com/Hbm9wubODmw2ycWx5DTcMZ";
 <Layout>
   <Navbar />
 
-  <Hero whatsappLink={WHATSAPP_LINK} />
-  
-  <Presentation 
-    logoImg={logoImg} 
-    areas={communityData.areas} 
-  />
+  <main>
+    <Hero whatsappLink={WHATSAPP_LINK} />
+    
+    <Presentation 
+      logoImg={logoImg} 
+      areas={communityData.areas} 
+    />
 
-  <Objectives />
+    <Objectives />
 
-  <ChannelsSection channels={communityData.channels} />
+    <ChannelsSection channels={communityData.channels} />
 
-  <Philosophy />
+    <Philosophy />
 
-  <Invite 
-    whatsappLink={WHATSAPP_LINK} 
-    qrLightImg={qrLightImg} 
-  />
+    <Invite 
+      whatsappLink={WHATSAPP_LINK} 
+      qrLightImg={qrLightImg} 
+    />
+  </main>
 
   <Footer logoImg={logoImg} />
 </Layout>
