@@ -51,6 +51,7 @@ import '../styles/navbar.css';
   toggle?.addEventListener('click', () => {
     const isOpen = toggle.classList.toggle('open');
     navLinks?.classList.toggle('open', isOpen);
+    navbar?.classList.toggle('menu-open', isOpen);
     toggle.setAttribute('aria-expanded', String(isOpen));
     document.body.style.overflow = isOpen ? 'hidden' : '';
   });
@@ -60,6 +61,7 @@ import '../styles/navbar.css';
     link.addEventListener('click', () => {
       toggle?.classList.remove('open');
       navLinks?.classList.remove('open');
+      navbar?.classList.remove('menu-open');
       toggle?.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
     });
