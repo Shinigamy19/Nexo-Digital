@@ -1,0 +1,107 @@
+.jobs-hero {
+  padding-top: 7rem;
+  padding-bottom: 5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.jobs-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% -10%, rgba(168, 85, 247, 0.12) 0%, transparent 80%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.jobs-hero :global(.section-subtitle) {
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 2.5rem;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-publish {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.8rem;
+  border-radius: 14px;
+  background: var(--gradient-main);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-publish::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: 0.5s;
+}
+
+.btn-publish:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(168, 85, 247, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-publish:hover::after {
+  left: 100%;
+}
+
+.btn-browse {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.65rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  transition: all 0.2s ease;
+}
+
+.btn-browse:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 768px) {
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .btn-publish,
+  .btn-browse {
+    width: 100%;
+    justify-content: center;
+  }
+}

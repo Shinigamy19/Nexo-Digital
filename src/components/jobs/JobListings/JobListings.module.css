@@ -1,0 +1,96 @@
+.jobs-listings {
+  padding: 1rem 1.5rem 4rem;
+}
+
+.listings-header {
+  margin-bottom: 2.5rem;
+}
+
+.listings-title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 1.25rem;
+}
+
+.filters-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filters-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 5rem 2rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 24px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  margin-top: 2rem;
+}
+
+.empty-icon {
+  font-size: 3.5rem;
+  display: block;
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+.btn-publish-small {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--purple);
+  text-decoration: none;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 10px;
+  padding: 0.6rem 1.4rem;
+  background: rgba(168, 85, 247, 0.08);
+  transition: all 0.2s ease;
+}
+
+.btn-publish-small:hover {
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.6);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .filters-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .filter-label {
+    min-width: auto;
+  }
+}

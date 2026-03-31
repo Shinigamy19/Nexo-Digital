@@ -1,0 +1,53 @@
+---
+import styles from './ResourcesList.module.css';
+import FilterBar from '../../ui/FilterBar/index.astro';
+import ResourceCard from '../ResourceCard/index.astro';
+
+interface Props {
+  resourcesData: Array<any>;
+  filterOptions: Array<{ value: string; label: string }>;
+  submitUrl: string;
+}
+
+const { resourcesData, filterOptions, submitUrl } = Astro.props;
+---
+
+<section class={styles['resources-list']}>
+  <div class="container">
+    <div class={`${styles['list-header']} reveal`}>
+      <div>
+        <span class={styles['results-count']}>{resourcesData.length} recurso{resourcesData.length !== 1 ? 's' : ''}</span>
+      </div>
+      <FilterBar id="resources" options={filterOptions} />
+    </div>
+
+    <div class={styles['resources-grid']}>
+      {resourcesData.map((resource, i) => (
+        <div
+          data-category={resource.category}
+          data-filtergroup="resources"
+          class={`reveal reveal-delay-${(i % 3) + 1}`}
+        >
+          <ResourceCard {...resource} />
+        </div>
+      ))}
+    </div>
+
+    <div class={`${styles['contribute-cta']} reveal`}>
+      <div class={styles['cta-inner']}>
+        <span class={styles['cta-icon']} aria-hidden="true">💡</span>
+        <div class={styles['cta-text']}>
+          <strong>¿Conocés algún recurso valioso?</strong>
+          <p>Compartilo con la comunidad. Abrí un Issue en GitHub con los datos del recurso y lo sumaremos a la lista.</p>
+        </div>
+        <a href={submitUrl} class={styles['cta-link']} target="_blank" rel="noopener noreferrer">
+          Sugerir recurso
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14"/>
+            <path d="m12 5 7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,43 @@
+---
+import styles from './ProjectsHero.module.css';
+
+interface Props {
+  submitUrl: string;
+}
+
+const { submitUrl } = Astro.props;
+---
+
+<section class={styles['projects-hero']}>
+  <div class="container">
+    <div class="section-badge reveal">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="16 18 22 12 16 6"/>
+        <polyline points="8 6 2 12 8 18"/>
+      </svg>
+      Open Source
+    </div>
+    <h1 class="section-title reveal reveal-delay-1">
+      Proyectos de la<br/><span class="gradient-text">comunidad</span>
+    </h1>
+    <p class="section-subtitle reveal reveal-delay-2">
+      Proyectos reales construidos por miembros de Nexo Digital. Explorá, contribuí y mostrá lo que vos también estás construyendo.
+    </p>
+
+    <div class={`${styles['hero-actions']} reveal reveal-delay-3`}>
+      <a href={submitUrl} class={styles['btn-submit']} target="_blank" rel="noopener noreferrer" id="projects-submit-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Agregar mi proyecto
+      </a>
+      <span class={styles['moderation-note']}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Revisado por moderadores antes de publicarse
+      </span>
+    </div>
+  </div>
+</section>

@@ -43,17 +43,8 @@ const WHATSAPP_LINK = "https://chat.whatsapp.com/Hbm9wubODmw2ycWx5DTcMZ";
 </Layout>
 
 <script>
-  // ---- Intersection Observer para reveal animations ----
-  const revealEls = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    },
-    { threshold: 0.12 }
-  );
-  revealEls.forEach(el => observer.observe(el));
+  import { initRevealObserver } from '../scripts/reveal';
+  
+  // Re-initialize on component load/navigation
+  initRevealObserver();
 </script>
