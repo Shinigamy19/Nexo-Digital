@@ -1,0 +1,146 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/layout/Navbar/index.astro';
+import Footer from '../../components/layout/Footer/index.astro';
+import JobCard from '../../components/jobs/JobCard/index.astro';
+import JobForm from '../../components/jobs/JobForm/index.astro';
+import FilterBar from '../../components/ui/FilterBar/index.astro';
+import logoImg from '../../assets/brand/logo.webp';
+import jobsData from '../../data/jobs.json';
+import styles from './empleos.module.css';
+
+const modalityOptions = [
+  { value: 'remoto',     label: '🌐 Remoto' },
+  { value: 'hibrido',    label: '🔀 Híbrido' },
+  { value: 'presencial', label: '🏢 Presencial' },
+];
+
+const categoryOptions = [
+  { value: 'desarrollo', label: '💻 Desarrollo' },
+  { value: 'diseño',     label: '🎨 Diseño' },
+  { value: 'ia',         label: '🤖 IA' },
+  { value: 'edicion',    label: '🎬 Edición' },
+  { value: 'audio',      label: '🎧 Audio' },
+  { value: 'marketing',  label: '📢 Marketing' },
+  { value: 'rrhh',       label: '👥 RRHH' },
+];
+---
+
+<Layout
+  title="Empleos — Nexo Digital"
+  description="Búsquedas laborales tech en la comunidad Nexo Digital. Encontrá y publicá ofertas de trabajo para desarrolladores, diseñadores, editores y más profesionales digitales."
+>
+  <Navbar />
+
+  <main>
+    <section class={styles['jobs-hero']}>
+      <div class="container">
+        <div class="section-badge reveal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10 2h4a2 2 0 0 1 2 2v2h4a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4V4a2 2 0 0 1 2-2zm4 4V4h-4v2h4zM4 8v11h16V8H4zm4 3h8v2H8v-2z"/></svg>
+          Bolsa de trabajo
+        </div>
+        <h1 class="section-title reveal reveal-delay-1">
+          Búsquedas<br/><span class="gradient-text">laborales</span>
+        </h1>
+        <p class="section-subtitle reveal reveal-delay-2">
+          Oportunidades de trabajo para profesionales del mundo digital. Remoto, híbrido y presencial. Publicá tu búsqueda o encontrá tu próximo rol.
+        </p>
+
+        <div class={`${styles['hero-actions']} reveal reveal-delay-3`}>
+          <a href="#publicar-empleo" class={styles['btn-publish']} id="jobs-publish-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Publicar búsqueda
+          </a>
+          <a href="#listado-empleos" class={styles['btn-browse']}>
+            Ver empleos disponibles
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats bar -->
+    <section class={styles['stats-bar']}>
+      <div class="container">
+        <div class={`${styles['stats-inner']} reveal`}>
+          <div class={styles['stat-item']}>
+            <span class={`${styles['stat-num']} gradient-text`}>{jobsData.length}</span>
+            <span class={styles['stat-label']}>Empleos activos</span>
+          </div>
+          <div class={styles['stat-divider']} aria-hidden="true"></div>
+          <div class={styles['stat-item']}>
+            <span class={`${styles['stat-num']} gradient-text`}>{jobsData.filter(j => j.modality.includes('remoto')).length}</span>
+            <span class={styles['stat-label']}>Remotos</span>
+          </div>
+          <div class={styles['stat-divider']} aria-hidden="true"></div>
+          <div class={styles['stat-item']}>
+            <span class={`${styles['stat-num']} gradient-text`}>{jobsData.filter(j => j.modality.includes('hibrido')).length}</span>
+            <span class={styles['stat-label']}>Híbridos</span>
+          </div>
+          <div class={styles['stat-divider']} aria-hidden="true"></div>
+          <div class={styles['stat-item']}>
+            <span class={`${styles['stat-num']} gradient-text`}>{jobsData.filter(j => j.modality.includes('presencial')).length}</span>
+            <span class={styles['stat-label']}>Presenciales</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Job listings -->
+    <section class={styles['jobs-listings']} id="listado-empleos">
+      <div class="container">
+        <div class={styles['listings-header']}>
+          <h2 class={`${styles['listings-title']} reveal`}>Empleos disponibles</h2>
+          <div class={`${styles['filters-wrapper']} reveal reveal-delay-1`}>
+            <div class={styles['filters-group']}>
+              <span class={styles['filter-label']}>Modalidad:</span>
+              <FilterBar id="jobs-modality" options={modalityOptions} allLabel="Todas" />
+            </div>
+            <div class={styles['filters-group']}>
+              <span class={styles['filter-label']}>Categoría:</span>
+              <FilterBar id="jobs-category" options={categoryOptions} allLabel="Todas" />
+            </div>
+          </div>
+        </div>
+
+        <div class={styles['jobs-grid']}>
+          {jobsData.map((job, i) => (
+            <div
+              data-category={job.modality}
+              data-filtergroup="jobs-modality"
+              class={`reveal reveal-delay-${(i % 3) + 1}`}
+            >
+              <JobCard {...job} />
+            </div>
+          ))}
+        </div>
+
+        {jobsData.length === 0 && (
+          <div class={styles['empty-state']}>
+            <span class={styles['empty-icon']} aria-hidden="true">💼</span>
+            <p>No hay búsquedas laborales publicadas todavía.</p>
+            <a href="#publicar-empleo" class={styles['btn-publish-small']}>Sé el primero en publicar</a>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <!-- Job submission form -->
+    <div class="container">
+      <JobForm />
+    </div>
+  </main>
+
+  <Footer logoImg={logoImg} />
+</Layout>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.08 }
+  );
+  revealEls.forEach(el => observer.observe(el));
+</script>
+
+
