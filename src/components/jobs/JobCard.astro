@@ -7,7 +7,7 @@ interface Props {
   company: string;
   description: string;
   requirements: string[];
-  modality: string;
+  modality: string | string[];
   category: string;
   salaryMin: number;
   salaryMax: number;
@@ -48,7 +48,9 @@ const categoryLabels: Record<string, string> = {
   rrhh: '👥 RRHH',
 };
 
-const mod = modalityConfig[modality] ?? { label: modality, cls: '' };
+const modalities = Array.isArray(modality) 
+  ? modality 
+  : modality.split(',').map(s => s.trim()).filter(Boolean);
 
 function formatSalary(n: number, curr: string): string {
   if (curr === 'ARS') return `$${n.toLocaleString('es-AR')}`;
@@ -57,12 +59,18 @@ function formatSalary(n: number, curr: string): string {
 const salaryRange = `${formatSalary(salaryMin, currency)} – ${formatSalary(salaryMax, currency)} ${salaryType}`;
 
 const isEmail = contact.includes('@');
+const mailtoLink = isEmail 
+  ? `mailto:${contact}?subject=${encodeURIComponent(`Postulación: ${title} — ${company}`)}&body=${encodeURIComponent(`Hola equipo de ${company},\n\nLes escribo con motivo de postularme a la búsqueda de ${title}.\n\n(Adjunto mi CV / portfolio y dejo mi información de contacto).\n\nSaludos,`)}`
+  : contact;
 ---
 
 <article class={styles['job-card']}>
   <div class={styles['job-top']}>
     <div class={styles['job-badges']}>
-      <span class={`${styles['mod-badge']} ${styles[mod.cls] ?? ''}`}>{mod.label}</span>
+      {modalities.map(m => {
+        const mod = modalityConfig[m] ?? { label: m, cls: '' };
+        return <span class={`${styles['mod-badge']} ${styles[mod.cls] ?? ''}`}>{mod.label}</span>
+      })}
       <span class={styles['cat-badge']}>{categoryLabels[category] ?? category}</span>
     </div>
     <span class={styles['days-badge']} title={`Publicado el ${pubDate.toLocaleDateString('es-AR')}`}>{daysLabel}</span>
@@ -97,7 +105,7 @@ const isEmail = contact.includes('@');
 
   <div class={styles['job-footer']}>
     {isEmail ? (
-      <a href={`mailto:${contact}`} class={styles['apply-btn']} title="Aplicar por email">
+      <a href={mailtoLink} class={styles['apply-btn']} title="Aplicar por email">
         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         Postularme
       </a>

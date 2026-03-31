@@ -33,8 +33,19 @@ form?.addEventListener('submit', (e) => {
     if (categoryPillsContainer) categoryPillsContainer.dataset.error = 'false';
   }
 
+  // Validar modalidad (única)
+  const modalityRadio = f.querySelector('input[name="modality"]:checked');
+  const modalityPillsContainer = document.getElementById('modality-pills');
+  if (!modalityRadio) {
+    if (modalityPillsContainer) modalityPillsContainer.dataset.error = 'true';
+    valid = false;
+  } else {
+    if (modalityPillsContainer) modalityPillsContainer.dataset.error = 'false';
+  }
+
   if (!valid) {
-    f.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const errorEl = f.querySelector('[data-error="true"]');
+    if (errorEl) errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
@@ -43,7 +54,7 @@ form?.addEventListener('submit', (e) => {
   const company  = f.querySelector('#job-company').value.trim();
   const desc     = f.querySelector('#job-desc').value.trim();
   const categories = categoryCheckboxes.map(cb => cb.value).join(', ');
-  const modality = f.querySelector('#job-modality').value;
+  const modality = modalityRadio ? modalityRadio.value : '';
   const location = f.querySelector('#job-location').value.trim();
   const salary   = f.querySelector('#job-salary').value.trim();
   const reqs     = f.querySelector('#job-requirements').value.trim();
@@ -81,14 +92,16 @@ ${contact}
 form?.querySelectorAll('[data-form-field], .pill-checkbox').forEach(el => {
   el.addEventListener('input',  () => { 
     if (el.classList.contains('pill-checkbox')) {
-      document.getElementById('category-pills')?.setAttribute('data-error', 'false');
+      if (el.name === 'category') document.getElementById('category-pills')?.setAttribute('data-error', 'false');
+      if (el.name === 'modality') document.getElementById('modality-pills')?.setAttribute('data-error', 'false');
     } else {
       el.dataset.error = 'false'; 
     }
   });
   el.addEventListener('change', () => { 
     if (el.classList.contains('pill-checkbox')) {
-      document.getElementById('category-pills')?.setAttribute('data-error', 'false');
+      if (el.name === 'category') document.getElementById('category-pills')?.setAttribute('data-error', 'false');
+      if (el.name === 'modality') document.getElementById('modality-pills')?.setAttribute('data-error', 'false');
     } else {
       el.dataset.error = 'false'; 
     }

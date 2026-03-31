@@ -62,5 +62,21 @@
     "contact": "hola@creadoresarg.com",
     "publishedAt": "2025-03-30",
     "location": "Argentina (remoto)"
+  },
+  {
+    "id": "arquitecto-software-presencial",
+    "title": "Arquitecto de Software Pleno",
+    "company": "NeoTech Solutions",
+    "description": "Buscamos un Arquitecto de Software para liderar la evolución de nuestra plataforma core. Trabajo 100% presencial en nuestras nuevas oficinas en Palermo con comedor y gimnasio incluidos.",
+    "requirements": ["AWS", "Microservicios", "Node.js", "Liderazgo", "5+ años exp"],
+    "modality": "presencial",
+    "category": "desarrollo",
+    "salaryMin": 4000,
+    "salaryMax": 6000,
+    "currency": "USD",
+    "salaryType": "mensual",
+    "contact": "careers@neotech.com",
+    "publishedAt": "2025-03-31",
+    "location": "Palermo, CABA"
   }
 ]

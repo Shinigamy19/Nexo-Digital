@@ -58,7 +58,8 @@ const { id, options, allLabel = 'Todos' } = Astro.props;
       const cards = document.querySelectorAll(`[data-category][data-filtergroup="${group}"]`);
       cards.forEach(card => {
         const cardEl = card as HTMLElement;
-        if (filter === 'all' || cardEl.dataset.category === filter) {
+        const categories = (cardEl.dataset.category || '').split(',').map(s => s.trim());
+        if (filter === 'all' || categories.includes(filter)) {
           cardEl.style.display = '';
           cardEl.style.opacity = '0';
           cardEl.style.transform = 'translateY(10px)';

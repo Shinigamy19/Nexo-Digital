@@ -68,13 +68,18 @@ const categoryOptions = [
           </div>
           <div class="stat-divider" aria-hidden="true"></div>
           <div class="stat-item">
-            <span class="stat-num gradient-text">{jobsData.filter(j => j.modality === 'remoto').length}</span>
+            <span class="stat-num gradient-text">{jobsData.filter(j => j.modality.includes('remoto')).length}</span>
             <span class="stat-label">Remotos</span>
           </div>
           <div class="stat-divider" aria-hidden="true"></div>
           <div class="stat-item">
-            <span class="stat-num gradient-text">24–48hs</span>
-            <span class="stat-label">Revisión mod.</span>
+            <span class="stat-num gradient-text">{jobsData.filter(j => j.modality.includes('hibrido')).length}</span>
+            <span class="stat-label">Híbridos</span>
+          </div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat-item">
+            <span class="stat-num gradient-text">{jobsData.filter(j => j.modality.includes('presencial')).length}</span>
+            <span class="stat-label">Presenciales</span>
           </div>
         </div>
       </div>
@@ -202,7 +207,7 @@ const categoryOptions = [
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 1.25rem 2rem;
-    max-width: 500px;
+    max-width: 800px;
     margin: 0 auto;
     flex-wrap: wrap;
   }
