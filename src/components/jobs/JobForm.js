@@ -84,7 +84,7 @@ ${contact}
 *Enviado desde el formulario del sitio de Nexo Digital. Pendiente de revisión por moderadores.*`
   );
 
-  const url = `https://github.com/Shinigamy19/Nexo-Digital/issues/new?title=${issueTitle}&body=${issueBody}&labels=empleo,pendiente-revision`;
+  const url = `https://github.com/NexoDigital-Lab/Nexo-Digital/issues/new?title=${issueTitle}&body=${issueBody}&labels=empleo,pendiente-revision`;
   window.open(url, '_blank', 'noopener,noreferrer');
 });
 

@@ -12,7 +12,7 @@ Este repositorio es **open source** y toda aportación pasa por revisión de mod
 
 Si tenés un proyecto open source que creés que puede ser valioso para la comunidad:
 
-1. Abrí un [Issue](https://github.com/Shinigamy19/Nexo-Digital/issues/new?labels=proyecto,pendiente-revision&title=%5BPROYECTO%5D+Nombre+de+tu+proyecto) con la etiqueta `proyecto`
+1. Abrí un [Issue](https://github.com/NexoDigital-Lab/Nexo-Digital/issues/new?labels=proyecto,pendiente-revision&title=%5BPROYECTO%5D+Nombre+de+tu+proyecto) con la etiqueta `proyecto`
 2. Completá la información con este formato:
 
 ```
@@ -34,7 +34,7 @@ Si tenés un proyecto open source que creés que puede ser valioso para la comun
 
 Si querés agregar una herramienta, tutorial, template o recurso:
 
-1. Abrí un [Issue](https://github.com/Shinigamy19/Nexo-Digital/issues/new?labels=recurso,pendiente-revision&title=%5BRECURSO%5D+Nombre+del+recurso) con la etiqueta `recurso`
+1. Abrí un [Issue](https://github.com/NexoDigital-Lab/Nexo-Digital/issues/new?labels=recurso,pendiente-revision&title=%5BRECURSO%5D+Nombre+del+recurso) con la etiqueta `recurso`
 2. Incluí:
 
 ```
@@ -95,7 +95,7 @@ Para mejoras al sitio en sí:
 ## 🔧 Setup de desarrollo
 
 ```bash
-git clone https://github.com/Shinigamy19/Nexo-Digital.git
+git clone https://github.com/NexoDigital-Lab/Nexo-Digital.git
 cd Nexo-Digital
 npm install
 npm run dev
