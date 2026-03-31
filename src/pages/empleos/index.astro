@@ -4,6 +4,7 @@ import Navbar from '../../components/layout/Navbar/index.astro';
 import Footer from '../../components/layout/Footer/index.astro';
 import JobCard from '../../components/jobs/JobCard/index.astro';
 import JobForm from '../../components/jobs/JobForm/index.astro';
+import CandidateSlider from '../../components/jobs/CandidateSlider/index.astro';
 import FilterBar from '../../components/ui/FilterBar/index.astro';
 import logoImg from '../../assets/brand/logo.webp';
 import jobsData from '../../data/jobs.json';
@@ -125,10 +126,11 @@ const categoryOptions = [
       </div>
     </section>
 
+    <!-- Featured Candidates Slider -->
+    <CandidateSlider />
+
     <!-- Job submission form -->
-    <div class="container">
-      <JobForm />
-    </div>
+    <JobForm />
   </main>
 
   <Footer logoImg={logoImg} />

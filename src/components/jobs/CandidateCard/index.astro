@@ -1,0 +1,58 @@
+---
+import { Image } from 'astro:assets';
+import styles from './index.module.css';
+
+interface Props {
+  name: string;
+  role: string;
+  bio: string;
+  tags: string[];
+  availability: string;
+  topSkill: string;
+  image: string;
+}
+
+const { name, role, bio, tags, availability, topSkill, image } = Astro.props;
+
+// Cargar imagen de forma dinámica
+const images = import.meta.glob<{ default: ImageMetadata }>('../../../assets/candidates/*.{jpeg,jpg,png,gif,webp}');
+const imagePath = `../../../assets/candidates/${image}`;
+if (!images[imagePath]) throw new Error(`"${imagePath}" no existe en "src/assets/candidates/"`);
+const imageSrc = images[imagePath]();
+---
+
+<article class={styles['candidate-card']}>
+  <header class={styles['card-header']}>
+    <div class={styles['avatar-wrapper']} aria-hidden="true">
+      <Image src={imageSrc} alt={`Foto de ${name}`} class={styles['avatar-img']} width={52} height={52} />
+      <span class={styles['availability-dot']} title={`Disponibilidad: ${availability}`}></span>
+    </div>
+    <div class={styles['info-main']}>
+      <h3 class={styles['candidate-name']}>{name}</h3>
+      <span class={styles['candidate-role']}>{role}</span>
+    </div>
+  </header>
+
+  <div class={styles['card-body']}>
+    <p class={styles['candidate-bio']}>{bio}</p>
+  </div>
+
+  <div class={styles['card-footer']}>
+    <div class={styles['top-skill-badge']}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+      <span>{topSkill}</span>
+    </div>
+
+    <div class={styles['tech-tags']}>
+      {tags.slice(0, 3).map(tag => (
+        <span class={styles['tech-tag']}>{tag}</span>
+      ))}
+    </div>
+
+    <div class={styles['card-cta']}>
+      <button class={styles['btn-profile']} onclick={`window.alert('Funcionalidad de contacto para ${name} próximamente.')`}>
+        Ver Perfil
+      </button>
+    </div>
+  </div>
+</article>

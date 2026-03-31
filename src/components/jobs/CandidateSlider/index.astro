@@ -1,0 +1,88 @@
+---
+import CandidateCard from '../CandidateCard/index.astro';
+import candidates from '../../../data/candidates.json';
+import styles from './index.module.css';
+---
+
+<section class={styles['slider-section']}>
+  <div class="container">
+    <div class={`${styles['slider-header']} reveal`}>
+      <div>
+        <div class="section-badge">✨ Talento Destacado</div>
+        <h2 class="section-title">Perfiles <span class="gradient-text">listos</span> para sumar</h2>
+      </div>
+      <div class={styles['slider-nav']}>
+        <button id="prevBtn" class={styles['nav-btn']} aria-label="Anterior">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button id="nextBtn" class={styles['nav-btn']} aria-label="Siguiente">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class={`${styles['slider-viewport']} reveal reveal-delay-1`}>
+    <div id="sliderTrack" class={styles['slider-track']}>
+      {candidates.map(candidate => (
+        <CandidateCard {...candidate} />
+      ))}
+      {/* Duplicados para el carrusel */}
+      {candidates.map(candidate => (
+        <CandidateCard {...candidate} />
+      ))}
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class={`${styles['slider-footer']} reveal reveal-delay-2`}>
+      <p>¿Sos miembro de la comunidad y buscás trabajo? <strong>Postulate para aparecer acá.</strong></p>
+    </div>
+  </div>
+</section>
+
+<script>
+  const track = document.getElementById('sliderTrack');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  if (track && prevBtn && nextBtn) {
+    const scrollAmount = 320; // card width + gap
+
+    nextBtn.addEventListener('click', () => {
+      track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    });
+
+    prevBtn.addEventListener('click', () => {
+      track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    });
+
+    // Drag to scroll functionality
+    let isDown = false;
+    let startX: number;
+    let scrollLeft: number;
+
+    track.addEventListener('mousedown', (e) => {
+      isDown = true;
+      track.classList.add('active');
+      startX = e.pageX - track.offsetLeft;
+      scrollLeft = track.scrollLeft;
+    });
+
+    track.addEventListener('mouseleave', () => {
+      isDown = false;
+    });
+
+    track.addEventListener('mouseup', () => {
+      isDown = false;
+    });
+
+    track.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - track.offsetLeft;
+      const walk = (x - startX) * 2;
+      track.scrollLeft = scrollLeft - walk;
+    });
+  }
+</script>
