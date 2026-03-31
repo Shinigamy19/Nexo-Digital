@@ -1,0 +1,30 @@
+/* FilterBar — los nombres de clase se usan como data-active para toggle por JS */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.filter-btn:hover {
+  border-color: rgba(168, 85, 247, 0.4);
+  color: var(--text-secondary);
+  background: rgba(168, 85, 247, 0.08);
+}
+/* Estado activo controlado mediante data-active="true" desde JS */
+.filter-btn[data-active="true"] {
+  border-color: rgba(168, 85, 247, 0.6);
+  background: rgba(168, 85, 247, 0.15);
+  color: var(--text-primary);
+}

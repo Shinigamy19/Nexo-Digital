@@ -1,0 +1,272 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/layout/Navbar.astro';
+import Footer from '../components/layout/Footer.astro';
+import JobCard from '../components/jobs/JobCard.astro';
+import JobForm from '../components/jobs/JobForm.astro';
+import FilterBar from '../components/ui/FilterBar.astro';
+import logoImg from '../assets/logo.webp';
+import jobsData from '../data/jobs.json';
+
+const modalityOptions = [
+  { value: 'remoto',     label: '🌐 Remoto' },
+  { value: 'hibrido',    label: '🔀 Híbrido' },
+  { value: 'presencial', label: '🏢 Presencial' },
+];
+
+const categoryOptions = [
+  { value: 'desarrollo', label: '💻 Desarrollo' },
+  { value: 'diseño',     label: '🎨 Diseño' },
+  { value: 'ia',         label: '🤖 IA' },
+  { value: 'edicion',    label: '🎬 Edición' },
+  { value: 'audio',      label: '🎧 Audio' },
+  { value: 'marketing',  label: '📢 Marketing' },
+  { value: 'rrhh',       label: '👥 RRHH' },
+];
+---
+
+<Layout
+  title="Empleos — Nexo Digital"
+  description="Búsquedas laborales tech en la comunidad Nexo Digital. Encontrá y publicá ofertas de trabajo para desarrolladores, diseñadores, editores y más profesionales digitales."
+>
+  <Navbar />
+
+  <main>
+    <section class="jobs-hero">
+      <div class="container">
+        <div class="section-badge reveal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10 2h4a2 2 0 0 1 2 2v2h4a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4V4a2 2 0 0 1 2-2zm4 4V4h-4v2h4zM4 8v11h16V8H4zm4 3h8v2H8v-2z"/></svg>
+          Bolsa de trabajo
+        </div>
+        <h1 class="section-title reveal reveal-delay-1">
+          Búsquedas<br/><span class="gradient-text">laborales</span>
+        </h1>
+        <p class="section-subtitle reveal reveal-delay-2">
+          Oportunidades de trabajo para profesionales del mundo digital. Remoto, híbrido y presencial. Publicá tu búsqueda o encontrá tu próximo rol.
+        </p>
+
+        <div class="hero-actions reveal reveal-delay-3">
+          <a href="#publicar-empleo" class="btn-publish" id="jobs-publish-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Publicar búsqueda
+          </a>
+          <a href="#listado-empleos" class="btn-browse">
+            Ver empleos disponibles
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats bar -->
+    <section class="stats-bar">
+      <div class="container">
+        <div class="stats-inner reveal">
+          <div class="stat-item">
+            <span class="stat-num gradient-text">{jobsData.length}</span>
+            <span class="stat-label">Empleos activos</span>
+          </div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat-item">
+            <span class="stat-num gradient-text">{jobsData.filter(j => j.modality === 'remoto').length}</span>
+            <span class="stat-label">Remotos</span>
+          </div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat-item">
+            <span class="stat-num gradient-text">24–48hs</span>
+            <span class="stat-label">Revisión mod.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Job listings -->
+    <section class="jobs-listings" id="listado-empleos">
+      <div class="container">
+        <div class="listings-header">
+          <h2 class="listings-title reveal">Empleos disponibles</h2>
+          <div class="filters-wrapper reveal reveal-delay-1">
+            <div class="filters-group">
+              <span class="filter-label">Modalidad:</span>
+              <FilterBar id="jobs-modality" options={modalityOptions} allLabel="Todas" />
+            </div>
+            <div class="filters-group">
+              <span class="filter-label">Categoría:</span>
+              <FilterBar id="jobs-category" options={categoryOptions} allLabel="Todas" />
+            </div>
+          </div>
+        </div>
+
+        <div class="jobs-grid">
+          {jobsData.map((job, i) => (
+            <div
+              data-category={job.modality}
+              data-filtergroup="jobs-modality"
+              class={`reveal reveal-delay-${(i % 3) + 1}`}
+            >
+              <JobCard {...job} />
+            </div>
+          ))}
+        </div>
+
+        {jobsData.length === 0 && (
+          <div class="empty-state">
+            <span class="empty-icon" aria-hidden="true">💼</span>
+            <p>No hay búsquedas laborales publicadas todavía.</p>
+            <a href="#publicar-empleo" class="btn-publish-small">Sé el primero en publicar</a>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <!-- Job submission form -->
+    <div class="container">
+      <JobForm />
+    </div>
+  </main>
+
+  <Footer logoImg={logoImg} />
+</Layout>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.08 }
+  );
+  revealEls.forEach(el => observer.observe(el));
+</script>
+
+<style>
+  .jobs-hero {
+    padding-top: 10rem;
+    padding-bottom: 3rem;
+    text-align: center;
+  }
+  .jobs-hero .section-badge { margin-bottom: 1.5rem; }
+  .jobs-hero .section-subtitle { margin: 0 auto 2.5rem; }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .btn-publish {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.6rem;
+    border-radius: 12px;
+    background: var(--gradient-main);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.35);
+  }
+  .btn-publish:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(168, 85, 247, 0.55);
+  }
+  .btn-browse {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.65rem 1.2rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    transition: all 0.2s ease;
+  }
+  .btn-browse:hover {
+    color: var(--text-primary);
+    border-color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* Stats bar */
+  .stats-bar { padding: 1rem 1.5rem 2rem; }
+  .stats-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem 2rem;
+    max-width: 500px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+  }
+  .stat-item { text-align: center; display: flex; flex-direction: column; gap: 0.2rem; }
+  .stat-num { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; }
+  .stat-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+  .stat-divider {
+    width: 1px;
+    height: 2.5rem;
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* Listings */
+  .jobs-listings { padding-bottom: 1rem; }
+  .listings-header { margin-bottom: 2.5rem; }
+  .listings-title {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+  }
+  .filters-wrapper { display: flex; flex-direction: column; gap: 0.75rem; }
+  .filters-group { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  .filter-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    min-width: 80px;
+  }
+
+  .jobs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .empty-icon { font-size: 3rem; display: block; }
+  .btn-publish-small {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--purple);
+    text-decoration: none;
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    background: rgba(168, 85, 247, 0.08);
+    transition: all 0.2s ease;
+  }
+  .btn-publish-small:hover { background: rgba(168, 85, 247, 0.18); }
+
+  @media (max-width: 768px) {
+    .hero-actions { flex-direction: column; }
+    .stats-inner { gap: 1.5rem; }
+    .stat-divider { display: none; }
+  }
+</style>

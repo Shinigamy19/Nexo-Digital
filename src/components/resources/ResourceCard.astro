@@ -1,0 +1,78 @@
+---
+import styles from './ResourceCard.module.css';
+
+interface Props {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  category: string;
+  url: string;
+  tags: string[];
+  addedBy: string;
+}
+
+const { title, description, type, category, url, tags, addedBy } = Astro.props;
+
+const typeIcons: Record<string, string> = {
+  herramienta: '🔧',
+  tutorial: '📖',
+  recurso: '🔗',
+  template: '📄',
+  documentación: '📚',
+};
+
+const typeColorMap: Record<string, string> = {
+  herramienta: 'type-tool',
+  tutorial: 'type-tutorial',
+  recurso: 'type-resource',
+  template: 'type-template',
+  documentación: 'type-docs',
+};
+
+const categoryLabels: Record<string, string> = {
+  desarrollo: '💻 Desarrollo',
+  diseño: '🎨 Diseño',
+  ia: '🤖 IA',
+  iot: '🏠 IoT',
+  edicion: '🎬 Edición',
+  audio: '🎧 Audio',
+  aprendizaje: '📚 Aprendizaje',
+};
+---
+
+<article class={styles['resource-card']}>
+  <div class={styles['card-header']}>
+    <span class={`${styles['type-badge']} ${styles[typeColorMap[type] ?? ''] ?? ''}`}>
+      {typeIcons[type] ?? '📌'} {type}
+    </span>
+    <span class={styles['category-label']}>{categoryLabels[category] ?? category}</span>
+  </div>
+
+  <h3 class={styles['card-title']}>{title}</h3>
+  <p class={styles['card-desc']}>{description}</p>
+
+  <div class={styles['tag-list']}>
+    {tags.map(tag => (
+      <span class={styles['tag']}>{tag}</span>
+    ))}
+  </div>
+
+  <div class={styles['card-footer']}>
+    <span class={styles['added-by']}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      {addedBy}
+    </span>
+    <a href={url} class={styles['visit-btn']} target="_blank" rel="noopener noreferrer">
+      Visitar
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        <polyline points="15 3 21 3 21 9"/>
+        <line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+    </a>
+  </div>
+</article>

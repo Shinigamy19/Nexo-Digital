@@ -1,0 +1,79 @@
+---
+import styles from './FilterBar.module.css';
+
+interface FilterOption {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  id: string;
+  options: FilterOption[];
+  allLabel?: string;
+}
+
+const { id, options, allLabel = 'Todos' } = Astro.props;
+---
+
+<div class={styles['filter-bar']} role="group" aria-label="Filtros">
+  <button
+    class={styles['filter-btn']}
+    data-filter="all"
+    data-group={id}
+    data-active="true"
+  >
+    {allLabel}
+  </button>
+  {options.map(opt => (
+    <button
+      class={styles['filter-btn']}
+      data-filter={opt.value}
+      data-group={id}
+      data-active="false"
+    >
+      {opt.label}
+    </button>
+  ))}
+</div>
+
+<script>
+  // Usamos data-active en vez de classList para compatibilidad con CSS Modules
+  document.querySelectorAll('[data-filter][data-group]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = btn as HTMLElement;
+      const group = el.dataset.group!;
+      const filter = el.dataset.filter!;
+
+      // Desactivar todos los botones del mismo grupo
+      document.querySelectorAll(`[data-filter][data-group="${group}"]`).forEach(b => {
+        (b as HTMLElement).dataset.active = 'false';
+        b.setAttribute('aria-pressed', 'false');
+      });
+
+      // Activar el clickeado
+      el.dataset.active = 'true';
+      el.setAttribute('aria-pressed', 'true');
+
+      // Mostrar/ocultar cards
+      const cards = document.querySelectorAll(`[data-category][data-filtergroup="${group}"]`);
+      cards.forEach(card => {
+        const cardEl = card as HTMLElement;
+        if (filter === 'all' || cardEl.dataset.category === filter) {
+          cardEl.style.display = '';
+          cardEl.style.opacity = '0';
+          cardEl.style.transform = 'translateY(10px)';
+          requestAnimationFrame(() => {
+            cardEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            cardEl.style.opacity = '1';
+            cardEl.style.transform = 'translateY(0)';
+          });
+        } else {
+          cardEl.style.display = 'none';
+          cardEl.style.opacity = '';
+          cardEl.style.transform = '';
+          cardEl.style.transition = '';
+        }
+      });
+    });
+  });
+</script>

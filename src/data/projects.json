@@ -1,0 +1,67 @@
+[
+  {
+    "id": "nexo-bot",
+    "title": "NexoBot — Moderador WhatsApp",
+    "description": "Bot de moderación automática para grupos de WhatsApp. Detecta spam, da la bienvenida a nuevos miembros y gestiona comandos básicos.",
+    "category": "desarrollo",
+    "technologies": ["Node.js", "whatsapp-web.js", "MongoDB"],
+    "author": "ElAdmin",
+    "authorGithub": "eladmin",
+    "repo": "https://github.com/nexo-digital/nexo-bot",
+    "demo": "",
+    "status": "activo",
+    "featured": true
+  },
+  {
+    "id": "nexo-ui-kit",
+    "title": "Nexo UI Kit",
+    "description": "Sistema de diseño y componentes reutilizables basado en la identidad visual de Nexo Digital. Incluye tokens de diseño y documentación.",
+    "category": "diseño",
+    "technologies": ["Figma", "CSS", "Storybook"],
+    "author": "PixelCreator",
+    "authorGithub": "pixelcreator",
+    "repo": "https://github.com/nexo-digital/nexo-ui-kit",
+    "demo": "https://nexo-ui-kit.vercel.app",
+    "status": "activo",
+    "featured": true
+  },
+  {
+    "id": "portafolio-template",
+    "title": "Portafolio para Creativos",
+    "description": "Template de portafolio moderno para creativos digitales. Dark mode, animaciones suaves y sección de proyectos. Construido con Astro.",
+    "category": "desarrollo",
+    "technologies": ["Astro", "CSS", "JavaScript"],
+    "author": "DevArgento",
+    "authorGithub": "devargento",
+    "repo": "https://github.com/devargento/portfolio-template",
+    "demo": "https://portfolio-template-nexo.netlify.app",
+    "status": "activo",
+    "featured": false
+  },
+  {
+    "id": "iot-dashboard",
+    "title": "Panel de control IoT",
+    "description": "Dashboard para visualizar datos de sensores IoT en tiempo real. Compatible con ESP32 y Raspberry Pi. Exportación a CSV incluida.",
+    "category": "iot",
+    "technologies": ["React", "MQTT", "Chart.js", "ESP32"],
+    "author": "IoTero",
+    "authorGithub": "iotero",
+    "repo": "https://github.com/iotero/iot-dashboard-nexo",
+    "demo": "",
+    "status": "en progreso",
+    "featured": false
+  },
+  {
+    "id": "ai-prompt-manager",
+    "title": "AI Prompt Manager",
+    "description": "Herramienta para organizar, versionar y compartir prompts de IA. Soporta ChatGPT, Claude y Gemini. Exportación e importación en JSON.",
+    "category": "ia",
+    "technologies": ["Next.js", "SQLite", "TypeScript"],
+    "author": "PromptLord",
+    "authorGithub": "promptlord",
+    "repo": "https://github.com/promptlord/ai-prompt-manager",
+    "demo": "https://promptlord.vercel.app",
+    "status": "activo",
+    "featured": true
+  }
+]

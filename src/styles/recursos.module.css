@@ -1,0 +1,103 @@
+/* Recursos page — estilos específicos de la página */
+
+.resources-hero {
+  padding-top: 10rem;
+  padding-bottom: 3rem;
+  text-align: center;
+}
+
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+.btn-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.6rem;
+  border-radius: 12px;
+  background: var(--gradient-main);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 20px rgba(0, 245, 255, 0.3);
+}
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 245, 255, 0.5);
+}
+.moderation-note {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.resources-list { padding-top: 1rem; }
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.results-count {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+/* CTA footer */
+.contribute-cta { margin-top: 4rem; margin-bottom: 2rem; }
+.cta-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid rgba(0, 245, 255, 0.15);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  flex-wrap: wrap;
+}
+.cta-icon { font-size: 2rem; flex-shrink: 0; }
+.cta-text { flex: 1; min-width: 200px; }
+.cta-text strong { display: block; color: var(--text-primary); font-size: 1rem; margin-bottom: 0.3rem; }
+.cta-text p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+.cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--cyan);
+  text-decoration: none;
+  padding: 0.55rem 1.2rem;
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(0, 245, 255, 0.06);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.cta-link:hover {
+  background: rgba(0, 245, 255, 0.15);
+  border-color: rgba(0, 245, 255, 0.6);
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .list-header { flex-direction: column; align-items: flex-start; }
+  .cta-inner { flex-direction: column; align-items: flex-start; }
+}

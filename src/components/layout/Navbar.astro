@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
-import logoImg from '../assets/logo.webp';
-import '../styles/navbar.css';
+import logoImg from '../../assets/logo.webp';
+import '../../styles/navbar.css';
 ---
 <header class="navbar" id="navbar">
   <div class="nav-container">
@@ -15,10 +15,12 @@ import '../styles/navbar.css';
     </button>
 
     <nav class="nav-links" id="navLinks" role="navigation">
-      <a href="#presentacion" class="nav-link">Presentación</a>
-      <a href="#objetivos" class="nav-link">Objetivos</a>
-      <a href="#canales" class="nav-link">Canales</a>
-      <a href="#invitacion" class="nav-cta">Unirme ahora</a>
+      <a href="/#presentacion" class="nav-link">Presentación</a>
+      <a href="/#objetivos" class="nav-link">Objetivos</a>
+      <a href="/proyectos" class="nav-link">Proyectos</a>
+      <a href="/recursos" class="nav-link">Recursos</a>
+      <a href="/empleos" class="nav-link">Empleos</a>
+      <a href="/#invitacion" class="nav-cta">Unirme ahora</a>
     </nav>
   </div>
 </header>
