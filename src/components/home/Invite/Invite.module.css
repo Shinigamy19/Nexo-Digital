@@ -2,7 +2,6 @@
   position: relative;
   text-align: center;
   overflow: hidden;
-  padding: 8rem 0;
 }
 
 .invite-bg {
@@ -95,18 +94,18 @@
   gap: 0.7rem;
   padding: 1.1rem 2.5rem;
   border-radius: 100px;
-  background: linear-gradient(135deg, #25d366, #128c7e);
+  background: var(--gradient-main);
   color: #fff;
   font-weight: 700;
   font-size: 1.1rem;
   font-family: var(--font-display);
-  box-shadow: 0 8px 40px rgba(37, 211, 102, 0.4);
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.35);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-invite:hover {
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 14px 50px rgba(37, 211, 102, 0.55);
+  box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5);
 }
 
 .invite-note {

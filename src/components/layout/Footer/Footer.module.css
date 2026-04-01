@@ -33,20 +33,6 @@
   color: var(--text-secondary);
 }
 
-.footer-links {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.footer-links a {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  transition: color 0.3s;
-}
-
-.footer-links a:hover { color: var(--purple); }
-
 @media (max-width: 768px) {
   .footer-inner { flex-direction: column; text-align: center; }
-  .footer-links { justify-content: center; }
 }

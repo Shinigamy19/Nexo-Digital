@@ -1,6 +1,5 @@
 .job-form-section {
-  margin-top: 0rem;
-  padding: 0 1.5rem 2rem; /* Restaurando padding lateral para móviles */
+  padding: 4rem 1.5rem 8rem;
 }
 
 .form-card {
