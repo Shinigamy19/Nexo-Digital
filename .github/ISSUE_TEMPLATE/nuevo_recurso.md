@@ -11,16 +11,28 @@ labels: ["recurso", "pendiente-revision"]
 
 ---
 
+### 📋 Instructivo — ¿Cómo sugerir un recurso?
+
+1. **Completá todos los campos** marcados abajo reemplazando los comentarios `<!-- ... -->` con tu información.
+2. **Hacé clic en "Submit new issue"** (botón verde abajo).
+3. Un moderador revisará tu sugerencia y la aprobará en **24–48hs**.
+4. Una vez aprobado, el recurso aparecerá en [nexodigital.com/recursos](https://nexo-digital.vercel.app/recursos).
+
+> 💡 También podés sugerir un recurso directamente desde el sitio:
+> **[Sugerir desde el sitio →](https://nexo-digital.vercel.app/recursos)**
+
+---
+
 **Título:**
 
 **Descripción:**
 <!-- Qué es y para qué sirve (máx 200 caracteres) -->
 
 **Tipo:**
-<!-- herramienta / tutorial / recurso / template / documentación -->
+<!-- Elegí uno: herramienta / tutorial / recurso / template / documentación -->
 
 **Categoría:**
-<!-- desarrollo / diseño / ia / iot / aprendizaje / audio / edicion -->
+<!-- Elegí una: desarrollo / diseño / ia / marketing / audio / edicion / negocios -->
 
 **URL:**
 <!-- https://... -->

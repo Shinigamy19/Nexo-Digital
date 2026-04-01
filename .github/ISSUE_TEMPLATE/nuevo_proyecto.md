@@ -11,13 +11,25 @@ labels: ["proyecto", "pendiente-revision"]
 
 ---
 
+### 📋 Instructivo — ¿Cómo proponer un proyecto?
+
+1. **Completá todos los campos** marcados abajo reemplazando los comentarios `<!-- ... -->` con tu información.
+2. **Hacé clic en "Submit new issue"** (botón verde abajo).
+3. Un moderador revisará tu proyecto y lo aprobará en **24–48hs**.
+4. Una vez aprobado, tu proyecto aparecerá en [nexodigital.com/proyectos](https://nexo-digital.vercel.app/proyectos).
+
+> 💡 También podés proponer un proyecto directamente desde el sitio:
+> **[Proponer desde el sitio →](https://nexo-digital.vercel.app/proyectos)**
+
+---
+
 **Título del proyecto:**
 
 **Descripción:**
 <!-- Qué hace y para qué sirve (máx 200 caracteres) -->
 
 **Categoría:**
-<!-- desarrollo / diseño / ia / iot / edicion / audio / gamedev -->
+<!-- Elegí una: desarrollo / diseño / ia / iot / edicion / audio / gamedev -->
 
 **Tecnologías usadas:**
 <!-- Separadas por coma. Ej: React, TypeScript, Supabase -->
@@ -31,7 +43,7 @@ labels: ["proyecto", "pendiente-revision"]
 <!-- https://... -->
 
 **Estado:**
-<!-- activo / en progreso / archivado -->
+<!-- Elegí uno: activo / en progreso / archivado -->
 
 ---
 

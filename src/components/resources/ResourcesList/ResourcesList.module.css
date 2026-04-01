@@ -70,6 +70,21 @@
   max-width: 600px;
 }
 
+.template-link {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--cyan);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.template-link:hover {
+  text-decoration: underline;
+  color: var(--text-primary);
+}
+
 .cta-link {
   display: inline-flex;
   align-items: center;
