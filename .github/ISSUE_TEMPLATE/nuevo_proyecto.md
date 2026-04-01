@@ -31,8 +31,8 @@ labels: ["proyecto", "pendiente-revision"]
 **Categoría:**
 <!-- Elegí una: desarrollo / diseño / ia / iot / edicion / audio / gamedev -->
 
-**Tecnologías usadas:**
-<!-- Separadas por coma. Ej: React, TypeScript, Supabase -->
+**Tecnologías usadas (OBLIGATORIO):**
+<!-- Aclará todas las herramientas, lenguajes o programas que usaste. Ej: React, TypeScript, Supabase, o Illustrator, Figma... -->
 
 **Autor (usuario de GitHub):**
 
