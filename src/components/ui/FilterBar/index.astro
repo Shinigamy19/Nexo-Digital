@@ -1,0 +1,41 @@
+---
+import styles from './FilterBar.module.css';
+
+interface FilterOption {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  id: string;
+  options: FilterOption[];
+  allLabel?: string;
+}
+
+const { id, options, allLabel = 'Todos' } = Astro.props;
+---
+
+<div class={styles['filter-bar']} role="group" aria-label="Filtros">
+  <button
+    class={styles['filter-btn']}
+    data-filter="all"
+    data-group={id}
+    data-active="true"
+  >
+    {allLabel}
+  </button>
+  {options.map(opt => (
+    <button
+      class={styles['filter-btn']}
+      data-filter={opt.value}
+      data-group={id}
+      data-active="false"
+    >
+      {opt.label}
+    </button>
+  ))}
+</div>
+
+<script>
+  import './FilterBar.ts';
+</script>

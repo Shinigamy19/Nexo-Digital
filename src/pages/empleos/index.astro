@@ -1,0 +1,60 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/layout/Navbar/index.astro';
+import Footer from '../../components/layout/Footer/index.astro';
+import JobForm from '../../components/jobs/JobForm/index.astro';
+import CandidateSlider from '../../components/jobs/CandidateSlider/index.astro';
+import JobsHero from '../../components/jobs/JobsHero/index.astro';
+import JobsStats from '../../components/jobs/JobsStats/index.astro';
+import JobListings from '../../components/jobs/JobListings/index.astro';
+import logoImg from '../../assets/brand/logo.webp';
+import jobsData from '../../data/jobs.json';
+
+const modalityOptions = [
+  { value: 'remoto',     label: '🌐 Remoto' },
+  { value: 'hibrido',    label: '🔀 Híbrido' },
+  { value: 'presencial', label: '🏢 Presencial' },
+];
+
+const categoryOptions = [
+  { value: 'desarrollo', label: '💻 Desarrollo' },
+  { value: 'diseño',     label: '🎨 Diseño' },
+  { value: 'ia',         label: '🤖 IA' },
+  { value: 'edicion',    label: '🎬 Edición' },
+  { value: 'audio',      label: '🎧 Audio' },
+  { value: 'marketing',  label: '📢 Marketing' },
+  { value: 'rrhh',       label: '👥 RRHH' },
+];
+---
+
+<Layout
+  title="Empleos — Nexo Digital"
+  description="Búsquedas laborales tech en la comunidad Nexo Digital. Encontrá y publicá ofertas de trabajo para desarrolladores, diseñadores, editores y más profesionales digitales."
+>
+  <Navbar />
+
+  <main>
+    <JobsHero />
+
+    <JobsStats jobsData={jobsData} />
+
+    <JobListings 
+      jobsData={jobsData}
+      modalityOptions={modalityOptions}
+      categoryOptions={categoryOptions}
+    />
+
+    <CandidateSlider />
+
+    <JobForm />
+  </main>
+
+  <Footer logoImg={logoImg} />
+</Layout>
+
+<script>
+  import { initRevealObserver } from '../../scripts/reveal';
+  
+  // Re-initialize on component load/navigation
+  initRevealObserver();
+</script>

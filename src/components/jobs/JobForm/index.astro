@@ -1,0 +1,125 @@
+---
+import styles from './JobForm.module.css';
+// JobForm — el formulario abre un GitHub Issue precompletado para revisión de moderadores.
+
+const GITHUB_REPO = "NexoDigital-Lab/Nexo-Digital";
+const ISSUE_TEMPLATE_URL = `https://github.com/${GITHUB_REPO}/issues/new?template=nueva_busqueda_laboral.md&title=%5BEMPLEO%5D+Tu+puesto+aqui&labels=empleo`;
+---
+
+<section class={styles['job-form-section']} id="publicar-empleo">
+  <div class={styles['form-card']}>
+    <div class={styles['form-header']}>
+      <div class={styles['form-icon']} aria-hidden="true">📋</div>
+      <div>
+        <h2 class={styles['form-title']}>Publicar una búsqueda</h2>
+        <p class={styles['form-subtitle']}>
+          Las publicaciones son revisadas y aprobadas por los moderadores antes de aparecer en el listado.
+        </p>
+      </div>
+    </div>
+
+    <div class={styles['how-it-works']}>
+      <h3 class={styles['how-title']}>¿Cómo funciona?</h3>
+      <ol class={styles['steps-list']}>
+        <li class={styles['step']}>
+          <span class={styles['step-num']}>1</span>
+          <div><strong>Completá el formulario</strong> con los datos de la búsqueda laboral.</div>
+        </li>
+        <li class={styles['step']}>
+          <span class={styles['step-num']}>2</span>
+          <div><strong>Se crea un GitHub Issue</strong> con toda la información, visible para los moderadores.</div>
+        </li>
+        <li class={styles['step']}>
+          <span class={styles['step-num']}>3</span>
+          <div><strong>Un moderador revisa y aprueba</strong> el contenido, y lo agrega al sitio en 24–48hs.</div>
+        </li>
+      </ol>
+    </div>
+
+    <form id="jobSubmitForm" class={styles['form-body']} novalidate>
+      <div class={styles['form-row']}>
+        <div class={styles['form-group']}>
+          <label for="job-title" class={styles['form-label']}>Puesto <span class={styles['required']}>*</span></label>
+          <input type="text" id="job-title" name="title" placeholder="Ej: Desarrollador Frontend Senior"
+            required class={styles['form-input']} data-form-field maxlength="100" />
+        </div>
+        <div class={styles['form-group']}>
+          <label for="job-company" class={styles['form-label']}>Empresa <span class={styles['required']}>*</span></label>
+          <input type="text" id="job-company" name="company" placeholder="Nombre de la empresa"
+            required class={styles['form-input']} data-form-field maxlength="80" />
+        </div>
+      </div>
+
+      <div class={styles['form-group']}>
+        <label for="job-desc" class={styles['form-label']}>Descripción del puesto <span class={styles['required']}>*</span></label>
+        <textarea id="job-desc" name="description" placeholder="Describí el rol, el equipo y el contexto..."
+          required class={styles['form-textarea']} data-form-field rows="4" maxlength="1000"></textarea>
+        <span class={styles['char-counter']} id="desc-counter">0 / 1000</span>
+      </div>
+
+      <div class={styles['form-group']}>
+        <label class={styles['form-label']}>Categorías <span class={styles['required']}>*</span></label>
+        <div class={styles['category-pills']} id="category-pills">
+          <label class={styles['pill-label']}><input type="checkbox" name="category" value="desarrollo" class={styles['pill-checkbox']} /><span class={styles['pill-text']}>💻 Desarrollo</span></label>
+          <label class={styles['pill-label']}><input type="checkbox" name="category" value="diseño" class={styles['pill-checkbox']} /><span class={styles['pill-text']}>🎨 Diseño</span></label>
+          <label class={styles['pill-label']}><input type="checkbox" name="category" value="ia" class={styles['pill-checkbox']} /><span class={styles['pill-text']}>🤖 IA</span></label>
+          <label class={styles['pill-label']}><input type="checkbox" name="category" value="edicion" class={styles['pill-checkbox']} /><span class={styles['pill-text']}>🎬 Edición / Video</span></label>
+          <label class={styles['pill-label']}><input type="checkbox" name="category" value="audio" class={styles['pill-checkbox']} /><span class={styles['pill-text']}>🎧 Audio / Música</span></label>
+          <label class={styles['pill-label']}><input type="checkbox" name="category" value="iot" class={styles['pill-checkbox']} /><span class={styles['pill-text']}>🏠 IoT / Hardware</span></label>
+          <label class={styles['pill-label']}><input type="checkbox" name="category" value="marketing" class={styles['pill-checkbox']} /><span class={styles['pill-text']}>📢 Marketing digital</span></label>
+          <label class={styles['pill-label']}><input type="checkbox" name="category" value="rrhh" class={styles['pill-checkbox']} /><span class={styles['pill-text']}>👥 RRHH / Recruiting</span></label>
+        </div>
+      </div>
+
+      <div class={styles['form-group']}>
+        <label class={styles['form-label']}>Modalidad <span class={styles['required']}>*</span></label>
+        <div class={styles['category-pills']} id="modality-pills">
+          <label class={styles['pill-label']}><input type="radio" name="modality" value="remoto" class={styles['pill-checkbox']} /><span class={styles['pill-text']}>🌐 Remoto</span></label>
+          <label class={styles['pill-label']}><input type="radio" name="modality" value="hibrido" class={styles['pill-checkbox']} /><span class={styles['pill-text']}>🔀 Híbrido</span></label>
+          <label class={styles['pill-label']}><input type="radio" name="modality" value="presencial" class={styles['pill-checkbox']} /><span class={styles['pill-text']}>🏢 Presencial</span></label>
+        </div>
+      </div>
+
+      <div class={styles['form-row']}>
+        <div class={styles['form-group']}>
+          <label for="job-location" class={styles['form-label']}>Ubicación</label>
+          <input type="text" id="job-location" name="location" placeholder="Ej: CABA, Buenos Aires"
+            class={styles['form-input']} maxlength="80" />
+        </div>
+        <div class={styles['form-group']}>
+          <label for="job-salary" class={styles['form-label']}>Remuneración</label>
+          <input type="text" id="job-salary" name="salary" placeholder="Ej: USD 2000–3000 / mes"
+            class={styles['form-input']} maxlength="60" />
+        </div>
+      </div>
+
+      <div class={styles['form-group']}>
+        <label for="job-requirements" class={styles['form-label']}>Requisitos <span class={styles['required']}>*</span></label>
+        <input type="text" id="job-requirements" name="requirements"
+          placeholder="Ej: React, TypeScript, 2 años de experiencia"
+          required class={styles['form-input']} data-form-field maxlength="200" />
+        <span class={styles['field-hint']}>Separados por coma</span>
+      </div>
+
+      <div class={styles['form-group']}>
+        <label for="job-contact" class={styles['form-label']}>Contacto / Link <span class={styles['required']}>*</span></label>
+        <input type="text" id="job-contact" name="contact"
+          placeholder="email@empresa.com o https://empresa.com/jobs"
+          required class={styles['form-input']} data-form-field maxlength="200" />
+        <span class={styles['field-hint']}>Email o URL donde postularse</span>
+      </div>
+
+      <div class={styles['form-disclaimer']}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p>Al enviar, se abrirá un <strong>GitHub Issue</strong> con los datos. Necesitás una cuenta de GitHub gratuita. Un moderador revisará tu publicación antes de publicarla.</p>
+      </div>
+
+      <button type="submit" class={styles['submit-btn']} id="job-submit-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        Enviar a revisión vía GitHub
+      </button>
+    </form>
+  </div>
+</section>
+
+<script src="./JobForm.js"></script>

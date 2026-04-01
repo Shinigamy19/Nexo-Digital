@@ -1,0 +1,100 @@
+[
+  {
+    "id": "excalidraw",
+    "title": "Excalidraw",
+    "description": "Pizarra colaborativa en tiempo real para diagramas y wireframes. Completamente open source, sin cuenta necesaria.",
+    "type": "herramienta",
+    "category": "diseño",
+    "url": "https://excalidraw.com",
+    "tags": [
+      "gratis",
+      "colaborativo",
+      "open source"
+    ],
+    "addedBy": "Excalidraw"
+  },
+  {
+    "id": "roadmapsh",
+    "title": "Roadmap.sh",
+    "description": "Roadmaps interactivos para aprender distintas tecnologías: frontend, backend, DevOps, IA, etc. Ideal para orientarse en el mundo tech.",
+    "type": "recurso",
+    "category": "aprendizaje",
+    "url": "https://roadmap.sh",
+    "tags": [
+      "gratis",
+      "aprendizaje",
+      "carrera"
+    ],
+    "addedBy": "DevArgento"
+  },
+  {
+    "id": "coolors",
+    "title": "Coolors",
+    "description": "Generador de paletas de colores con exportación a CSS, SASS, Adobe y más. Tiene modo de accesibilidad para verificar contraste.",
+    "type": "herramienta",
+    "category": "diseño",
+    "url": "https://coolors.co",
+    "tags": [
+      "gratis",
+      "colores",
+      "UI"
+    ],
+    "addedBy": "Fabrizio Bianchi"
+  },
+  {
+    "id": "freecodecamp",
+    "title": "freeCodeCamp",
+    "description": "Plataforma de aprendizaje de programación completamente gratuita. Certificaciones en HTML/CSS, JavaScript, Python, Machine Learning y más.",
+    "type": "tutorial",
+    "category": "aprendizaje",
+    "url": "https://www.freecodecamp.org",
+    "tags": [
+      "gratis",
+      "certificación",
+      "programación"
+    ],
+    "addedBy": "freeCodeCamp"
+  },
+  {
+    "id": "astro-docs",
+    "title": "Documentación de Astro",
+    "description": "Documentación oficial del framework Astro, usado para este mismo sitio. Excelente punto de entrada para desarrollo web moderno.",
+    "type": "documentación",
+    "category": "desarrollo",
+    "url": "https://docs.astro.build/es",
+    "tags": [
+      "gratis",
+      "framework",
+      "web"
+    ],
+    "addedBy": "Astro"
+  },
+  {
+    "id": "daisyui",
+    "title": "DaisyUI",
+    "description": "Librería de componentes para Tailwind CSS con diseños listos para usar. Ahorra horas de trabajo en UI.",
+    "type": "template",
+    "category": "desarrollo",
+    "url": "https://daisyui.com",
+    "tags": [
+      "gratis",
+      "componentes",
+      "tailwind"
+    ],
+    "addedBy": "PixelCreator"
+  },
+  {
+    "id": "mqtt-explorer",
+    "title": "MQTT Explorer",
+    "description": "Cliente MQTT con interfaz visual para explorar y debuggear brokers MQTT. Perfecto para proyectos IoT y domótica.",
+    "type": "herramienta",
+    "category": "iot",
+    "url": "https://mqtt-explorer.com",
+    "tags": [
+      "gratis",
+      "IoT",
+      "MQTT"
+    ],
+    "addedBy": "IoTero"
+  }
+]

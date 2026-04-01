@@ -1,0 +1,40 @@
+---
+import styles from './JobsStats.module.css';
+
+interface Props {
+  jobsData: Array<any>;
+}
+
+const { jobsData } = Astro.props;
+
+const totalJobs = jobsData.length;
+const remoteJobs = jobsData.filter(j => j.modality.includes('remoto')).length;
+const hybridJobs = jobsData.filter(j => j.modality.includes('hibrido')).length;
+const onsiteJobs = jobsData.filter(j => j.modality.includes('presencial')).length;
+---
+
+<section class={styles['stats-bar']}>
+  <div class="container">
+    <div class={`${styles['stats-inner']} reveal`}>
+      <div class={styles['stat-item']}>
+        <span class={`${styles['stat-num']} gradient-text`}>{totalJobs}</span>
+        <span class={styles['stat-label']}>Empleos activos</span>
+      </div>
+      <div class={styles['stat-divider']} aria-hidden="true"></div>
+      <div class={styles['stat-item']}>
+        <span class={`${styles['stat-num']} gradient-text`}>{remoteJobs}</span>
+        <span class={styles['stat-label']}>Remotos</span>
+      </div>
+      <div class={styles['stat-divider']} aria-hidden="true"></div>
+      <div class={styles['stat-item']}>
+        <span class={`${styles['stat-num']} gradient-text`}>{hybridJobs}</span>
+        <span class={styles['stat-label']}>Híbridos</span>
+      </div>
+      <div class={styles['stat-divider']} aria-hidden="true"></div>
+      <div class={styles['stat-item']}>
+        <span class={`${styles['stat-num']} gradient-text`}>{onsiteJobs}</span>
+        <span class={styles['stat-label']}>Presenciales</span>
+      </div>
+    </div>
+  </div>
+</section>

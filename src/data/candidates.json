@@ -1,0 +1,52 @@
+[
+  {
+    "id": "c1",
+    "name": "Alex Rivera",
+    "role": "Frontend Developer",
+    "bio": "Apasionado por React y UX. +4 años creando interfaces fluidas y accesibles.",
+    "tags": ["React", "TypeScript", "Tailwind", "Astro"],
+    "availability": "Inmediata",
+    "topSkill": "UI/UX Architecture",
+    "image": "alex.png"
+  },
+  {
+    "id": "c2",
+    "name": "Sofía Martínez",
+    "role": "Senior UI Designer",
+    "bio": "Especialista en sistemas de diseño y productos digitales mobile-first.",
+    "tags": ["Figma", "Design Systems", "Prototyping"],
+    "availability": "Part-time",
+    "topSkill": "Visual Storytelling",
+    "image": "sofia.png"
+  },
+  {
+    "id": "c3",
+    "name": "Marcos Paz",
+    "role": "Fullstack Engineer",
+    "bio": "Enfocado en escalabilidad y performance con Node.js y arquitecturas cloud.",
+    "tags": ["Node.js", "PostgreSQL", "AWS", "Go"],
+    "availability": "Freelance",
+    "topSkill": "Backend Architecture",
+    "image": "marcos.png"
+  },
+  {
+    "id": "c4",
+    "name": "Lucía Blanco",
+    "role": "Product Manager",
+    "bio": "Transformando visión en productos exitosos mediante metodologías ágiles.",
+    "tags": ["Scrum", "Product Discovery", "Data Analysis"],
+    "availability": "Full-time",
+    "topSkill": "Strategy & Roadmap",
+    "image": "lucia.png"
+  },
+  {
+    "id": "c5",
+    "name": "Cristian Solís",
+    "role": "IA Specialist",
+    "bio": "Desarrollando soluciones con LLMs y Computer Vision integradas a negocio.",
+    "tags": ["Python", "TensorFlow", "OpenAI", "LangChain"],
+    "availability": "Inmediata",
+    "topSkill": "Machine Learning",
+    "image": "cristian.png"
+  }
+]

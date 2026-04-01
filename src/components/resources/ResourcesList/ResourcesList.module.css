@@ -1,0 +1,131 @@
+.resources-list {
+  padding-bottom: 8rem;
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.results-count {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 2rem;
+  margin-bottom: 6rem;
+}
+
+.contribute-cta {
+  margin-top: 4rem;
+}
+
+.cta-inner {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 2.5rem 3rem;
+  background: linear-gradient(135deg, rgba(0, 245, 255, 0.05), rgba(168, 85, 247, 0.05));
+  border: 1px solid rgba(0, 245, 255, 0.15);
+  border-radius: 30px;
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-icon {
+  font-size: 2.8rem;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 15px rgba(0, 245, 255, 0.3));
+}
+
+.cta-text {
+  flex: 1;
+}
+
+.cta-text strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+
+.cta-text p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+.template-link {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--cyan);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.template-link:hover {
+  text-decoration: underline;
+  color: var(--text-primary);
+}
+
+.cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.6rem;
+  background: #fff;
+  color: #000;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.cta-link:hover {
+  transform: scale(1.03) translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 992px) {
+  .cta-inner {
+    flex-direction: column;
+    text-align: center;
+    padding: 3rem 2rem;
+    gap: 1.5rem;
+  }
+
+  .cta-text p {
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .resources-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+}

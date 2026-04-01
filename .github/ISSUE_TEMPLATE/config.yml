@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "💬 Comunidad de WhatsApp"
+    url: "https://chat.whatsapp.com/Hbm9wubODmw2ycWx5DTcMZ"
+    about: "Unite a la comunidad de Nexo Digital en WhatsApp para hacer consultas, compartir ideas o pedir ayuda."
+  - name: "🌐 Sitio web de Nexo Digital"
+    url: "https://nexo-digital-pi.vercel.app/"
+    about: "Visitá el sitio oficial para ver proyectos, recursos y empleos de la comunidad."

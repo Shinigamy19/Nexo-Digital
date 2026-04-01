@@ -1,0 +1,31 @@
+---
+import objectivesData from '../../../data/objectives.json';
+import styles from './Objectives.module.css';
+---
+
+<section id="objetivos" class={styles['section-objectives']}>
+  <div class="container">
+    <div class="section-header centered">
+      <div class="section-badge reveal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 17.93V18a1 1 0 00-2 0v1.93A8.001 8.001 0 014.07 13H6a1 1 0 000-2H4.07A8.001 8.001 0 0111 4.07V6a1 1 0 002 0V4.07A8.001 8.001 0 0119.93 11H18a1 1 0 000 2h1.93A8.001 8.001 0 0113 19.93z"/></svg>
+        Objetivos
+      </div>
+      <h2 class="section-title reveal reveal-delay-1">
+        ¿Qué vas a encontrar<br/><span class="gradient-text">en la comunidad?</span>
+      </h2>
+      <p class="section-subtitle reveal reveal-delay-2">
+        Nexo Digital está construido para que cada miembro pueda crecer, conectar y aportar valor real.
+      </p>
+    </div>
+
+    <div class={styles['objectives-grid']}>
+      {objectivesData.map((obj, i) => (
+        <article class={`${styles['obj-card']} ${styles[`obj-${obj.color}`]} reveal reveal-delay-${(i % 3) + 1}`}>
+          <div class={`${styles['obj-icon']} ${styles[`obj-icon-${obj.color}`]}`} set:html={obj.icon} aria-hidden="true" />
+          <h3 class={styles['obj-title']}>{obj.title}</h3>
+          <p class={styles['obj-desc']}>{obj.desc}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

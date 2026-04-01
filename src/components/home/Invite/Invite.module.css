@@ -1,0 +1,115 @@
+.section-invite {
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+}
+
+.invite-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(168,85,247,0.12) 0%, rgba(0,245,255,0.06) 40%, transparent 70%);
+  pointer-events: none;
+}
+
+.invite-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.invite-badge {
+  display: inline-block;
+  padding: 0.4rem 1.2rem;
+  border-radius: 100px;
+  background: rgba(255, 45, 120, 0.1);
+  border: 1px solid rgba(255, 45, 120, 0.3);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ff7eb6;
+  letter-spacing: 0.04em;
+}
+
+.invite-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  max-width: 750px;
+}
+
+.invite-subtitle {
+  max-width: 580px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  font-size: 1.05rem;
+}
+
+.invite-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.invite-qr {
+  width: 140px;
+  height: 140px;
+  padding: 10px;
+  background: #000;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 18px;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(168, 85, 247, 0.1);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.invite-qr:hover {
+  transform: scale(1.08) rotate(2deg);
+}
+
+.qr-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.btn-invite {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1.1rem 2.5rem;
+  border-radius: 100px;
+  background: var(--gradient-main);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  font-family: var(--font-display);
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-invite:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5);
+}
+
+.invite-note {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}

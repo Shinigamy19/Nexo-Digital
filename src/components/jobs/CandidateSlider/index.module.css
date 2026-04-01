@@ -1,0 +1,106 @@
+.slider-section {
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at top right, rgba(0, 245, 255, 0.03), transparent 400px);
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding: 0 1.5rem;
+}
+
+.slider-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.nav-btn:hover {
+  background: white;
+  color: black;
+  border-color: white;
+}
+
+.slider-viewport {
+  width: 100%;
+  overflow: visible;
+  padding: 0;
+  margin: 0;
+}
+
+.slider-track {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding: 1.5rem 1.5rem 2.5rem; /* Padding optimizado para sombras */
+  /* Añadiendo padding vertical para sombras y hover */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+  scroll-behavior: smooth;
+}
+
+.slider-track::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .slider-track {
+    padding-left: calc((100vw - 1100px) / 2 + 1.5rem);
+    padding-right: calc((100vw - 1100px) / 2 + 1.5rem);
+  }
+}
+
+.slider-track:active {
+  cursor: grabbing;
+}
+
+.slider-footer {
+  margin-top: 0.5rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  padding: 0 1.5rem;
+}
+
+.slider-footer strong {
+  color: var(--accent-primary);
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .slider-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+  .slider-nav {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .nav-btn {
+    width: 44px;
+    height: 44px;
+  }
+}

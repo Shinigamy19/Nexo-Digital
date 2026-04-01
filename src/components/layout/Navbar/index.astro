@@ -1,0 +1,33 @@
+---
+import { Image } from 'astro:assets';
+import logoImg from '../../../assets/brand/logo.webp';
+import styles from './Navbar.module.css';
+---
+<header class={styles.navbar} id="navbar" data-scrolled-class={styles.scrolled} data-menu-open-class={styles.menuOpen}>
+  <div class={styles.navContainer}>
+    <a href="/" class={styles.navLogo} aria-label="Nexo Digital inicio">
+      <Image src={logoImg} alt="Nexo Digital logo" width={38} height={38} loading="eager" fetchpriority="high" />
+      <span class={styles.navLogoText}>Nexo <span class="gradient-text">Digital</span></span>
+    </a>
+
+    <button class={styles.navToggle} id="navToggle" aria-label="Abrir menú" aria-expanded="false" data-open-class={styles.open}>
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class={styles.navLinks} id="navLinks" role="navigation" data-open-class={styles.open}>
+      <a href="/#presentacion" class={styles.navLink}>Presentación</a>
+      <a href="/#objetivos" class={styles.navLink}>Objetivos</a>
+      <!-- <a href="/proyectos" class={styles.navLink}>Proyectos</a> -->
+      <!-- <a href="/recursos" class={styles.navLink}>Recursos</a> -->
+      <!-- <a href="/empleos" class={styles.navLink}>Empleos</a> -->
+      <a href="/#invitacion" class={styles.navCta}>Unirme ahora</a>
+    </nav>
+  </div>
+</header>
+
+
+
+
+<script>
+  import './Navbar.ts';
+</script>

@@ -1,0 +1,119 @@
+---
+import styles from './JobCard.module.css';
+
+interface Props {
+  id: string;
+  title: string;
+  company: string;
+  description: string;
+  requirements: string[];
+  modality: string | string[];
+  category: string;
+  salaryMin: number;
+  salaryMax: number;
+  currency: string;
+  salaryType: string;
+  contact: string;
+  publishedAt: string;
+  location: string;
+}
+
+const {
+  title, company, description, requirements,
+  modality, category, salaryMin, salaryMax,
+  currency, salaryType, contact, publishedAt, location
+} = Astro.props;
+
+// Calcular días desde publicación
+const pubDate = new Date(publishedAt);
+const now = new Date();
+const diffMs = now.getTime() - pubDate.getTime();
+const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+const daysLabel = diffDays === 0 ? 'Hoy' : diffDays === 1 ? 'Hace 1 día' : `Hace ${diffDays} días`;
+
+const modalityConfig: Record<string, { label: string; cls: string }> = {
+  remoto:     { label: '🌐 Remoto',    cls: 'mod-remote' },
+  hibrido:    { label: '🔀 Híbrido',   cls: 'mod-hybrid' },
+  presencial: { label: '🏢 Presencial', cls: 'mod-onsite' },
+};
+
+const categoryLabels: Record<string, string> = {
+  desarrollo: '💻 Desarrollo',
+  diseño: '🎨 Diseño',
+  ia: '🤖 IA',
+  iot: '🏠 IoT',
+  edicion: '🎬 Edición',
+  audio: '🎧 Audio',
+  marketing: '📢 Marketing',
+  rrhh: '👥 RRHH',
+};
+
+const modalities = Array.isArray(modality) 
+  ? modality 
+  : modality.split(',').map(s => s.trim()).filter(Boolean);
+
+function formatSalary(n: number, curr: string): string {
+  if (curr === 'ARS') return `$${n.toLocaleString('es-AR')}`;
+  return `U$D ${n.toLocaleString('en')}`;
+}
+const salaryRange = `${formatSalary(salaryMin, currency)} – ${formatSalary(salaryMax, currency)} ${salaryType}`;
+
+const isEmail = contact.includes('@');
+const mailtoLink = isEmail 
+  ? `mailto:${contact}?subject=${encodeURIComponent(`Postulación: ${title} — ${company}`)}&body=${encodeURIComponent(`Hola equipo de ${company},\n\nLes escribo con motivo de postularme a la búsqueda de ${title}.\n\n(Adjunto mi CV / portfolio y dejo mi información de contacto).\n\nSaludos,`)}`
+  : contact;
+---
+
+<article class={styles['job-card']}>
+  <div class={styles['job-top']}>
+    <div class={styles['job-badges']}>
+      {modalities.map(m => {
+        const mod = modalityConfig[m] ?? { label: m, cls: '' };
+        return <span class={`${styles['mod-badge']} ${styles[mod.cls] ?? ''}`}>{mod.label}</span>
+      })}
+      <span class={styles['cat-badge']}>{categoryLabels[category] ?? category}</span>
+    </div>
+    <span class={styles['days-badge']} title={`Publicado el ${pubDate.toLocaleDateString('es-AR')}`}>{daysLabel}</span>
+  </div>
+
+  <div class={styles['job-header']}>
+    <h3 class={styles['job-title']}>{title}</h3>
+    <span class={styles['job-company']}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
+      {company}
+    </span>
+  </div>
+
+  <p class={styles['job-desc']}>{description}</p>
+
+  <div class={styles['job-info']}>
+    <div class={styles['info-item']}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      {location}
+    </div>
+    <div class={`${styles['info-item']} ${styles['salary']}`}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      {salaryRange}
+    </div>
+  </div>
+
+  <div class={styles['req-list']}>
+    {requirements.map(req => (
+      <span class={styles['req-tag']}>{req}</span>
+    ))}
+  </div>
+
+  <div class={styles['job-footer']}>
+    {isEmail ? (
+      <a href={mailtoLink} class={styles['apply-btn']} title="Aplicar por email">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Postularme
+      </a>
+    ) : (
+      <a href={contact} class={styles['apply-btn']} target="_blank" rel="noopener noreferrer" title="Ver oferta completa">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Ver oferta
+      </a>
+    )}
+  </div>
+</article>

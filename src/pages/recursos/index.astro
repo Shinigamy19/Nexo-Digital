@@ -1,0 +1,46 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/layout/Navbar/index.astro';
+import Footer from '../../components/layout/Footer/index.astro';
+import ResourcesHero from '../../components/resources/ResourcesHero/index.astro';
+import ResourcesList from '../../components/resources/ResourcesList/index.astro';
+import logoImg from '../../assets/brand/logo.webp';
+import resourcesData from '../../data/resources.json';
+
+const GITHUB_REPO = "https://github.com/NexoDigital-Lab/Nexo-Digital";
+const NEW_RESOURCE_URL = `${GITHUB_REPO}/issues/new?template=nuevo_recurso.md&title=%5BRECURSO%5D+Nombre+del+recurso&labels=recurso,pendiente-revision`;
+
+const filterOptions = [
+  { value: 'desarrollo', label: '💻 Desarrollo' },
+  { value: 'diseño',     label: '🎨 Diseño' },
+  { value: 'ia',         label: '🤖 IA' },
+  { value: 'marketing',  label: '📢 Marketing' },
+  { value: 'audio',      label: '🎧 Audio' },
+  { value: 'edicion',    label: '🎬 Edición' },
+  { value: 'negocios',   label: '💼 Negocios' },
+];
+---
+
+<Layout
+  title="Recursos — Nexo Digital"
+  description="Biblioteca curada de recursos gratuitos para profesionales digitales. Cursos, herramientas y artículos compartidos por la comunidad de Nexo Digital."
+>
+  <Navbar />
+
+  <main>
+    <ResourcesHero submitUrl={NEW_RESOURCE_URL} />
+    
+    <ResourcesList 
+      resourcesData={resourcesData} 
+      filterOptions={filterOptions} 
+      submitUrl={NEW_RESOURCE_URL} 
+    />
+  </main>
+
+  <Footer logoImg={logoImg} />
+</Layout>
+
+<script>
+  import { initRevealObserver } from '../../scripts/reveal';
+  initRevealObserver();
+</script>
