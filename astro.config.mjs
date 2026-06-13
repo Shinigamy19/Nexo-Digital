@@ -7,7 +7,7 @@ import vercel from '@astrojs/vercel';
 // opt-in to SSR with `export const prerender = false`. Auth/profile pages
 // use SSR to read/write cookies and talk to Supabase.
 export default defineConfig({
-  output: 'static',
+  output: 'server',
   adapter: vercel(),
   server: {
     port: 4321,
@@ -15,7 +15,8 @@ export default defineConfig({
   },
   vite: {
     ssr: {
-      noExternal: ['@supabase/ssr', '@prisma/client'],
+      noExternal: ['@supabase/ssr'],
+      external: ['@prisma/client'],
     },
   },
 });
