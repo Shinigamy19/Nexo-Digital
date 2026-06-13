@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient as PrismaClientType } from '@prisma/client';
 import type {
   JobCategory as AppJobCategory,
   JobModality as AppJobModality,
@@ -8,9 +8,17 @@ import type {
   EventCategoryKind as AppEventCategory,
 } from '../types/database';
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+// Vite's CJS→ESM interop converts `@prisma/client` into `.prisma/client/default`
+// which is not a valid ESM specifier. Using `new Function('return require')()`
+// produces a native CJS require() that Vite cannot transform at build time,
+// so Prisma resolves correctly at runtime on Vercel.
+// eslint-disable-next-line no-new-func
+const _require = new Function('return require')() as NodeRequire;
+const { PrismaClient } = _require('@prisma/client') as { PrismaClient: new () => PrismaClientType };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClientType };
+
+export const prisma: PrismaClientType = globalForPrisma.prisma ?? new PrismaClient();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 

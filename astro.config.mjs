@@ -16,7 +16,6 @@ export default defineConfig({
   vite: {
     ssr: {
       noExternal: ['@supabase/ssr'],
-      external: ['@prisma/client'],
     },
   },
 });
