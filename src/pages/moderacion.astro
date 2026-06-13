@@ -1,0 +1,824 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/layout/Navbar/index.astro';
+import Footer from '../components/layout/Footer/index.astro';
+import logoImg from '../assets/brand/logo.webp';
+import { isAuthenticated, isModerator, isAdmin } from '../lib/roles';
+import { submissionErrorMessage } from '../lib/submission-errors';
+import { prisma } from '../lib/prisma';
+import styles from '../styles/moderacion.module.css';
+
+const user = Astro.locals.user;
+if (!isAuthenticated(user)) {
+  return Astro.redirect('/login?next=' + encodeURIComponent('/moderacion'), 303);
+}
+if (!isModerator(user)) {
+  return Astro.redirect('/', 303);
+}
+
+type Tab = 'job' | 'resource' | 'project' | 'event' | 'featured';
+type Mode = 'pending' | 'active' | 'archived';
+const tabParam = Astro.url.searchParams.get('tab');
+const tab: Tab = tabParam === 'resource' || tabParam === 'project' || tabParam === 'event' || tabParam === 'featured' ? tabParam : 'job';
+const modeParam = Astro.url.searchParams.get('mode');
+const mode: Mode = modeParam === 'active' ? 'active' : modeParam === 'archived' ? 'archived' : 'pending';
+
+const isPending = mode === 'pending';
+const isArchived = mode === 'archived';
+const statusFilter = isPending ? 'pending' : 'approved';
+
+const now = new Date();
+
+const [jobs, resources, projects, events, featuredCandidates] = await Promise.all([
+  prisma.job.findMany({
+    where: isArchived
+      ? { status: 'approved', expiresAt: { not: null, lt: now } }
+      : isPending
+        ? { status: 'pending' }
+        : { status: 'approved', OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    select: {
+      id: true, title: true, company: true, modality: true, category: true,
+      status: true, createdAt: true, authorId: true, requirements: true,
+      salaryMin: true, salaryMax: true, currency: true, location: true, contact: true,
+      featured: true, expiresAt: true,
+    },
+  }),
+  prisma.resource.findMany({
+    where: { status: statusFilter },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    select: {
+      id: true, title: true, type: true, category: true, url: true,
+      status: true, createdAt: true, authorId: true, description: true,
+      tags: true, addedBy: true, featured: true,
+    },
+  }),
+  prisma.project.findMany({
+    where: { status: statusFilter },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    select: {
+      id: true, title: true, category: true, projectStatus: true,
+      status: true, createdAt: true, authorId: true, description: true,
+      technologies: true, authorName: true, repo: true, demo: true, featured: true,
+    },
+  }),
+  prisma.event.findMany({
+    where: { status: statusFilter },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    select: {
+      id: true, title: true, eventType: true, category: true,
+      status: true, createdAt: true, authorId: true, description: true,
+      startDate: true, endDate: true, startTime: true, location: true,
+      url: true, contactInfo: true, maxParticipants: true, featured: true,
+    },
+  }),
+  prisma.featuredCandidate.findMany({
+    where: { status: statusFilter },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    select: {
+      id: true, name: true, role: true, bio: true, tags: true,
+      availability: true, topSkill: true, image: true,
+      status: true, createdAt: true, profileId: true, motivation: true, isActive: true,
+    },
+  }),
+]);
+
+const authorIds = Array.from(
+  new Set(
+    [...jobs, ...resources, ...projects, ...events]
+      .map((r) => r.authorId)
+      .filter((id): id is string => Boolean(id)),
+  ),
+);
+
+const profileIds = Array.from(
+  new Set(
+    featuredCandidates
+      .map((c) => c.profileId)
+      .filter((id): id is string => Boolean(id)),
+  ),
+);
+
+const profiles = profileIds.length
+  ? await prisma.profile.findMany({
+      where: { id: { in: profileIds } },
+      select: { id: true, username: true, displayName: true },
+    })
+  : [];
+
+const profileName = (id: string | null): string => {
+  if (!id) return '—';
+  const p = profiles.find((x) => x.id === id);
+  if (!p) return id.slice(0, 8);
+  return p.displayName || p.username || id.slice(0, 8);
+};
+
+const authors = authorIds.length
+  ? await prisma.profile.findMany({
+      where: { id: { in: authorIds } },
+      select: { id: true, username: true, displayName: true },
+    })
+  : [];
+
+const authorName = (id: string | null): string => {
+  if (!id) return '—';
+  const a = authors.find((x) => x.id === id);
+  if (!a) return id.slice(0, 8);
+  return a.displayName || a.username || id.slice(0, 8);
+};
+
+const errorMessage = submissionErrorMessage(Astro.url.searchParams.get('error'));
+const doneAction = Astro.url.searchParams.get('done');
+const doneType = Astro.url.searchParams.get('type');
+
+const ACTION_LABELS: Record<string, string> = {
+  approve: 'aprobado', reject: 'rechazado', remove: 'eliminado', reopen: 'reabierto',
+};
+
+const TYPE_LABELS: Record<Tab, string> = {
+  job: 'empleo', resource: 'recurso', project: 'proyecto', event: 'evento', featured: 'perfil destacado',
+};
+
+const formatDate = (d: Date): string =>
+  d.toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
+
+const formatSalary = (min: number | null, max: number | null, cur: string | null): string => {
+  const c = cur ?? '';
+  if (min == null && max == null) return '';
+  if (min != null && max != null) return `${c} ${min}–${max}`;
+  return `${c} ${min ?? max}`;
+};
+---
+
+<Layout title="Moderación — Nexo Digital" description="Cola de revisión de envíos a la comunidad Nexo Digital.">
+  <Navbar />
+  <main class={styles.page}>
+    <div class={styles.container}>
+      <header class={styles.header}>
+        <h1 class={styles.title}>🛡️ Moderación</h1>
+        <p class={styles.subtitle}>
+          Revisá los envíos pendientes. Aprobar los hace públicos; rechazar los marca como tales para el autor. Al rechazar, debés escribir el motivo para que el autor reciba una devolución.
+        </p>
+      </header>
+
+      {doneAction && doneType && ACTION_LABELS[doneAction] && (
+        <p class={styles.flashOk}>
+          ✅ {TYPE_LABELS[doneType as Tab] ?? 'Envío'} {ACTION_LABELS[doneAction]} correctamente.
+        </p>
+      )}
+      {errorMessage && (
+        <p class={styles.flashErr} role="alert">
+          ⚠️ {errorMessage} <code>{Astro.url.searchParams.get('error')}</code>
+        </p>
+      )}
+
+      <div class={styles.modeToggle}>
+        <a href={`/moderacion?tab=${tab}&mode=pending`} class={`${styles.modeBtn} ${isPending ? styles.modeBtnActive : ''}`}>📋 Pendientes</a>
+        <a href={`/moderacion?tab=${tab}&mode=active`} class={`${styles.modeBtn} ${mode === 'active' ? styles.modeBtnActiveGreen : ''}`}>🟢 Activos</a>
+        {tab === 'job' && (
+          <a href={`/moderacion?tab=job&mode=archived`} class={`${styles.modeBtn} ${isArchived ? styles.modeBtnActiveYellow : ''}`}>📦 Archivados</a>
+        )}
+        {isAdmin(user) && (
+          <a href="/moderacion/admin" class={`${styles.modeBtn} ${styles.modeBtnAdmin}`}>⚙️ Admin</a>
+        )}
+      </div>
+
+      <nav class={styles.tabs}>
+        <a id="tab-job" href={`/moderacion?tab=job&mode=${mode}`} class={`${styles.tab} ${tab === 'job' ? styles.tabActive : ''}`}>
+          💼 Empleos <span class={styles.tabCount}>{jobs.length}</span>
+        </a>
+        <a id="tab-resource" href={`/moderacion?tab=resource&mode=${mode}`} class={`${styles.tab} ${tab === 'resource' ? styles.tabActive : ''}`}>
+          📦 Recursos <span class={styles.tabCount}>{resources.length}</span>
+        </a>
+        <a id="tab-project" href={`/moderacion?tab=project&mode=${mode}`} class={`${styles.tab} ${tab === 'project' ? styles.tabActive : ''}`}>
+          🚀 Proyectos <span class={styles.tabCount}>{projects.length}</span>
+        </a>
+        <a id="tab-event" href={`/moderacion?tab=event&mode=${mode}`} class={`${styles.tab} ${tab === 'event' ? styles.tabActive : ''}`}>
+          📅 Eventos <span class={styles.tabCount}>{events.length}</span>
+        </a>
+        <a id="tab-featured" href={`/moderacion?tab=featured&mode=${mode}`} class={`${styles.tab} ${tab === 'featured' ? styles.tabActive : ''}`}>
+          ⭐ Perfiles destacados <span class={styles.tabCount}>{featuredCandidates.length}</span>
+        </a>
+      </nav>
+
+      {tab === 'job' && (
+        jobs.length === 0 ? (
+          <div class={styles.empty}>
+            {isPending ? 'No hay ofertas de empleo pendientes. 🎉' : (
+              <div>
+                <p>No hay ofertas de empleo activas.</p>
+                <a href="/empleos/nuevo" style="display:inline-block;margin-top:0.75rem;padding:0.5rem 1rem;border-radius:8px;border:1px solid rgba(0,245,255,0.3);background:rgba(0,245,255,0.08);color:var(--cyan);text-decoration:none;font-weight:600;font-size:0.85rem;">+ Agregar empleo</a>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div class={styles.list}>
+            {jobs.map((row) => (
+              <article class={styles.item}>
+                <div class={styles.itemHeader}>
+                  <div>
+                    <div class={styles.itemKicker}>💼 {row.category} • {row.modality}</div>
+                    <h2 class={styles.itemTitle}>{row.title}</h2>
+                    <div class={styles.itemMeta}>
+                      <span>🏢 {row.company}</span>
+                      {formatSalary(row.salaryMin, row.salaryMax, row.currency) && (
+                        <span>💰 {formatSalary(row.salaryMin, row.salaryMax, row.currency)}</span>
+                      )}
+                      {row.location && <span>📍 {row.location}</span>}
+                      <span>👤 {authorName(row.authorId)}</span>
+                      <span>🕒 {formatDate(row.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+                <p class={styles.itemBody}>📧 {row.contact}</p>
+                {row.requirements.length > 0 && (
+                  <div class={styles.tags}>
+                    {row.requirements.map((r) => <span class={styles.tag}>{r}</span>)}
+                  </div>
+                )}
+                {isPending ? (
+                  <form class={styles.actions} method="POST" action="/api/moderacion">
+                    <input type="hidden" name="target_type" value="job" />
+                    <input type="hidden" name="target_id" value={row.id} />
+                    <textarea class={styles.notes} name="notes" rows="2" maxlength="500" placeholder="Nota para el autor (obligatoria al rechazar)…" data-reject-required></textarea>
+                    <div class={styles.actionsRow}>
+                      <button type="submit" name="action" value="approve" class={styles.btnOk}>✅ Aprobar</button>
+                      <button type="submit" name="action" value="reject" class={styles.btnNo}>❌ Rechazar</button>
+                    </div>
+                  </form>
+                ) : (
+                  <div class={styles.actions}>
+                    <div class={styles.actionsRow}>
+                      <button type="button" class={styles.btnEdit} data-edit="job" data-id={row.id}>✏️ Modificar</button>
+                      <button type="button" class={styles.btnOk} data-toggle="featured" data-type="job" data-id={row.id} data-value={row.featured ? 'false' : 'true'}>
+                        {row.featured ? '⭐ Quitar destacado' : '⭐ Destacar'}
+                      </button>
+                      <button type="button" class={styles.btnNo} data-delete="job" data-id={row.id}>🗑️ Quitar</button>
+                    </div>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )
+      )}
+
+      {tab === 'resource' && (
+        resources.length === 0 ? (
+          <div class={styles.empty}>
+            {isPending ? 'No hay recursos pendientes. 🎉' : (
+              <div>
+                <p>No hay recursos activos.</p>
+                <a href="/recursos/nuevo" style="display:inline-block;margin-top:0.75rem;padding:0.5rem 1rem;border-radius:8px;border:1px solid rgba(0,245,255,0.3);background:rgba(0,245,255,0.08);color:var(--cyan);text-decoration:none;font-weight:600;font-size:0.85rem;">+ Agregar recurso</a>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div class={styles.list}>
+            {resources.map((row) => (
+              <article class={styles.item}>
+                <div class={styles.itemHeader}>
+                  <div>
+                    <div class={styles.itemKicker}>📦 {row.type} • {row.category}</div>
+                    <h2 class={styles.itemTitle}>{row.title}</h2>
+                    <div class={styles.itemMeta}>
+                      <span>👤 {authorName(row.authorId)}</span>
+                      <span>🕒 {formatDate(row.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+                <p class={styles.itemBody}>{row.description}</p>
+                <p class={styles.itemFooter}>
+                  <a class={styles.urlLink} href={row.url} target="_blank" rel="noopener noreferrer">🔗 {row.url}</a>
+                </p>
+                {row.tags.length > 0 && (
+                  <div class={styles.tags}>
+                    {row.tags.map((t) => <span class={styles.tag}>{t}</span>)}
+                  </div>
+                )}
+                <p class={styles.itemFooter}>Recomendado por <strong>{row.addedBy}</strong></p>
+                {isPending ? (
+                  <form class={styles.actions} method="POST" action="/api/moderacion">
+                    <input type="hidden" name="target_type" value="resource" />
+                    <input type="hidden" name="target_id" value={row.id} />
+                    <textarea class={styles.notes} name="notes" rows="2" maxlength="500" placeholder="Nota para el autor (obligatoria al rechazar)…" data-reject-required></textarea>
+                    <div class={styles.actionsRow}>
+                      <button type="submit" name="action" value="approve" class={styles.btnOk}>✅ Aprobar</button>
+                      <button type="submit" name="action" value="reject" class={styles.btnNo}>❌ Rechazar</button>
+                    </div>
+                  </form>
+                ) : (
+                  <div class={styles.actions}>
+                    <div class={styles.actionsRow}>
+                      <button type="button" class={styles.btnEdit} data-edit="resource" data-id={row.id}>✏️ Modificar</button>
+                      <button type="button" class={styles.btnOk} data-toggle="featured" data-type="resource" data-id={row.id} data-value={row.featured ? 'false' : 'true'}>
+                        {row.featured ? '⭐ Quitar destacado' : '⭐ Destacar'}
+                      </button>
+                      <button type="button" class={styles.btnNo} data-delete="resource" data-id={row.id}>🗑️ Quitar</button>
+                    </div>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )
+      )}
+
+      {tab === 'project' && (
+        projects.length === 0 ? (
+          <div class={styles.empty}>
+            {isPending ? 'No hay proyectos pendientes. 🎉' : (
+              <div>
+                <p>No hay proyectos activos.</p>
+                <a href="/proyectos/nuevo" style="display:inline-block;margin-top:0.75rem;padding:0.5rem 1rem;border-radius:8px;border:1px solid rgba(0,245,255,0.3);background:rgba(0,245,255,0.08);color:var(--cyan);text-decoration:none;font-weight:600;font-size:0.85rem;">+ Agregar proyecto</a>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div class={styles.list}>
+            {projects.map((row) => (
+              <article class={styles.item}>
+                <div class={styles.itemHeader}>
+                  <div>
+                    <div class={styles.itemKicker}>🚀 {row.category} • {row.projectStatus}{row.featured ? ' • ⭐ Destacado' : ''}</div>
+                    <h2 class={styles.itemTitle}>{row.title}</h2>
+                    <div class={styles.itemMeta}>
+                      <span>👤 {row.authorName}</span>
+                      <span>👥 {authorName(row.authorId)}</span>
+                      <span>🕒 {formatDate(row.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+                <p class={styles.itemBody}>{row.description}</p>
+                {row.technologies.length > 0 && (
+                  <div class={styles.tags}>
+                    {row.technologies.map((t) => <span class={styles.tag}>{t}</span>)}
+                  </div>
+                )}
+                <p class={styles.itemFooter}>
+                  {row.repo && <a class={styles.urlLink} href={row.repo} target="_blank" rel="noopener noreferrer">📦 Repo</a>}
+                  {row.demo && <a class={styles.urlLink} href={row.demo} target="_blank" rel="noopener noreferrer">🌐 Demo</a>}
+                </p>
+                {isPending ? (
+                  <form class={styles.actions} method="POST" action="/api/moderacion">
+                    <input type="hidden" name="target_type" value="project" />
+                    <input type="hidden" name="target_id" value={row.id} />
+                    <textarea class={styles.notes} name="notes" rows="2" maxlength="500" placeholder="Nota para el autor (obligatoria al rechazar)…" data-reject-required></textarea>
+                    <div class={styles.actionsRow}>
+                      <button type="submit" name="action" value="approve" class={styles.btnOk}>✅ Aprobar</button>
+                      <button type="submit" name="action" value="reject" class={styles.btnNo}>❌ Rechazar</button>
+                    </div>
+                  </form>
+                ) : (
+                  <div class={styles.actions}>
+                    <div class={styles.actionsRow}>
+                      <button type="button" class={styles.btnEdit} data-edit="project" data-id={row.id}>✏️ Modificar</button>
+                      <button type="button" class={styles.btnOk} data-toggle="featured" data-type="project" data-id={row.id} data-value={row.featured ? 'false' : 'true'}>
+                        {row.featured ? '⭐ Quitar destacado' : '⭐ Destacar'}
+                      </button>
+                      <button type="button" class={styles.btnNo} data-delete="project" data-id={row.id}>🗑️ Quitar</button>
+                    </div>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )
+      )}
+
+      {tab === 'event' && (
+        events.length === 0 ? (
+          <div class={styles.empty}>
+            {isPending ? 'No hay eventos pendientes. 🎉' : (
+              <div>
+                <p>No hay eventos activos.</p>
+                <a href="/eventos/nuevo" style="display:inline-block;margin-top:0.75rem;padding:0.5rem 1rem;border-radius:8px;border:1px solid rgba(0,245,255,0.3);background:rgba(0,245,255,0.08);color:var(--cyan);text-decoration:none;font-weight:600;font-size:0.85rem;">+ Agregar evento</a>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div class={styles.list}>
+            {events.map((row) => (
+              <article class={styles.item}>
+                <div class={styles.itemHeader}>
+                  <div>
+                    <div class={styles.itemKicker}>📅 {row.category} • {row.eventType}</div>
+                    <h2 class={styles.itemTitle}>{row.title}</h2>
+                    <div class={styles.itemMeta}>
+                      <span>👤 {authorName(row.authorId)}</span>
+                      <span>🕒 {formatDate(row.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+                <p class={styles.itemBody}>{row.description}</p>
+                <p class={styles.itemFooter}>
+                  <span>📅 {row.startDate.toLocaleDateString('es')}{row.endDate ? ` → ${row.endDate.toLocaleDateString('es')}` : ''}</span>
+                  {row.startTime && <span> ⏰ {row.startTime}</span>}
+                  {row.location && <span> 📍 {row.location}</span>}
+                  {row.url && <a class={styles.urlLink} href={row.url} target="_blank" rel="noopener noreferrer">🔗 Link</a>}
+                </p>
+                {isPending ? (
+                  <form class={styles.actions} method="POST" action="/api/moderacion">
+                    <input type="hidden" name="target_type" value="event" />
+                    <input type="hidden" name="target_id" value={row.id} />
+                    <textarea class={styles.notes} name="notes" rows="2" maxlength="500" placeholder="Nota para el autor (obligatoria al rechazar)…" data-reject-required></textarea>
+                    <div class={styles.actionsRow}>
+                      <button type="submit" name="action" value="approve" class={styles.btnOk}>✅ Aprobar</button>
+                      <button type="submit" name="action" value="reject" class={styles.btnNo}>❌ Rechazar</button>
+                    </div>
+                  </form>
+                ) : (
+                  <div class={styles.actions}>
+                    <div class={styles.actionsRow}>
+                      <button type="button" class={styles.btnEdit} data-edit="event" data-id={row.id}>✏️ Modificar</button>
+                      <button type="button" class={styles.btnOk} data-toggle="featured" data-type="event" data-id={row.id} data-value={row.featured ? 'false' : 'true'}>
+                        {row.featured ? '⭐ Quitar destacado' : '⭐ Destacar'}
+                      </button>
+                      <button type="button" class={styles.btnNo} data-delete="event" data-id={row.id}>🗑️ Quitar</button>
+                    </div>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )
+      )}
+
+      {tab === 'featured' && (
+        featuredCandidates.length === 0 ? (
+          <div class={styles.empty}>
+            {isPending ? 'No hay perfiles destacados pendientes. 🎉' : (
+              <div>
+                <p>No hay perfiles destacados activos.</p>
+                <a href="/moderacion/admin#featured" style="display:inline-block;margin-top:0.75rem;padding:0.5rem 1rem;border-radius:8px;border:1px solid rgba(0,245,255,0.3);background:rgba(0,245,255,0.08);color:var(--cyan);text-decoration:none;font-weight:600;font-size:0.85rem;">+ Agregar perfil destacado</a>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div class={styles.list}>
+            {featuredCandidates.map((row) => (
+              <article class={styles.item}>
+                <div class={styles.itemHeader}>
+                  <div>
+                    <div class={styles.itemKicker}>⭐ {row.role} • {row.availability}</div>
+                    <h2 class={styles.itemTitle}>{row.name}</h2>
+                    <div class={styles.itemMeta}>
+                      <span>👤 {profileName(row.profileId)}</span>
+                      <span>🕒 {formatDate(row.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+                <p class={styles.itemBody}>{row.bio}</p>
+                {row.motivation && (
+                  <p class={styles.itemBody} style="font-style:italic;opacity:0.8;">💬 {row.motivation}</p>
+                )}
+                <div class={styles.tags}>
+                  {row.tags.map((t) => <span class={styles.tag}>{t}</span>)}
+                  <span class={styles.tag} style="color:var(--cyan);">⭐ {row.topSkill}</span>
+                </div>
+                {isPending ? (
+                  <form class={styles.actions} method="POST" action="/api/moderacion">
+                    <input type="hidden" name="target_type" value="featured" />
+                    <input type="hidden" name="target_id" value={row.id} />
+                    <textarea class={styles.notes} name="notes" rows="2" maxlength="500" placeholder="Nota para el autor (obligatoria al rechazar)…" data-reject-required></textarea>
+                    <div class={styles.actionsRow}>
+                      <button type="submit" name="action" value="approve" class={styles.btnOk}>✅ Aprobar</button>
+                      <button type="submit" name="action" value="reject" class={styles.btnNo}>❌ Rechazar</button>
+                    </div>
+                  </form>
+                ) : (
+                  <div class={styles.actions}>
+                    <div class={styles.actionsRow}>
+                      <button type="button" class={styles.btnEdit} data-edit="featured" data-id={row.id}>✏️ Modificar</button>
+                      <button type="button" class={styles.btnOk} data-toggle="featured" data-type="featured" data-id={row.id} data-value={row.isActive ? 'false' : 'true'}>
+                        {row.isActive ? '🟢 Desactivar' : '🟢 Activar'}
+                      </button>
+                      <button type="button" class={styles.btnNo} data-delete="featured" data-id={row.id}>🗑️ Quitar</button>
+                    </div>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )
+      )}
+    </div>
+  </main>
+  <Footer logoImg={logoImg} />
+</Layout>
+
+<!-- ════════════ Edit Modal ════════════ -->
+<div id="editModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;padding:2rem 1.5rem;position:relative;">
+    <button id="closeEditModal" style="position:absolute;top:0.75rem;right:1rem;background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;">&times;</button>
+    <h3 id="editModalTitle" style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:1rem;">Modificar contenido</h3>
+    <form id="editForm" style="display:flex;flex-direction:column;gap:0.75rem;">
+      <input type="hidden" name="type" id="editType" />
+      <input type="hidden" name="id" id="editId" />
+      <div id="editFields"></div>
+      <div id="editFeedback" style="display:none;padding:0.6rem 0.8rem;border-radius:8px;font-size:0.85rem;"></div>
+      <div style="display:flex;gap:0.5rem;">
+        <button type="submit" style="padding:0.65rem 1.2rem;border-radius:8px;border:1px solid rgba(34,197,94,0.4);background:rgba(34,197,94,0.15);color:#86efac;font-weight:600;font-size:0.9rem;cursor:pointer;">Guardar cambios</button>
+        <button type="button" id="cancelEdit" style="padding:0.65rem 1.2rem;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-weight:600;font-size:0.9rem;cursor:pointer;">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('textarea[data-reject-required]').forEach((textarea) => {
+    const form = textarea.closest('form');
+    if (!form) return;
+
+    const rejectBtn = form.querySelector('button[value="reject"]');
+    if (!rejectBtn) return;
+
+    rejectBtn.addEventListener('click', () => {
+      if (!textarea.value.trim()) {
+        textarea.required = true;
+        textarea.focus();
+      } else {
+        textarea.required = false;
+      }
+    });
+
+    textarea.addEventListener('input', () => {
+      textarea.required = false;
+    });
+  });
+
+  // ─── Active mode: delete ───
+  function updateTabCount(type: string, delta: number) {
+    const tabMap: Record<string, string> = {
+      job: 'tab-job', resource: 'tab-resource', project: 'tab-project',
+      event: 'tab-event', featured: 'tab-featured',
+    };
+    const tabEl = document.getElementById(tabMap[type] ?? '');
+    if (!tabEl) return;
+    const countEl = tabEl.querySelector('span');
+    if (!countEl) return;
+    const current = parseInt(countEl.textContent ?? '0');
+    const next = Math.max(0, current + delta);
+    countEl.textContent = String(next);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-delete]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const type = btn.dataset.delete;
+      const id = btn.dataset.id;
+      if (!type || !id) return;
+      if (!confirm('¿Eliminar este elemento?')) return;
+      btn.disabled = true;
+      try {
+        const res = await fetch(`/api/admin/content?type=${type}&id=${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          btn.closest('article')?.remove();
+          updateTabCount(type, -1);
+        } else {
+          alert('Error al eliminar.');
+          btn.disabled = false;
+        }
+      } catch {
+        alert('Error de conexión.');
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // ─── Active mode: toggle featured/active ───
+  document.querySelectorAll<HTMLButtonElement>('[data-toggle="featured"]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const type = btn.dataset.type;
+      const id = btn.dataset.id;
+      const value = btn.dataset.value;
+      if (!type || !id || !value) return;
+      btn.disabled = true;
+      try {
+        const formData = new FormData();
+        formData.append('type', type);
+        formData.append('id', id);
+        formData.append('field', 'featured');
+        formData.append('value', value);
+        const res = await fetch('/api/admin/content', { method: 'PUT', body: formData });
+        if (res.ok) {
+          location.reload();
+        } else {
+          alert('Error al actualizar.');
+          btn.disabled = false;
+        }
+      } catch {
+        alert('Error de conexión.');
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // ─── Active mode: edit modal ───
+  const editModal = document.getElementById('editModal')!;
+  const closeEditBtn = document.getElementById('closeEditModal');
+  const cancelEditBtn = document.getElementById('cancelEdit');
+  const editForm = document.getElementById('editForm') as HTMLFormElement;
+  const editFields = document.getElementById('editFields')!;
+  const editFeedback = document.getElementById('editFeedback')!;
+  const editType = document.getElementById('editType') as HTMLInputElement;
+  const editId = document.getElementById('editId') as HTMLInputElement;
+  const editTitle = document.getElementById('editModalTitle')!;
+
+  const TYPE_LABELS_MODAL: Record<string, string> = {
+    job: 'Empleo', resource: 'Recurso', project: 'Proyecto', event: 'Evento', featured: 'Perfil destacado',
+  };
+
+  const FIELD_DEFS: Record<string, Array<{ name: string; label: string; type: string; required?: boolean; options?: string[]; placeholder?: string }>> = {
+    job: [
+      { name: 'title', label: 'Título', type: 'text', required: true, placeholder: 'Título del empleo' },
+      { name: 'company', label: 'Empresa', type: 'text', required: true, placeholder: 'Nombre de la empresa' },
+      { name: 'description', label: 'Descripción', type: 'textarea', required: true, placeholder: 'Descripción del puesto' },
+      { name: 'requirements', label: 'Requisitos (separados por coma)', type: 'text', required: true, placeholder: 'React, TypeScript, Git' },
+      { name: 'modality', label: 'Modalidad', type: 'select', required: true, options: ['remoto', 'hibrido', 'presencial'] },
+      { name: 'category', label: 'Categoría', type: 'select', required: true, options: ['desarrollo', 'diseño', 'ia', 'edicion', 'audio', 'marketing', 'rrhh'] },
+      { name: 'salaryMin', label: 'Salario mínimo', type: 'number' },
+      { name: 'salaryMax', label: 'Salario máximo', type: 'number' },
+      { name: 'currency', label: 'Moneda', type: 'select', options: ['USD', 'ARS', 'EUR', 'BRL', 'MXN'] },
+      { name: 'contact', label: 'Contacto', type: 'text', required: true, placeholder: 'Email o URL' },
+      { name: 'location', label: 'Ubicación', type: 'text', placeholder: 'Ciudad, País' },
+      { name: 'expiresAt', label: 'Fecha de expiración', type: 'date' },
+    ],
+    resource: [
+      { name: 'title', label: 'Título', type: 'text', required: true },
+      { name: 'description', label: 'Descripción', type: 'textarea', required: true },
+      { name: 'type', label: 'Tipo', type: 'select', required: true, options: ['herramienta', 'tutorial', 'recurso', 'template', 'documentacion'] },
+      { name: 'category', label: 'Categoría', type: 'select', required: true, options: ['desarrollo', 'diseño', 'ia', 'marketing', 'audio', 'edicion', 'negocios', 'aprendizaje', 'iot'] },
+      { name: 'url', label: 'URL', type: 'url', required: true },
+      { name: 'tags', label: 'Tags (separados por coma)', type: 'text' },
+      { name: 'addedBy', label: 'Recomendado por', type: 'text', required: true },
+    ],
+    project: [
+      { name: 'title', label: 'Título', type: 'text', required: true },
+      { name: 'description', label: 'Descripción', type: 'textarea', required: true },
+      { name: 'category', label: 'Categoría', type: 'select', required: true, options: ['desarrollo', 'diseño', 'ia', 'iot', 'edicion', 'audio', 'gamedev'] },
+      { name: 'technologies', label: 'Tecnologías (separadas por coma)', type: 'text', required: true },
+      { name: 'authorName', label: 'Autor', type: 'text', required: true },
+      { name: 'authorGithub', label: 'GitHub', type: 'text' },
+      { name: 'repo', label: 'Repositorio URL', type: 'url' },
+      { name: 'demo', label: 'Demo URL', type: 'url' },
+      { name: 'projectStatus', label: 'Estado', type: 'select', required: true, options: ['activo', 'en_progreso', 'archivado'] },
+    ],
+    event: [
+      { name: 'title', label: 'Título', type: 'text', required: true },
+      { name: 'description', label: 'Descripción', type: 'textarea', required: true },
+      { name: 'eventType', label: 'Tipo', type: 'select', required: true, options: ['presencial', 'en_linea', 'hibrido'] },
+      { name: 'category', label: 'Categoría', type: 'select', required: true, options: ['conferencia', 'workshop', 'networking', 'hackathon', 'curso', 'encuentro', 'otro'] },
+      { name: 'startDate', label: 'Fecha inicio', type: 'date', required: true },
+      { name: 'endDate', label: 'Fecha fin', type: 'date' },
+      { name: 'startTime', label: 'Hora', type: 'time' },
+      { name: 'location', label: 'Ubicación', type: 'text' },
+      { name: 'url', label: 'URL', type: 'url' },
+      { name: 'contactInfo', label: 'Contacto', type: 'text' },
+      { name: 'maxParticipants', label: 'Max participantes', type: 'number' },
+    ],
+    featured: [
+      { name: 'name', label: 'Nombre', type: 'text', required: true },
+      { name: 'role', label: 'Rol', type: 'text', required: true },
+      { name: 'bio', label: 'Bio', type: 'textarea', required: true },
+      { name: 'tags', label: 'Tags (separados por coma)', type: 'text', required: true },
+      { name: 'availability', label: 'Disponibilidad', type: 'text', required: true },
+      { name: 'topSkill', label: 'Skill destacada', type: 'text', required: true },
+    ],
+  };
+
+  // Store current data for each item type
+  const ITEMS_DATA: Record<string, Record<string, any>> = {};
+
+  // Extract data from DOM articles
+  document.querySelectorAll<HTMLButtonElement>('[data-edit]').forEach((btn) => {
+    const type = btn.dataset.edit!;
+    const id = btn.dataset.id!;
+    const article = btn.closest('article');
+    if (!article) return;
+
+    // Get basic data from the article text content
+    const titleEl = article.querySelector('h2');
+    const bodyEl = article.querySelector('p');
+    const tagsEls = article.querySelectorAll('[class*="tag"]');
+    const metaEl = article.querySelector('[class*="meta"]');
+
+    const title = titleEl?.textContent?.trim() ?? '';
+    const description = bodyEl?.textContent?.trim() ?? '';
+
+    // Get tags
+    const tags: string[] = [];
+    tagsEls.forEach(tag => {
+      const text = tag.textContent?.trim();
+      if (text && !text.includes('•') && !text.includes('⭐')) tags.push(text);
+    });
+
+    // Get category and other meta from kicker
+    const kickerEl = article.querySelector('[class*="kicker"]');
+    const kickerText = kickerEl?.textContent?.trim() ?? '';
+
+    ITEMS_DATA[`${type}:${id}`] = {
+      id,
+      title,
+      description,
+      tags,
+      kicker: kickerText,
+    };
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-edit]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const type = btn.dataset.edit!;
+      const id = btn.dataset.id!;
+      if (!type || !id) return;
+
+      editType.value = type;
+      editId.value = id;
+      editTitle.textContent = `Modificar ${TYPE_LABELS_MODAL[type] ?? type}`;
+      editFields.innerHTML = '';
+      editFeedback.style.display = 'none';
+
+      // Fetch current data from API
+      let itemData: Record<string, any> = {};
+      try {
+        const res = await fetch(`/api/admin/content?type=${type}&id=${id}`);
+        if (res.ok) {
+          itemData = await res.json();
+        }
+      } catch {}
+
+      const fields = FIELD_DEFS[type] ?? [];
+      for (const field of fields) {
+        const val = itemData[field.name] ?? '';
+        const displayVal = Array.isArray(val) ? val.join(', ') : (val ?? '');
+
+        let inputHtml = '';
+        if (field.type === 'textarea') {
+          inputHtml = `<textarea name="${field.name}" placeholder="${field.placeholder ?? ''}" ${field.required ? 'required' : ''} style="width:100%;padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;resize:vertical;min-height:60px;">${String(displayVal).replace(/</g, '&lt;')}</textarea>`;
+        } else if (field.type === 'select') {
+          const optionsHtml = (field.options ?? []).map(o =>
+            `<option value="${o}" ${o === String(val) || o === String(displayVal) ? 'selected' : ''}>${o}</option>`
+          ).join('');
+          inputHtml = `<select name="${field.name}" ${field.required ? 'required' : ''} style="width:100%;padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;cursor:pointer;">${optionsHtml}</select>`;
+        } else if (field.type === 'date') {
+          const dateVal = displayVal ? new Date(String(displayVal)).toISOString().split('T')[0] : '';
+          inputHtml = `<input type="date" name="${field.name}" value="${dateVal}" ${field.required ? 'required' : ''} style="width:100%;padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />`;
+        } else if (field.type === 'time') {
+          inputHtml = `<input type="time" name="${field.name}" value="${String(displayVal)}" ${field.required ? 'required' : ''} style="width:100%;padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />`;
+        } else {
+          inputHtml = `<input type="${field.type}" name="${field.name}" value="${String(displayVal).replace(/"/g, '&quot;')}" placeholder="${field.placeholder ?? ''}" ${field.required ? 'required' : ''} style="width:100%;padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />`;
+        }
+
+        editFields.innerHTML += `
+          <label style="display:flex;flex-direction:column;gap:0.3rem;font-size:0.78rem;color:var(--text-muted);">
+            ${field.label}
+            ${inputHtml}
+          </label>
+        `;
+      }
+
+      editModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeEditModal() {
+    editModal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  closeEditBtn?.addEventListener('click', closeEditModal);
+  cancelEditBtn?.addEventListener('click', closeEditModal);
+  editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
+
+  editForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = editForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+    editFeedback.style.display = 'none';
+
+    try {
+      const formData = new FormData(editForm);
+      const res = await fetch('/api/admin/content', { method: 'PUT', body: formData });
+      if (res.ok) {
+        location.reload();
+      } else {
+        const data = await res.json();
+        editFeedback.style.cssText = 'display:block;padding:0.6rem 0.8rem;border-radius:8px;font-size:0.85rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#fca5a5;';
+        editFeedback.textContent = data.error ?? 'Error al guardar.';
+      }
+    } catch {
+      editFeedback.style.cssText = 'display:block;padding:0.6rem 0.8rem;border-radius:8px;font-size:0.85rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#fca5a5;';
+      editFeedback.textContent = 'Error de conexión.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Guardar cambios';
+    }
+  });
+</script>

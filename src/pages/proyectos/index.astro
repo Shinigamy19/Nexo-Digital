@@ -1,4 +1,6 @@
 ---
+export const prerender = false;
+
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/layout/Navbar/index.astro';
 import Footer from '../../components/layout/Footer/index.astro';
@@ -6,9 +8,9 @@ import ProjectsHero from '../../components/projects/ProjectsHero/index.astro';
 import ProjectsList from '../../components/projects/ProjectsList/index.astro';
 import logoImg from '../../assets/brand/logo.webp';
 import projectsData from '../../data/projects.json';
+import { prisma } from '../../lib/prisma';
 
-const GITHUB_REPO = "https://github.com/NexoDigital-Lab/Nexo-Digital";
-const NEW_PROJECT_URL = `${GITHUB_REPO}/issues/new?template=nuevo_proyecto.md&title=%5BPROYECTO%5D+Nombre+de+tu+proyecto&labels=proyecto,pendiente-revision`;
+const NEW_PROJECT_URL = '/proyectos/nuevo';
 
 const filterOptions = [
   { value: 'desarrollo', label: '💻 Desarrollo' },
@@ -19,6 +21,45 @@ const filterOptions = [
   { value: 'audio',      label: '🎧 Audio' },
   { value: 'gamedev',    label: '🕹️ Game Dev' },
 ];
+
+let data = projectsData;
+
+try {
+  const dbProjects = await prisma.project.findMany({
+    where: { status: 'approved' },
+    orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+    take: 100,
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      category: true,
+      technologies: true,
+      authorName: true,
+      authorGithub: true,
+      repo: true,
+      demo: true,
+      projectStatus: true,
+      featured: true,
+    },
+  });
+
+  if (dbProjects.length > 0) {
+    data = dbProjects.map(p => ({
+      id: p.id,
+      title: p.title,
+      description: p.description,
+      category: p.category,
+      technologies: p.technologies,
+      author: p.authorName,
+      authorGithub: p.authorGithub ?? '',
+      repo: p.repo ?? '',
+      demo: p.demo ?? '',
+      status: p.projectStatus === 'en_progreso' ? 'en progreso' : p.projectStatus,
+      featured: p.featured,
+    }));
+  }
+} catch {}
 ---
 
 <Layout
@@ -29,11 +70,11 @@ const filterOptions = [
 
   <main>
     <ProjectsHero submitUrl={NEW_PROJECT_URL} />
-    
-    <ProjectsList 
-      projectsData={projectsData} 
-      filterOptions={filterOptions} 
-      submitUrl={NEW_PROJECT_URL} 
+
+    <ProjectsList
+      projectsData={data}
+      filterOptions={filterOptions}
+      submitUrl={NEW_PROJECT_URL}
     />
   </main>
 

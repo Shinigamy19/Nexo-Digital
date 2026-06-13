@@ -1,0 +1,99 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/layout/Navbar/index.astro';
+import Footer from '../../components/layout/Footer/index.astro';
+import logoImg from '../../assets/brand/logo.webp';
+import { prisma } from '../../lib/prisma';
+import fallbackEvents from '../../data/eventos.json';
+import EventsHero from '../../components/events/EventsHero/index.astro';
+import EventsList from '../../components/events/EventsList/index.astro';
+
+const EVENT_TYPE_OPTIONS = [
+  { value: 'presencial', label: '📍 Presencial' },
+  { value: 'en_linea',   label: '💻 En línea' },
+  { value: 'hibrido',    label: '🔄 Híbrido' },
+];
+
+type DbEvent = {
+  id: string;
+  title: string;
+  description: string;
+  eventType: string;
+  category: string;
+  startDate: Date;
+  endDate: Date | null;
+  startTime: string | null;
+  location: string | null;
+  url: string | null;
+  contactInfo: string | null;
+  maxParticipants: number | null;
+};
+
+let eventsData = fallbackEvents;
+
+try {
+  const dbEvents = await prisma.event.findMany({
+    where: { status: 'approved' },
+    orderBy: { startDate: 'asc' },
+    take: 50,
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      eventType: true,
+      category: true,
+      startDate: true,
+      endDate: true,
+      startTime: true,
+      location: true,
+      url: true,
+      contactInfo: true,
+      maxParticipants: true,
+    },
+  });
+
+  if (dbEvents.length > 0) {
+    eventsData = (dbEvents as unknown as DbEvent[]).map(e => ({
+      id: e.id,
+      title: e.title,
+      description: e.description,
+      event_type: e.eventType,
+      category: e.category,
+      start_date: e.startDate instanceof Date ? e.startDate.toISOString().split('T')[0] : String(e.startDate),
+      end_date: e.endDate ? (e.endDate instanceof Date ? e.endDate.toISOString().split('T')[0] : String(e.endDate)) : null,
+      start_time: e.startTime,
+      location: e.location,
+      url: e.url,
+      contact_info: e.contactInfo,
+      max_participants: e.maxParticipants,
+    }));
+  }
+} catch {
+  // DB unavailable — using fallback JSON data
+}
+---
+
+<Layout
+  title="Eventos — Nexo Digital"
+  description="Eventos, workshops, hackathons y encuentros de la comunidad Nexo Digital. Participá y conectá con otros profesionales digitales."
+>
+  <Navbar />
+
+  <main>
+    <EventsHero publishUrl="/eventos/nuevo" />
+    <EventsList
+      eventsData={eventsData}
+      filterOptions={EVENT_TYPE_OPTIONS}
+      publishUrl="/eventos/nuevo"
+    />
+  </main>
+
+  <Footer logoImg={logoImg} />
+</Layout>
+
+<script>
+  import { initRevealObserver } from '../../scripts/reveal';
+  initRevealObserver();
+</script>

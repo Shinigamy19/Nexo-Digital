@@ -1,17 +1,62 @@
 {
-  "name": "absent-antimatter",
+  "name": "nexo-digital",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "description": "Comunidad para creadores del mundo digital — portal de empleos, recursos, proyectos y eventos con moderación y autenticación.",
+  "keywords": [
+    "astro",
+    "supabase",
+    "prisma",
+    "comunidad",
+    "empleos",
+    "recursos",
+    "proyectos",
+    "eventos",
+    "moderacion",
+    "2fa",
+    "totp"
+  ],
+  "homepage": "https://github.com/Shinigamy19/Nexo-Digital#readme",
+  "bugs": {
+    "url": "https://github.com/Shinigamy19/Nexo-Digital/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shinigamy19/Nexo-Digital.git"
+  },
+  "license": "MIT",
+  "author": "Nexo Digital Community",
   "engines": {
     "node": ">=22.12.0"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "start": "node --env-file-if-exists=.env dist/server/entry.mjs",
+    "start:prod": "npm run build && npm run start",
     "preview": "astro preview",
+    "typecheck": "astro check",
+    "smoke": "node scripts/smoke-test.mjs",
+    "e2e": "node --env-file-if-exists=.env scripts/e2e-test.mjs",
+    "db:check": "node scripts/db-check.mjs",
+    "db:migrate": "node scripts/db-migrate.mjs",
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^6.0.5"
+    "@astrojs/node": "^10.1.3",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.107.0",
+    "astro": "^6.0.5",
+    "otpauth": "^9.5.1",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@prisma/client": "^5.22.0",
+    "@types/node": "^25.9.2",
+    "@types/qrcode": "^1.5.6",
+    "dotenv": "^17.4.2",
+    "prisma": "^5.22.0",
+    "typescript": "^6.0.3"
   }
 }

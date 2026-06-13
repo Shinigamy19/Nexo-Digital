@@ -1,0 +1,183 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/layout/Navbar/index.astro';
+import Footer from '../../components/layout/Footer/index.astro';
+import logoImg from '../../assets/brand/logo.webp';
+import { isAuthenticated } from '../../lib/roles';
+import { submissionErrorMessage } from '../../lib/submission-errors';
+import { JOB_CATEGORIES, JOB_MODALITIES, CURRENCIES } from '../../lib/portal-meta';
+import styles from '../../styles/forms.module.css';
+
+const user = Astro.locals.user;
+if (!isAuthenticated(user)) {
+  return Astro.redirect('/login?next=' + encodeURIComponent('/empleos/nuevo'), 303);
+}
+
+const errorCode = Astro.url.searchParams.get('error');
+const fieldName = Astro.url.searchParams.get('field');
+const errorMessage = submissionErrorMessage(errorCode);
+const createdId = Astro.url.searchParams.get('id');
+const justCreated = Astro.url.searchParams.get('created') === 'job';
+---
+
+<Layout
+  title="Publicar empleo — Nexo Digital"
+  description="Publicá una oferta laboral en Nexo Digital. La revisaremos y la publicaremos apenas esté aprobada."
+>
+  <Navbar />
+  <main class={styles.page}>
+    <div class={styles.card}>
+      <header class={styles.header}>
+        <h1 class={styles.title}>Publicar nueva oferta</h1>
+        <p class={styles.subtitle}>
+          Tu envío queda en revisión. Lo aprueba un moderador antes de salir al público.
+        </p>
+      </header>
+
+      {errorMessage && (
+        <p class={styles.error} role="alert">
+          ⚠️ {errorMessage}
+          {fieldName && <small> (campo: <code>{fieldName}</code>)</small>}
+        </p>
+      )}
+
+      {justCreated && createdId && (
+        <p class={styles.disclaimer}>
+          ✅ Envío creado (id <code>{createdId.slice(0, 8)}</code>). Te avisamos cuando se apruebe.
+        </p>
+      )}
+
+      <form method="POST" action="/api/empleos" class={styles.form} novalidate>
+        <div class={styles.field}>
+          <label class={styles.label} for="title">Título del puesto <span class={styles.required}>*</span></label>
+          <input class={styles.input} type="text" id="title" name="title" required minlength="4" maxlength="120" placeholder="Frontend Developer Senior" />
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="company">Empresa <span class={styles.required}>*</span></label>
+          <input class={styles.input} type="text" id="company" name="company" required minlength="1" maxlength="80" placeholder="Acme Inc." />
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="description">Descripción <span class={styles.required}>*</span></label>
+          <textarea class={styles.textarea} id="description" name="description" required minlength="20" maxlength="2000" placeholder="Contá brevemente el puesto, el equipo y el impacto del rol."></textarea>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="requirements">Requisitos <span class={styles.required}>*</span></label>
+          <input class={styles.input} type="text" id="requirements" name="requirements" required placeholder="React, TypeScript, 3+ años de experiencia" />
+          <span class={styles.hint}>Separalos con comas.</span>
+        </div>
+
+        <div class={styles.row}>
+          <div class={styles.field}>
+            <label class={styles.label}>Modalidad <span class={styles.required}>*</span></label>
+            <div class={styles.pills} role="radiogroup" aria-label="Modalidad">
+              {JOB_MODALITIES.map((m) => (
+                <label class={styles.pill}>
+                  <input type="radio" name="modality" value={m.value} required />
+                  <span>{m.emoji} {m.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class={styles.field}>
+            <label class={styles.label} for="category">Categoría <span class={styles.required}>*</span></label>
+            <select class={styles.select} id="category" name="category" required>
+              <option value="" disabled selected>Elegí…</option>
+              {JOB_CATEGORIES.map((c) => (
+                <option value={c.value}>{c.emoji} {c.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div class={styles.row}>
+          <div class={styles.field}>
+            <label class={styles.label} for="salary_min">Salario mínimo</label>
+            <input class={styles.input} type="number" id="salary_min" name="salary_min" min="0" step="1" placeholder="2000" />
+          </div>
+          <div class={styles.field}>
+            <label class={styles.label} for="salary_max">Salario máximo</label>
+            <input class={styles.input} type="number" id="salary_max" name="salary_max" min="0" step="1" placeholder="3500" />
+          </div>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="currency">Moneda</label>
+          <select class={styles.select} id="currency" name="currency">
+            <option value="" disabled selected>Elegí…</option>
+            {CURRENCIES.map((c) => <option value={c}>{c}</option>)}
+          </select>
+          <span class={styles.hint}>Opcional. Si lo dejás vacío, queda sin especificar.</span>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="location">Ubicación</label>
+          <input class={styles.input} type="text" id="location" name="location" maxlength="120" placeholder="Buenos Aires, Argentina" />
+          <span class={styles.hint}>Opcional. Para presenciales o híbridos.</span>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="contact">Contacto <span class={styles.required}>*</span></label>
+          <input class={styles.input} type="text" id="contact" name="contact" required minlength="4" maxlength="200" placeholder="jobs@acme.com o https://linkedin.com/in/..." />
+          <span class={styles.hint}>Email o URL donde querés recibir propuestas.</span>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="expires_at">Fecha de expiración</label>
+          <input class={styles.input} type="date" id="expires_at" name="expires_at" min={new Date().toISOString().split('T')[0]} />
+          <span class={styles.hint}>Opcional. La oferta se archivará automáticamente después de esta fecha.</span>
+        </div>
+
+        <div class={styles.actions}>
+          <button type="submit" class={styles.submit}>Enviar a revisión</button>
+          <a href="/empleos" class={styles.cancel}>Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </main>
+  <Footer logoImg={logoImg} />
+</Layout>
+
+<script>
+  const form = document.querySelector('form');
+  if (!form) throw new Error('Form not found');
+  const key = 'form-draft:' + (form.getAttribute('action') || 'unknown');
+  const hasError = new URLSearchParams(location.search).has('error');
+
+  if (hasError) {
+    const saved = sessionStorage.getItem(key);
+    if (saved) {
+      const data: Record<string, string> = JSON.parse(saved);
+      for (const [name, value] of Object.entries(data)) {
+        const el = form.elements.namedItem(name);
+        if (!el) continue;
+        if (el instanceof RadioNodeList) {
+          for (const radio of el) {
+            if (radio instanceof HTMLInputElement) radio.checked = radio.value === value;
+          }
+        } else if (el instanceof HTMLInputElement && el.type === 'checkbox') {
+          (el as HTMLInputElement).checked = value === 'true';
+        } else if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+          el.value = value;
+        }
+      }
+      sessionStorage.removeItem(key);
+    }
+  } else {
+    sessionStorage.removeItem(key);
+  }
+
+  form.addEventListener('submit', () => {
+    const fd = new FormData(form);
+    const data: Record<string, string> = {};
+    for (const [key, val] of fd.entries()) {
+      if (typeof val === 'string') data[key] = val;
+    }
+    sessionStorage.setItem(key, JSON.stringify(data));
+  });
+</script>

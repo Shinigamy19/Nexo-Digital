@@ -1,0 +1,72 @@
+[
+  {
+    "id": "meetup-js-2025",
+    "title": "Meetup de JavaScript y Node.js",
+    "description": "Encuentro mensual de la comunidad JS local. Charlas relámpago, networking y pizza. Traé tu laptop si querés participar del coding session.",
+    "event_type": "presencial",
+    "category": "encuentro",
+    "start_date": "2025-05-15",
+    "end_date": null,
+    "start_time": "18:00",
+    "location": "Coworking La Maquinita, Palermo, CABA",
+    "url": "https://example.com/meetup-js",
+    "contact_info": "@comunidadjs en redes",
+    "max_participants": 50
+  },
+  {
+    "id": "design-workshop-figma",
+    "title": "Workshop de Figma Avanzado",
+    "description": "Aprendé componentes auto-layout, variables y prototipado avanzado en Figma. Workshop práctico de 3 horas con ejercicios guiados.",
+    "event_type": "en_linea",
+    "category": "workshop",
+    "start_date": "2025-05-20",
+    "end_date": null,
+    "start_time": "19:00",
+    "location": null,
+    "url": "https://zoom.us/figma-workshop",
+    "contact_info": "hola@disenioacademy.com",
+    "max_participants": 30
+  },
+  {
+    "id": "hackathon-ia-2025",
+    "title": "Hackathon de IA Generativa",
+    "description": "48 horas para crear un proyecto con IA generativa. Equipos de 3-5 personas. Premios para los 3 mejores proyectos. Abierto a todo público.",
+    "event_type": "hibrido",
+    "category": "hackathon",
+    "start_date": "2025-06-01",
+    "end_date": "2025-06-03",
+    "start_time": "09:00",
+    "location": "Centro Cultural San Martín + Online",
+    "url": "https://hackathon-ia.example.com",
+    "contact_info": "hackathon@nexodigital.com",
+    "max_participants": 100
+  },
+  {
+    "id": "curso-react-desde-cero",
+    "title": "Curso: React desde Cero",
+    "description": "Curso online de 4 semanas para aprender React desde los fundamentos hasta hooks, contexto y routing. Ideal para devs con HTML/CSS/JS básico.",
+    "event_type": "en_linea",
+    "category": "curso",
+    "start_date": "2025-06-10",
+    "end_date": "2025-07-08",
+    "start_time": "18:30",
+    "location": null,
+    "url": "https://cursos.nexodigital.com/react",
+    "contact_info": "cursos@nexodigital.com",
+    "max_participants": null
+  },
+  {
+    "id": "networking-dev-2025",
+    "title": "Networking para Devs",
+    "description": "Evento de networking para profesionales tech. Compartí experiencias, conocé colegas y armá tu red de contactos. Habrá bebidas y snacks.",
+    "event_type": "presencial",
+    "category": "networking",
+    "start_date": "2025-06-15",
+    "end_date": null,
+    "start_time": "19:00",
+    "location": "WeWork Catalinas, CABA",
+    "url": null,
+    "contact_info": "@nexodigital en Instagram",
+    "max_participants": 40
+  }
+]

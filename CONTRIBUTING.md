@@ -1,116 +1,100 @@
 # Guía de contribución — Nexo Digital
 
-¡Gracias por querer contribuir a Nexo Digital! 🎉
+¡Gracias por querer contribuir a Nexo Digital!
 
 Este repositorio es **open source** y toda aportación pasa por revisión de moderadores antes de aparecer en el sitio.
 
----
+## Formas de contribuir
 
-## 📌 Formas de contribuir
+### 1. Contribuir contenido (desde el sitio)
 
-### 1. Agregar un proyecto comunitario
+Los envíos se hacen directamente desde el sitio web:
 
-Si tenés un proyecto open source que creés que puede ser valioso para la comunidad:
+- **Empleos**: `/empleos/nuevo`
+- **Recursos**: `/recursos/nuevo`
+- **Proyectos**: `/proyectos/nuevo`
 
-1. Abrí un [Issue](https://github.com/NexoDigital-Lab/Nexo-Digital/issues/new?labels=proyecto,pendiente-revision&title=%5BPROYECTO%5D+Nombre+de+tu+proyecto) con la etiqueta `proyecto`
-2. Completá la información con este formato:
+El flujo es:
+1. Te registrás / logueás en el sitio
+2. Completás el formulario
+3. El envío queda como "Pendiente"
+4. Un moderador lo revisa en `/moderacion`
+5. Si se aprueba, aparece públicamente
+6. Si se rechaza, ves el motivo en `/mis-envios`
 
-```
-**Título:** Nombre del proyecto
-**Descripción:** Qué hace y para qué sirve (máx 200 caracteres)
-**Categoría:** desarrollo / diseño / ia / iot / edicion / audio / gamedev
-**Tecnologías:** React, TypeScript, etc. (separadas por coma)
-**Autor GitHub:** tu-usuario
-**Repositorio:** https://github.com/...
-**Demo (opcional):** https://...
-**Estado:** activo / en progreso / archivado
-```
-
-3. Un moderador revisará el Issue. Si cumple los criterios, creará un PR para agregarlo a `src/data/projects.json`.
-
----
-
-### 2. Sugerir un recurso
-
-Si querés agregar una herramienta, tutorial, template o recurso:
-
-1. Abrí un [Issue](https://github.com/NexoDigital-Lab/Nexo-Digital/issues/new?labels=recurso,pendiente-revision&title=%5BRECURSO%5D+Nombre+del+recurso) con la etiqueta `recurso`
-2. Incluí:
-
-```
-**Título:** Nombre del recurso
-**Descripción:** Qué es y para qué sirve
-**Tipo:** herramienta / tutorial / recurso / template / documentación
-**Categoría:** desarrollo / diseño / ia / iot / aprendizaje
-**URL:** https://...
-**Tags:** gratis, open source, etc.
-```
-
----
-
-### 3. Publicar una búsqueda laboral
-
-Usá el **formulario en la página `/empleos`** del sitio. Al enviarlo, se abre automáticamente un GitHub Issue con los datos pre-completados. Los moderadores revisan y aprueban en 24–48hs.
-
----
-
-### 4. Contribuir código
-
-Para mejoras al sitio en sí:
+### 2. Contribuir código
 
 1. Hacé un **fork** del repositorio
-2. Creá una branch descriptiva:
-   - `feat/nueva-funcionalidad`
-   - `fix/descripcion-del-bug`
-   - `chore/mejora-sin-funcionalidad`
-3. Hacé commits claros y descriptivos
-4. Abrí un **Pull Request** a `main` con:
-   - Descripción de qué cambiaste y por qué
-   - Screenshots o GIFs si tocaste UI
-   - Referencia al Issue relacionado si existe
+2. Cloná tu fork:
+   ```bash
+   git clone https://github.com/TU-USUARIO/Nexo-Digital.git
+   cd Nexo-Digital
+   ```
+3. Instalá dependencias:
+   ```bash
+   npm install
+   ```
+4. Copiá las variables de entorno:
+   ```bash
+   cp .env.example .env
+   # Editá .env con tus credenciales de Supabase
+   ```
+5. Generá el cliente Prisma:
+   ```bash
+   npx prisma generate
+   ```
+6. Creá una branch descriptiva:
+   ```bash
+   git checkout -b feature/mi-mejora
+   ```
+7. Hacé tus cambios
+8. Verificá que todo compile:
+   ```bash
+   npx tsc --noEmit
+   npm run build
+   ```
+9. Hacé commits claros: `git commit -m 'feat: descripción'`
+10. Push y Pull Request a `main`
 
----
+### Convenciones de commits
 
-## ✅ Criterios de aceptación para contenido
+- `feat:` nueva funcionalidad
+- `fix:` corrección de bug
+- `chore:` tareas de mantenimiento
+- `docs:` documentación
+- `refactor:` reestructuración sin cambio de funcionalidad
+- `style:` cambios de CSS/estilos
+- `test:` agregar o modificar tests
+
+## Criterios de aceptación
 
 ### Proyectos
-- Deben tener repositorio público accesible
-- Deben ser funcionales o estar en progreso activo
-- Deben ser relevantes para alguna de las categorías de Nexo Digital
+- Repositorio público accesible
+- Funcional o en progreso activo
+- Relevante para alguna categoría de Nexo Digital
 - No se aceptan proyectos abandonados sin documentación
 
 ### Recursos
-- El link debe ser accesible y funcional
-- El contenido debe ser de calidad y relevante
-- Se priorizan recursos gratuitos o con prueba gratuita
-- No se aceptan afiliaciones pagas o contenido de spam
+- Link accesible y funcional
+- Contenido de calidad y relevante
+- Se priorizan recursos gratuitos
+- No se aceptan afiliaciones pagas ni spam
 
 ### Empleos
-- Deben ser búsquedas laborales reales y verificables
-- Deben tener al menos: puesto, descripción, requisitos y forma de contacto
-- No se aceptan ofertas genéricas, pirámides o esquemas de marketing multinivel
+- Búsquedas laborales reales y verificables
+- Mínimo: puesto, descripción, requisitos y contacto
+- No se aceptan ofertas genéricas ni esquemas MLM
 
----
+## Seguridad
 
-## 🔧 Setup de desarrollo
+- **Nunca** commitees `.env` ni claves reales
+- Si encontrás una vulnerabilidad, **no abras un issue público**
+- Ver [`SECURITY.md`](./SECURITY.md) para reportar vulnerabilidades
 
-```bash
-git clone https://github.com/NexoDigital-Lab/Nexo-Digital.git
-cd Nexo-Digital
-npm install
-npm run dev
-```
+## Código de conducta
 
----
-
-## 🤝 Código de conducta
-
-Al contribuir acordás respetar los principios de Nexo Digital:
+Al contribuir acordás:
 - Trato respetuoso y sin discriminación
 - Contenido relevante y de calidad
-- Sin spam, autopromoción desmedida ni publicidad engañosa
+- Sin spam ni autopromoción desmedida
 - Colaboración constructiva
-
----
-
-Gracias por hacer Nexo Digital mejor para todos 🚀

@@ -1,0 +1,670 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/layout/Navbar/index.astro';
+import Footer from '../../components/layout/Footer/index.astro';
+import logoImg from '../../assets/brand/logo.webp';
+import styles from '../../components/profile/Profile.module.css';
+import formStyles from '../../components/auth/AuthCard.module.css';
+
+const user = Astro.locals.user;
+
+if (!user) {
+  return Astro.redirect('/login', 303);
+}
+
+// Fetch connected OAuth providers
+let connectedProviders: string[] = [];
+try {
+  const providers = await prisma.$queryRaw<{ providers: string[] }[]>`
+    SELECT COALESCE(
+      (SELECT array_agg(DISTINCT provider) FROM auth.identities WHERE user_id = ${user.id}::uuid),
+      ARRAY[]::text[]
+    ) AS providers
+  `;
+  connectedProviders = providers[0]?.providers ?? [];
+} catch {
+  connectedProviders = [];
+}
+
+// Check if user has password auth
+let hasPassword = false;
+try {
+  const passwordCheck = await prisma.$queryRaw<{ has_password: boolean }[]>`
+    SELECT EXISTS(
+      SELECT 1 FROM auth.users WHERE id = ${user.id}::uuid AND encrypted_password IS NOT NULL AND encrypted_password != ''
+    ) AS has_password
+  `;
+  hasPassword = passwordCheck[0]?.has_password ?? false;
+} catch {
+  hasPassword = false;
+}
+
+const profile = user.profile;
+const url = Astro.url;
+const error = url.searchParams.get('error');
+const success = url.searchParams.get('success');
+const activeTab = url.searchParams.get('tab') === 'seguridad' ? 'seguridad' : 'perfil';
+
+const errorMessages: Record<string, string> = {
+  username_taken: 'Ese username ya está en uso.',
+  username_invalid: 'El username debe tener entre 3 y 30 caracteres (letras, números y guion bajo) y no puede ser una palabra reservada.',
+  invalid_url: 'Una de las URLs no es válida (debe empezar con http:// o https://).',
+  bio_too_long: 'La bio no puede superar los 500 caracteres.',
+  generic: 'No pudimos guardar los cambios. Probá de nuevo.',
+  password_too_short: 'La contraseña debe tener al menos 8 caracteres.',
+  password_mismatch: 'Las contraseñas no coinciden.',
+  password_required: 'Ingresá tu contraseña actual.',
+  wrong_password: 'La contraseña actual es incorrecta.',
+  password_change_failed: 'No pudimos cambiar la contraseña. Probá de nuevo.',
+  invalid_email: 'El email no es válido.',
+  email_change_failed: 'No pudimos cambiar el email. Probá de nuevo.',
+  delete_not_confirmed: 'Debés escribir ELIMINAR para confirmar.',
+  delete_failed: 'No pudimos eliminar la cuenta. Probá de nuevo.',
+  totp_required: 'Si tenés verificación en dos pasos activada, ingresá el código de tu app.',
+  invalid_totp: 'El código de verificación es incorrecto.',
+  two_fa_enabled: 'Verificación en dos pasos activada correctamente.',
+  two_fa_disabled: 'Verificación en dos pasos desactivada.',
+  two_fa_setup_error: 'No pudimos configurar la verificación. Probá de nuevo.',
+  two_fa_disable_error: 'No pudimos desactivar la verificación. Probá de nuevo.',
+  invalid_token: 'El código es incorrecto. Revisá tu app de autenticación.',
+  cannot_unlink_last: 'No podés desvincular tu único método de acceso. Agregá una contraseña u otro proveedor primero.',
+  unlink_failed: 'No pudimos desvincular el proveedor. Probá de nuevo.',
+  provider_not_found: 'Ese proveedor no está vinculado a tu cuenta.',
+};
+
+const successMessages: Record<string, string> = {
+  password_changed: 'Contraseña cambiada correctamente.',
+  email_changed: 'Email actualizado. Rebandejá tu bandeja para confirmar.',
+  two_fa_enabled: 'Verificación en dos pasos activada correctamente.',
+  two_fa_disabled: 'Verificación en dos pasos desactivada.',
+  provider_unlinked: 'Proveedor desvinculado correctamente.',
+};
+
+const errorMessage = error ? (errorMessages[error] ?? errorMessages.generic) : null;
+const successMessage = success ? (successMessages[success] ?? null) : null;
+
+const PREDEFINED_DISCIPLINES = [
+  'Desarrollo',
+  'Diseño y 3D',
+  'Edición y video',
+  'Audio y Producción',
+  'IA y herramientas',
+  'Domótica / IoT / Hardware',
+  'Game Design',
+  'Cyberseguridad',
+  'Recruiter',
+];
+
+const currentDisciplines = profile?.discipline ?? [];
+const customDisciplines = currentDisciplines.filter((d) => !PREDEFINED_DISCIPLINES.includes(d));
+
+const skillsValue = (profile?.skills ?? []).join(', ');
+---
+
+<Layout title="Configuración — Nexo Digital">
+  <Navbar />
+
+  <main class={styles.page} style="max-width: 640px;">
+    <h1 class={styles.displayName} style="margin-bottom: 0.75rem;">Configuración</h1>
+
+    <div style="display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid var(--border);">
+      <a
+        href="/perfil/editar?tab=perfil"
+        style={`padding: 0.6rem 1.2rem; font-size: 0.9rem; font-weight: 600; text-decoration: none; border-bottom: 2px solid ${activeTab === 'perfil' ? '#00f5ff' : 'transparent'}; color: ${activeTab === 'perfil' ? '#00f5ff' : 'var(--text-muted)'}; transition: all 0.15s ease;`}
+      >Perfil</a>
+      <a
+        href="/perfil/editar?tab=seguridad"
+        style={`padding: 0.6rem 1.2rem; font-size: 0.9rem; font-weight: 600; text-decoration: none; border-bottom: 2px solid ${activeTab === 'seguridad' ? '#00f5ff' : 'transparent'}; color: ${activeTab === 'seguridad' ? '#00f5ff' : 'var(--text-muted)'}; transition: all 0.15s ease;`}
+      >Seguridad</a>
+    </div>
+
+    {errorMessage && (
+      <div class={formStyles.error} role="alert" style="margin-bottom: 1.25rem;">{errorMessage}</div>
+    )}
+    {successMessage && (
+      <div class={formStyles.success} role="status" style="margin-bottom: 1.25rem;">{successMessage}</div>
+    )}
+
+    {/* ─── TAB: PERFIL ─── */}
+    {activeTab === 'perfil' && (
+      <form method="POST" action="/api/perfil" class={formStyles.form}>
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="username">Username *</label>
+          <input class={formStyles.input} type="text" id="username" name="username" required minlength="3" maxlength="30" pattern="[a-zA-Z0-9_]+" value={profile?.username ?? ''} />
+          <p class={formStyles.hint}>3–30 caracteres. Solo letras, números y guion bajo. Es tu URL pública: <code>/u/&lt;username&gt;</code></p>
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="display_name">Nombre para mostrar</label>
+          <input class={formStyles.input} type="text" id="display_name" name="display_name" maxlength="80" value={profile?.display_name ?? ''} placeholder="Tu nombre público" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="avatar_url">URL de avatar</label>
+          <input class={formStyles.input} type="url" id="avatar_url" name="avatar_url" value={profile?.avatar_url ?? ''} placeholder="https://..." />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label}>Disciplinas</label>
+          <div id="predefinedDisciplines" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.3rem;">
+            {PREDEFINED_DISCIPLINES.map((d) => (
+              <label class="discipline-tag" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.7rem; border-radius: 20px; border: 1px solid var(--border); background: var(--bg-card); cursor: pointer; font-size: 0.85rem; transition: all 0.15s ease; user-select: none;">
+                <input type="checkbox" name="disciplines" value={d} checked={currentDisciplines.includes(d)} style="display: none;" />
+                <span>{d}</span>
+              </label>
+            ))}
+          </div>
+          <div id="customDisciplines" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+            {customDisciplines.map((d) => (
+              <span class="custom-discipline-tag" data-value={d} style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.7rem; border-radius: 20px; border: 1px solid rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.12); font-size: 0.85rem; color: #a855f7; user-select: none;">
+                <span>{d}</span>
+                <button type="button" class="remove-custom" aria-label={`Quitar ${d}`} style="background: none; border: none; color: inherit; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0;">×</button>
+              </span>
+            ))}
+          </div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+            <input id="customDisciplineInput" type="text" maxlength="60" placeholder="Escribí una disciplina personalizada" style="flex: 1; padding: 0.4rem 0.7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); font-size: 0.85rem; font-family: inherit;" />
+            <button type="button" id="addCustomDiscipline" style="padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(0, 245, 255, 0.4); background: rgba(0, 245, 255, 0.08); color: #00f5ff; font-size: 0.85rem; cursor: pointer; font-family: inherit; transition: all 0.15s ease;">Agregar</button>
+          </div>
+          <p class={formStyles.hint}>Podés elegir varias o escribir las tuyas.</p>
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="skills">Skills (separadas por coma)</label>
+          <input class={formStyles.input} type="text" id="skills" name="skills" value={skillsValue} placeholder="TypeScript, Astro, Figma" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="bio">Bio</label>
+          <textarea class={formStyles.input} id="bio" name="bio" rows="4" maxlength="500" style="resize: vertical; min-height: 110px; font-family: inherit;">{profile?.bio ?? ''}</textarea>
+          <p class={formStyles.hint}>Máximo 500 caracteres.</p>
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="website">Sitio web</label>
+          <input class={formStyles.input} type="url" id="website" name="website" value={profile?.website ?? ''} placeholder="https://tusitio.com" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="github">GitHub</label>
+          <input class={formStyles.input} type="url" id="github" name="github" value={profile?.github ?? ''} placeholder="https://github.com/usuario" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="behance">Behance</label>
+          <input class={formStyles.input} type="url" id="behance" name="behance" value={profile?.behance ?? ''} placeholder="https://behance.net/usuario" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="substack">Substack</label>
+          <input class={formStyles.input} type="url" id="substack" name="substack" value={profile?.substack ?? ''} placeholder="https://usuario.substack.com" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="itch">Itch.io</label>
+          <input class={formStyles.input} type="url" id="itch" name="itch" value={profile?.itch ?? ''} placeholder="https://usuario.itch.io" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="youtube">YouTube</label>
+          <input class={formStyles.input} type="url" id="youtube" name="youtube" value={profile?.youtube ?? ''} placeholder="https://youtube.com/@usuario" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="linkedin">LinkedIn</label>
+          <input class={formStyles.input} type="url" id="linkedin" name="linkedin" value={profile?.linkedin ?? ''} placeholder="https://linkedin.com/in/usuario" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="twitter">Twitter / X</label>
+          <input class={formStyles.input} type="url" id="twitter" name="twitter" value={profile?.twitter ?? ''} placeholder="https://x.com/usuario" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="tiktok">TikTok</label>
+          <input class={formStyles.input} type="url" id="tiktok" name="tiktok" value={profile?.tiktok ?? ''} placeholder="https://tiktok.com/@usuario" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="instagram">Instagram</label>
+          <input class={formStyles.input} type="url" id="instagram" name="instagram" value={profile?.instagram ?? ''} placeholder="https://instagram.com/usuario" />
+        </div>
+
+        <div class={formStyles.field}>
+          <label class={formStyles.label} for="linktree">Linktree</label>
+          <input class={formStyles.input} type="url" id="linktree" name="linktree" value={profile?.linktree ?? ''} placeholder="https://linktr.ee/usuario" />
+          <p class={formStyles.hint}>Si preferís, podés poner tu Linktree en vez de todas tus redes.</p>
+        </div>
+
+        <div class={formStyles.field}>
+          <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem;">
+            <input type="checkbox" name="show_email" style="width: 16px; height: 16px; accent-color: #00f5ff;" checked={profile?.show_email} />
+            Mostrar mi email en el perfil público
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 0.6rem; margin-top: 0.5rem;">
+          <button type="submit" class={formStyles.submit}>Guardar cambios</button>
+          <a href="/perfil" class={formStyles.submit} style="background: var(--bg-card); box-shadow: none; text-align: center; text-decoration: none;">Cancelar</a>
+        </div>
+      </form>
+    )}
+
+    {/* ─── TAB: SEGURIDAD ─── */}
+    {activeTab === 'seguridad' && (
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        {/* Cambiar contraseña */}
+        <section>
+          <h2 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.6rem; color: var(--text-primary);">Cambiar contraseña</h2>
+          <form method="POST" action="/api/auth/change-password" class={formStyles.form}>
+            <div class={formStyles.field}>
+              <label class={formStyles.label} for="current_password">Contraseña actual</label>
+              <input class={formStyles.input} type="password" id="current_password" name="current_password" required minlength="8" />
+            </div>
+            <div class={formStyles.field}>
+              <label class={formStyles.label} for="new_password">Nueva contraseña</label>
+              <input class={formStyles.input} type="password" id="new_password" name="new_password" required minlength="8" />
+              <p class={formStyles.hint}>Mínimo 8 caracteres.</p>
+            </div>
+            <div class={formStyles.field}>
+              <label class={formStyles.label} for="confirm_password">Confirmar nueva contraseña</label>
+              <input class={formStyles.input} type="password" id="confirm_password" name="confirm_password" required minlength="8" />
+            </div>
+            <div>
+              <button type="submit" class={formStyles.submit}>Cambiar contraseña</button>
+            </div>
+          </form>
+        </section>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 0;" />
+
+        {/* Cambiar email */}
+        <section>
+          <h2 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.6rem; color: var(--text-primary);">Cambiar email</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Tu email actual: <strong style="color: var(--text-primary);">{user.email}</strong></p>
+          <form method="POST" action="/api/auth/change-email" class={formStyles.form}>
+            <div class={formStyles.field}>
+              <label class={formStyles.label} for="new_email">Nuevo email</label>
+              <input class={formStyles.input} type="email" id="new_email" name="new_email" required placeholder="nuevo@email.com" />
+            </div>
+            <div class={formStyles.field}>
+              <label class={formStyles.label} for="email_password">Contraseña actual (para confirmar)</label>
+              <input class={formStyles.input} type="password" id="email_password" name="password" required minlength="8" />
+            </div>
+            {profile?.two_factor_enabled && (
+              <div class={formStyles.field}>
+                <label class={formStyles.label} for="email_totp">Código de verificación en dos pasos</label>
+                <input class={formStyles.input} type="text" id="email_totp" name="totp_token" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required />
+                <p class={formStyles.hint}>Ingresá el código de tu app de autenticación.</p>
+              </div>
+            )}
+            <div>
+              <button type="submit" class={formStyles.submit}>Actualizar email</button>
+            </div>
+          </form>
+        </section>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 0;" />
+
+        {/* Verificación en dos pasos */}
+        <section>
+          <h2 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">Verificación en dos pasos (2FA)</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            {profile?.two_factor_enabled
+              ? 'Tu cuenta tiene la verificación en dos pasos activada. Se te pedirá un código al iniciar sesión y al cambiar tu email.'
+              : 'Activá la verificación en dos pasos para agregar una capa extra de seguridad a tu cuenta. Necesitarás una app como Google Authenticator o Authy.'}
+          </p>
+
+          {profile?.two_factor_enabled ? (
+            <div id="twoFaStatus">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 10px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3);">
+                <span style="color: #86efac; font-weight: 600;">✓ Activa</span>
+              </div>
+              <button type="button" id="showDisable2fa" style="padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.1); color: #fca5a5; font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s ease;">Desactivar 2FA</button>
+              <div id="disable2faForm" style="display: none; margin-top: 1rem;">
+                <form id="disable2faFormInner" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <div class={formStyles.field}>
+                    <label class={formStyles.label} for="disable_2fa_token">Código de verificación</label>
+                    <input class={formStyles.input} type="text" id="disable_2fa_token" name="token" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required style="text-align: center; letter-spacing: 0.2em;" />
+                    <p class={formStyles.hint}>Ingresá el código actual de tu app para confirmar.</p>
+                  </div>
+                  <div>
+                    <button type="submit" style="padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.15); color: #fca5a5; font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s ease;">Confirmar desactivación</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          ) : (
+            <div id="twoFaSetup">
+              <button type="button" id="start2faSetup" style="padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid rgba(0, 245, 255, 0.4); background: rgba(0, 245, 255, 0.08); color: #00f5ff; font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s ease;">Activar verificación en dos pasos</button>
+              <div id="setup2faContent" style="display: none; margin-top: 1rem;">
+                <div id="setup2faLoading" style="text-align: center; padding: 2rem; color: var(--text-muted);">Generando código QR...</div>
+                <div id="setup2faStep1" style="display: none;">
+                  <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">Escaneá este código con tu app de autenticación:</p>
+                  <div style="text-align: center; margin-bottom: 1rem;">
+                    <img id="qrCodeImg" src="" alt="QR Code para 2FA" style="border-radius: 12px; border: 1px solid var(--border); max-width: 256px;" />
+                  </div>
+                  <details style="margin-bottom: 1rem;">
+                    <summary style="font-size: 0.8rem; color: var(--text-muted); cursor: pointer;">¿No podés escanear? Copiá el código manualmente</summary>
+                    <div style="margin-top: 0.5rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px; font-family: monospace; font-size: 0.85rem; word-break: break-all; color: var(--text-primary);">
+                      <span id="manualSecret"></span>
+                    </div>
+                  </details>
+                  <form id="verify2faForm" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div class={formStyles.field}>
+                      <label class={formStyles.label} for="setup_2fa_token">Código de verificación</label>
+                      <input class={formStyles.input} type="text" id="setup_2fa_token" name="token" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required style="text-align: center; letter-spacing: 0.2em;" />
+                      <p class={formStyles.hint}>Ingresá el código que aparece en tu app para confirmar la configuración.</p>
+                    </div>
+                    <div>
+                      <button type="submit" style="padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid rgba(0, 245, 255, 0.4); background: rgba(0, 245, 255, 0.15); color: #00f5ff; font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s ease;">Activar 2FA</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 0;" />
+
+        {/* ─── PROVEEDORES VINCULADOS ─── */}
+        <section>
+          <h2 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">Cuentas vinculadas</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            Vinculá tus cuentas de Google, GitHub y Discord para poder iniciar sesión con cualquiera de ellas. Todas comparten el mismo perfil.
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+            {/* Google */}
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card);">
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <span style="font-size: 1.2rem;">🔵</span>
+                <div>
+                  <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Google</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{connectedProviders.includes('google') ? 'Vinculada' : 'No vinculada'}</div>
+                </div>
+              </div>
+              {connectedProviders.includes('google') ? (
+                <form method="POST" action="/api/auth/unlink-provider" style="margin: 0;">
+                  <input type="hidden" name="provider" value="google" />
+                  <input type="hidden" name="has_password" value={hasPassword ? 'true' : 'false'} />
+                  <input type="hidden" name="provider_count" value={String(connectedProviders.length)} />
+                  <button type="submit" style="padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.1); color: #fca5a5; font-size: 0.8rem; font-weight: 500; cursor: pointer; font-family: inherit;">Desvincular</button>
+                </form>
+              ) : (
+                <form method="POST" action="/api/auth/oauth" style="margin: 0;">
+                  <input type="hidden" name="provider" value="google" />
+                  <input type="hidden" name="linking" value="true" />
+                  <button type="submit" style="padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(0, 245, 255, 0.4); background: rgba(0, 245, 255, 0.08); color: #00f5ff; font-size: 0.8rem; font-weight: 500; cursor: pointer; font-family: inherit;">Vincular</button>
+                </form>
+              )}
+            </div>
+
+            {/* GitHub */}
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card);">
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <span style="font-size: 1.2rem;">⚫</span>
+                <div>
+                  <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">GitHub</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{connectedProviders.includes('github') ? 'Vinculada' : 'No vinculada'}</div>
+                </div>
+              </div>
+              {connectedProviders.includes('github') ? (
+                <form method="POST" action="/api/auth/unlink-provider" style="margin: 0;">
+                  <input type="hidden" name="provider" value="github" />
+                  <input type="hidden" name="has_password" value={hasPassword ? 'true' : 'false'} />
+                  <input type="hidden" name="provider_count" value={String(connectedProviders.length)} />
+                  <button type="submit" style="padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.1); color: #fca5a5; font-size: 0.8rem; font-weight: 500; cursor: pointer; font-family: inherit;">Desvincular</button>
+                </form>
+              ) : (
+                <form method="POST" action="/api/auth/oauth" style="margin: 0;">
+                  <input type="hidden" name="provider" value="github" />
+                  <input type="hidden" name="linking" value="true" />
+                  <button type="submit" style="padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(0, 245, 255, 0.4); background: rgba(0, 245, 255, 0.08); color: #00f5ff; font-size: 0.8rem; font-weight: 500; cursor: pointer; font-family: inherit;">Vincular</button>
+                </form>
+              )}
+            </div>
+
+            {/* Discord */}
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card);">
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <span style="font-size: 1.2rem;">🟣</span>
+                <div>
+                  <div style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Discord</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{connectedProviders.includes('discord') ? 'Vinculada' : 'No vinculada'}</div>
+                </div>
+              </div>
+              {connectedProviders.includes('discord') ? (
+                <form method="POST" action="/api/auth/unlink-provider" style="margin: 0;">
+                  <input type="hidden" name="provider" value="discord" />
+                  <input type="hidden" name="has_password" value={hasPassword ? 'true' : 'false'} />
+                  <input type="hidden" name="provider_count" value={String(connectedProviders.length)} />
+                  <button type="submit" style="padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.1); color: #fca5a5; font-size: 0.8rem; font-weight: 500; cursor: pointer; font-family: inherit;">Desvincular</button>
+                </form>
+              ) : (
+                <form method="POST" action="/api/auth/oauth" style="margin: 0;">
+                  <input type="hidden" name="provider" value="discord" />
+                  <input type="hidden" name="linking" value="true" />
+                  <button type="submit" style="padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(0, 245, 255, 0.4); background: rgba(0, 245, 255, 0.08); color: #00f5ff; font-size: 0.8rem; font-weight: 500; cursor: pointer; font-family: inherit;">Vincular</button>
+                </form>
+              )}
+            </div>
+          </div>
+
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.75rem;">
+            {hasPassword
+              ? 'Tenés contraseña configurada. Podés desvincular cualquier proveedor.'
+              : 'No tenés contraseña. No podés desvincular tu único método de acceso. Agregá una contraseña primero.'}
+          </p>
+        </section>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 0;" />
+
+        {/* Zona de peligro */}
+        <section style="border: 1px solid rgba(255, 77, 77, 0.3); border-radius: 14px; padding: 1.25rem; background: rgba(255, 77, 77, 0.04);">
+          <h2 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; color: #ff4d4d;">Zona de peligro</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Eliminar tu cuenta es permanente. Se borrarán tu perfil, empleos, proyectos y todos tus datos. Esto no se puede deshacer.</p>
+          <form method="POST" action="/api/auth/delete-account" class={formStyles.form} id="deleteAccountForm">
+            <div class={formStyles.field}>
+              <label class={formStyles.label} for="delete_password">Tu contraseña</label>
+              <input class={formStyles.input} type="password" id="delete_password" name="password" required minlength="8" />
+            </div>
+            <div class={formStyles.field}>
+              <label class={formStyles.label} for="delete_confirm">Escribí <strong style="color: #ff4d4d;">ELIMINAR</strong> para confirmar</label>
+              <input class={formStyles.input} type="text" id="delete_confirm" name="confirm_delete" required placeholder="ELIMINAR" style="border-color: rgba(255, 77, 77, 0.3);" />
+            </div>
+            <div>
+              <button type="submit" class={formStyles.submit} style="background: linear-gradient(135deg, #ff4d4d, #cc0033); box-shadow: 0 4px 20px rgba(255, 77, 77, 0.35);">Eliminar mi cuenta permanentemente</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    )}
+  </main>
+
+  <Footer logoImg={logoImg} />
+</Layout>
+
+<script>
+  function updateTagStyle(label: HTMLElement, checked: boolean) {
+    if (checked) {
+      label.style.background = 'rgba(0, 245, 255, 0.15)';
+      label.style.borderColor = 'rgba(0, 245, 255, 0.6)';
+      label.style.color = '#00f5ff';
+      label.style.boxShadow = '0 0 12px rgba(0, 245, 255, 0.25)';
+    } else {
+      label.style.background = 'var(--bg-card)';
+      label.style.borderColor = 'var(--border)';
+      label.style.color = 'var(--text-primary)';
+      label.style.boxShadow = 'none';
+    }
+  }
+
+  document.querySelectorAll('input[name="disciplines"]').forEach((input) => {
+    const label = input.closest('label');
+    if (!label) return;
+    const update = () => updateTagStyle(label, input.checked);
+    update();
+    input.addEventListener('change', update);
+  });
+
+  const input = document.getElementById('customDisciplineInput') as HTMLInputElement;
+  const addBtn = document.getElementById('addCustomDiscipline');
+  const container = document.getElementById('customDisciplines');
+
+  if (input && addBtn && container) {
+    function addCustomDiscipline(value: string) {
+      const v = value.trim();
+      if (!v || v.length > 60) return;
+      const existing = container.querySelectorAll('.custom-discipline-tag');
+      for (const tag of existing) {
+        if ((tag as HTMLElement).dataset.value?.toLowerCase() === v.toLowerCase()) return;
+      }
+      const span = document.createElement('span');
+      span.className = 'custom-discipline-tag';
+      span.dataset.value = v;
+      span.style.cssText = 'display:inline-flex;align-items:center;gap:0.35rem;padding:0.35rem 0.7rem;border-radius:20px;border:1px solid rgba(168,85,247,0.4);background:rgba(168,85,247,0.12);font-size:0.85rem;color:#a855f7;user-select:none;';
+      span.innerHTML = `<span>${v}</span><button type="button" class="remove-custom" aria-label="Quitar ${v}" style="background:none;border:none;color:inherit;cursor:pointer;font-size:1rem;line-height:1;padding:0;">×</button>`;
+      container.appendChild(span);
+      const hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.name = 'custom_disciplines';
+      hidden.value = v;
+      span.appendChild(hidden);
+      span.querySelector('.remove-custom')!.addEventListener('click', () => span.remove());
+    }
+
+    addBtn.addEventListener('click', () => {
+      addCustomDiscipline(input.value);
+      input.value = '';
+      input.focus();
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addCustomDiscipline(input.value);
+        input.value = '';
+      }
+    });
+
+    container.querySelectorAll('.remove-custom').forEach((btn) => {
+      btn.addEventListener('click', () => btn.closest('.custom-discipline-tag')?.remove());
+    });
+  }
+
+  // Delete account confirmation
+  const deleteForm = document.getElementById('deleteAccountForm');
+  if (deleteForm) {
+    deleteForm.addEventListener('submit', (e) => {
+      const confirm = (document.getElementById('delete_confirm') as HTMLInputElement)?.value;
+      if (confirm !== 'ELIMINAR') {
+        e.preventDefault();
+        alert('Debés escribir ELIMINAR para confirmar la eliminación de tu cuenta.');
+      }
+    });
+  }
+
+  // ─── 2FA Setup Flow ───
+  const start2faBtn = document.getElementById('start2faSetup');
+  if (start2faBtn) {
+    start2faBtn.addEventListener('click', async () => {
+      const content = document.getElementById('setup2faContent');
+      const loading = document.getElementById('setup2faLoading');
+      const step1 = document.getElementById('setup2faStep1');
+      if (!content || !loading || !step1) return;
+
+      start2faBtn.style.display = 'none';
+      content.style.display = 'block';
+      loading.style.display = 'block';
+      step1.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/auth/2fa/setup', { method: 'POST' });
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.error === 'already_enabled' ? 'La verificación en dos pasos ya está activa.' : 'No pudimos configurar la verificación. Probá de nuevo.');
+          content.style.display = 'none';
+          start2faBtn.style.display = '';
+          return;
+        }
+
+        const qrImg = document.getElementById('qrCodeImg') as HTMLImageElement;
+        const manualSecret = document.getElementById('manualSecret');
+        if (qrImg) qrImg.src = data.qr;
+        if (manualSecret) manualSecret.textContent = data.secret;
+
+        loading.style.display = 'none';
+        step1.style.display = 'block';
+      } catch {
+        alert('Error de conexión. Probá de nuevo.');
+        content.style.display = 'none';
+        start2faBtn.style.display = '';
+      }
+    });
+  }
+
+  // 2FA Verify (enable)
+  const verify2faForm = document.getElementById('verify2faForm');
+  if (verify2faForm) {
+    verify2faForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const tokenInput = document.getElementById('setup_2fa_token') as HTMLInputElement;
+      const token = tokenInput?.value?.trim();
+      if (!token || token.length !== 6) return;
+
+      try {
+        const formData = new FormData();
+        formData.append('token', token);
+        const res = await fetch('/api/auth/2fa/verify', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          window.location.href = '/perfil/editar?tab=seguridad&success=two_fa_enabled';
+        } else {
+          alert(data.error === 'invalid_token' ? 'El código es incorrecto. Revisá tu app e intentá de nuevo.' : 'No pudimos activar la verificación. Probá de nuevo.');
+        }
+      } catch {
+        alert('Error de conexión. Probá de nuevo.');
+      }
+    });
+  }
+
+  // 2FA Disable
+  const showDisableBtn = document.getElementById('showDisable2fa');
+  const disableForm = document.getElementById('disable2faForm');
+  if (showDisableBtn && disableForm) {
+    showDisableBtn.addEventListener('click', () => {
+      disableForm.style.display = disableForm.style.display === 'none' ? 'block' : 'none';
+    });
+  }
+
+  const disable2faFormInner = document.getElementById('disable2faFormInner');
+  if (disable2faFormInner) {
+    disable2faFormInner.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const tokenInput = document.getElementById('disable_2fa_token') as HTMLInputElement;
+      const token = tokenInput?.value?.trim();
+      if (!token || token.length !== 6) return;
+
+      try {
+        const formData = new FormData();
+        formData.append('token', token);
+        const res = await fetch('/api/auth/2fa/disable', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          window.location.href = '/perfil/editar?tab=seguridad&success=two_fa_disabled';
+        } else {
+          alert(data.error === 'invalid_token' ? 'El código es incorrecto. Revisá tu app e intentá de nuevo.' : 'No pudimos desactivar la verificación. Probá de nuevo.');
+        }
+      } catch {
+        alert('Error de conexión. Probá de nuevo.');
+      }
+    });
+  }
+</script>

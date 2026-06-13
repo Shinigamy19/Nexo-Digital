@@ -1,0 +1,49 @@
+---
+import styles from "./EventsList.module.css";
+import FilterBar from "../../ui/FilterBar/index.astro";
+import EventCard from "../EventCard/index.astro";
+
+interface Props {
+  eventsData: Array<any>;
+  filterOptions: Array<{ value: string; label: string }>;
+  publishUrl: string;
+}
+
+const { eventsData, filterOptions, publishUrl } = Astro.props;
+---
+
+<section class={styles.list} id="listado-eventos">
+  <div class="container">
+    <div class={`${styles.header} reveal`}>
+      <div>
+        <span class={styles.count}
+          >{eventsData.length} evento{
+            eventsData.length !== 1 ? "s" : ""
+          }</span
+        >
+      </div>
+      <FilterBar id="events" options={filterOptions} />
+    </div>
+
+    <div class={styles.grid}>
+      {
+        eventsData.map((event, i) => (
+          <div
+            data-category={event.event_type}
+            data-filtergroup="events"
+            class={`reveal reveal-delay-${(i % 3) + 1}`}
+          >
+            <EventCard {...event} />
+          </div>
+        ))
+      }
+    </div>
+
+    {eventsData.length === 0 && (
+      <div class={styles.empty}>
+        <p>No hay eventos publicados todavía.</p>
+        <a href={publishUrl} class={styles.emptyLink}>Publicar el primero</a>
+      </div>
+    )}
+  </div>
+</section>

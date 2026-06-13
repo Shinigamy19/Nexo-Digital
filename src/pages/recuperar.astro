@@ -1,0 +1,51 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import AuthCard from '../components/auth/AuthCard.astro';
+import styles from '../components/auth/AuthCard.module.css';
+
+const url = Astro.url;
+const sent = url.searchParams.get('sent') === '1';
+const error = url.searchParams.get('error');
+const errorMessage = error === 'invalid_email' ? 'El email no es válido.' : null;
+---
+
+<Layout title="Recuperar contraseña — Nexo Digital">
+  <main style="min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6rem 1.5rem 2rem;">
+    <a href="/" style="position: fixed; top: 1.5rem; left: 1.5rem; display: flex; align-items: center; gap: 0.4rem; text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.9rem; opacity: 0.7; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+      ← Inicio
+    </a>
+    <a href="/" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text); margin-bottom: 2rem; font-weight: 600;">
+      <img src="/favicons/logo.webp" alt="Nexo Digital" width="32" height="32" style="border-radius: 8px;" />
+      Nexo <span class="gradient-text">Digital</span>
+    </a>
+    <AuthCard
+      title="Recuperar contraseña"
+      subtitle="Te enviamos un link para que elijas una contraseña nueva."
+      error={errorMessage}
+      success={sent ? 'Si el email está registrado, vas a recibir un link para restablecer tu contraseña.' : null}
+    >
+      <form class={styles.form} method="POST" action="/api/auth/recover">
+        <div class={styles.field}>
+          <label class={styles.label} for="email">Email de tu cuenta</label>
+          <input
+            class={styles.input}
+            type="email"
+            id="email"
+            name="email"
+            required
+            autocomplete="email"
+            placeholder="tu@email.com"
+          />
+        </div>
+
+        <button class={styles.submit} type="submit">Enviar link de recuperación</button>
+      </form>
+
+      <div class={styles.footer}>
+        <a href="/login">Volver a iniciar sesión</a>
+      </div>
+    </AuthCard>
+  </main>
+</Layout>

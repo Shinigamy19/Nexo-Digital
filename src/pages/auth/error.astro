@@ -1,0 +1,42 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import styles from '../../components/auth/AuthCard.module.css';
+
+const reason = Astro.url.searchParams.get('reason') ?? 'unknown';
+
+const reasonMap: Record<string, string> = {
+  missing_code: 'Falta el código de autenticación. Reintentá el inicio de sesión.',
+  missing_token: 'Falta el token de verificación. Usá el link que te llegó por email.',
+  oauth_denied: 'Cancelaste el inicio de sesión con el proveedor.',
+  not_admin: 'Necesitás ser administrador para acceder a esa página.',
+  no_session: 'No se pudo crear la sesión. Probá de nuevo.',
+  no_user_id: 'No se pudo identificar al usuario. Probá de nuevo.',
+  email_conflict: 'Tu email ya está asociado a otra cuenta. Contactá al soporte.',
+  profile_creation_failed: 'No pudimos crear tu perfil. Probá de nuevo.',
+  linking_failed: 'No pudimos vincular el proveedor. Probá de nuevo.',
+  unknown: 'Ocurrió un error inesperado.',
+};
+
+const message = reasonMap[reason] ?? `Error: ${reason}`;
+---
+
+<Layout title="Error — Nexo Digital">
+  <main style="min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6rem 1.5rem 2rem;">
+    <a href="/" style="position: fixed; top: 1.5rem; left: 1.5rem; display: flex; align-items: center; gap: 0.4rem; text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.9rem; opacity: 0.7; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+      ← Inicio
+    </a>
+    <a href="/" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text); margin-bottom: 2rem; font-weight: 600;">
+      <img src="/favicons/logo.webp" alt="Nexo Digital" width="32" height="32" style="border-radius: 8px;" />
+      Nexo <span class="gradient-text">Digital</span>
+    </a>
+    <div class={styles.card} style="text-align: center;">
+      <h1 class={styles.title}>No pudimos completar la acción</h1>
+      <p class={styles.subtitle} style="margin-bottom: 1.5rem;">{message}</p>
+      <a href="/login" class={styles.submit} style="display: inline-block; text-decoration: none; text-align: center;">
+        Volver a intentar
+      </a>
+    </div>
+  </main>
+</Layout>

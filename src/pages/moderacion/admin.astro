@@ -1,0 +1,480 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/layout/Navbar/index.astro';
+import Footer from '../../components/layout/Footer/index.astro';
+import logoImg from '../../assets/brand/logo.webp';
+import { isAuthenticated, isAdmin } from '../../lib/roles';
+import styles from '../../styles/moderacion.module.css';
+
+const user = Astro.locals.user;
+if (!isAuthenticated(user)) {
+  return Astro.redirect('/login?next=' + encodeURIComponent('/moderacion/admin'), 303);
+}
+if (!isAdmin(user)) {
+  return Astro.redirect('/moderacion', 303);
+}
+
+const ROLE_LABELS: Record<string, string> = {
+  user: 'Usuario',
+  moderator: 'Moderador',
+  admin: 'Administrador',
+};
+const ROLE_EMOJI: Record<string, string> = {
+  user: '👤',
+  moderator: '🛡️',
+  admin: '⚙️',
+};
+
+const availableImages = ['alex.png', 'sofia.png', 'marcos.png', 'lucia.png', 'cristian.png'];
+---
+
+<Layout title="Panel de administración — Nexo Digital" description="Gestión de usuarios y contenido destacado.">
+  <Navbar />
+  <main class={styles.page}>
+    <div class={styles.container}>
+      <header class={styles.header}>
+        <h1 class={styles.title}>⚙️ Panel de administración</h1>
+        <p class={styles.subtitle}>Gestioná los usuarios, roles y perfiles destacados del carrusel de empleos.</p>
+      </header>
+
+      <a href="/moderacion" style="display:inline-flex;align-items:center;gap:0.4rem;color:var(--cyan);text-decoration:none;font-size:0.9rem;font-weight:600;margin-bottom:1.25rem;">← Volver a moderación</a>
+
+      <nav class={styles.tabs} id="admin-tabs">
+        <a href="#users" class={`${styles.tab} ${styles.tabActive}`} data-tab="users" data-active>👥 Usuarios</a>
+        <a href="#featured" class={styles.tab} data-tab="featured">⭐ Perfiles destacados</a>
+      </nav>
+
+      <!-- ═══════════════ Users section ═══════════════ -->
+      <section id="users-section">
+        <div id="adminStats" class={styles.adminStats}></div>
+
+        <input
+          type="text"
+          id="searchInput"
+          class={styles.adminSearch}
+          placeholder="Buscar por username o nombre..."
+          autocomplete="off"
+        />
+
+        <div id="usersList" class={styles.list}>
+          <div class={styles.empty}>Cargando usuarios...</div>
+        </div>
+
+        <div id="pagination" style="display:flex;justify-content:center;gap:0.5rem;margin-top:1.25rem;"></div>
+      </section>
+
+      <!-- ═══════════════ Featured candidates section ═══════════════ -->
+      <section id="featured-section" style="display:none;">
+        <div class={styles.adminStats}>
+          <div class={styles.adminStat}>
+            <span class={styles.adminStatValue} id="featuredCount">0</span>
+            <span class={styles.adminStatLabel}>Perfiles destacados</span>
+          </div>
+        </div>
+
+        <details style="margin-bottom:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--cyan);font-size:0.95rem;font-family:var(--font-display);">+ Agregar nuevo perfil destacado</summary>
+          <form id="featuredForm" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.8rem;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <input type="text" name="name" placeholder="Nombre completo" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+              <input type="text" name="role" placeholder="Rol (Ej: Frontend Developer)" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+            </div>
+            <textarea name="bio" placeholder="Bio (mín 10 caracteres)" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;resize:vertical;min-height:60px;"></textarea>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <input type="text" name="tags" placeholder="Tags (separados por coma)" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+              <input type="text" name="availability" placeholder="Disponibilidad" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <input type="text" name="top_skill" placeholder="Skill destacada" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+              <label style="display:flex;flex-direction:column;gap:0.3rem;font-size:0.78rem;color:var(--text-muted);">
+                Subir imagen
+                <input type="file" name="image" accept="image/*" style="padding:0.35rem 0.6rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.85rem;cursor:pointer;" />
+              </label>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <label style="display:flex;flex-direction:column;gap:0.3rem;font-size:0.78rem;color:var(--text-muted);">
+                O elegir prediseñada
+                <select name="image_preset" style="padding:0.4rem 0.6rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.85rem;">
+                  <option value="">Seleccionar…</option>
+                  {availableImages.map((img) => <option value={img}>{img}</option>)}
+                </select>
+              </label>
+              <input type="number" name="sort_order" placeholder="Orden (0 = primero)" value="0" style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;max-width:200px;" />
+            </div>
+            <textarea name="motivation" placeholder="Motivación del postulante (solo visible para mods)" style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;resize:vertical;min-height:60px;"></textarea>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <label style="display:flex;flex-direction:column;gap:0.3rem;font-size:0.78rem;color:var(--text-muted);">
+                Estado
+                <select name="status" style="padding:0.4rem 0.6rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.85rem;">
+                  <option value="pending">Pendiente</option>
+                  <option value="approved">Aprobado</option>
+                  <option value="rejected">Rechazado</option>
+                </select>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:0.3rem;font-size:0.78rem;color:var(--text-muted);">
+                Notas de moderación
+                <input type="text" name="moderation_notes" placeholder="Notas internas..." style="padding:0.4rem 0.6rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.85rem;" />
+              </label>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.3rem;">
+              <button type="submit" id="featuredSubmitBtn" style="padding:0.55rem 1.2rem;border-radius:8px;border:1px solid rgba(34,197,94,0.45);background:rgba(34,197,94,0.18);color:#86efac;font-weight:600;font-size:0.9rem;cursor:pointer;">Guardar perfil</button>
+              <button type="button" id="featuredCancelEdit" style="display:none;padding:0.55rem 1.2rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);font-weight:600;font-size:0.9rem;cursor:pointer;">Cancelar</button>
+              <input type="hidden" name="edit_id" id="editId" value="" />
+            </div>
+          </form>
+        </details>
+
+        <div id="featuredList" class={styles.list}>
+          <div class={styles.empty}>Cargando perfiles destacados...</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+  <Footer logoImg={logoImg} />
+</Layout>
+
+<script>
+  // ─── Tab switching ───
+  const tabLinks = document.querySelectorAll('#admin-tabs [data-tab]');
+  const usersSection = document.getElementById('users-section')!;
+  const featuredSection = document.getElementById('featured-section')!;
+
+  tabLinks.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      tabLinks.forEach((l) => delete l.dataset.active);
+      link.dataset.active = '';
+      const tab = link.dataset.tab;
+      usersSection.style.display = tab === 'users' ? '' : 'none';
+      featuredSection.style.display = tab === 'featured' ? '' : 'none';
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash === 'featured') {
+    const featuredLink = document.querySelector('#admin-tabs [data-tab="featured"]');
+    if (featuredLink) featuredLink.dispatchEvent(new Event('click'));
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // USERS
+  // ══════════════════════════════════════════════════════════════════
+
+  const ROLE_LABELS: Record<string, string> = { user: 'Usuario', moderator: 'Moderador', admin: 'Administrador' };
+  const ROLE_EMOJI: Record<string, string> = { user: '👤', moderator: '🛡️', admin: '⚙️' };
+  const ROLE_COLORS: Record<string, string> = {
+    user: 'background:rgba(255,255,255,0.06);color:var(--text-muted);border-color:rgba(255,255,255,0.08)',
+    moderator: 'background:rgba(168,85,247,0.15);color:#c084fc;border-color:rgba(168,85,247,0.3)',
+    admin: 'background:rgba(0,245,255,0.1);color:#00f5ff;border-color:rgba(0,245,255,0.3)',
+  };
+
+  let currentPage = 1;
+  let currentQuery = '';
+  let debounceTimer: ReturnType<typeof setTimeout>;
+
+  const statsEl = document.getElementById('adminStats');
+  const listEl = document.getElementById('usersList');
+  const paginationEl = document.getElementById('pagination');
+  const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+
+  async function fetchUsers(page: number, q: string) {
+    const params = new URLSearchParams({ page: String(page) });
+    if (q) params.set('q', q);
+    try {
+      const res = await fetch(`/api/admin/users?${params}`);
+      if (!res.ok) throw new Error('fetch failed');
+      return await res.json();
+    } catch { return null; }
+  }
+
+  function renderStats(total: number) {
+    if (!statsEl) return;
+    statsEl.innerHTML = `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;display:flex;flex-direction:column;min-width:100px;"><span style="font-size:1.4rem;font-weight:800;color:var(--text-primary);">${total}</span><span style="font-size:0.75rem;color:var(--text-muted);margin-top:0.1rem;">Usuarios totales</span></div>`;
+  }
+
+  function renderUsers(users: Array<{ id: string; username: string; display_name: string | null; avatar_url: string | null; role: string; created_at: string }>) {
+    if (!listEl) return;
+    if (!users.length) { listEl.innerHTML = '<div style="background:var(--bg-card);border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;color:var(--text-muted);">No se encontraron usuarios.</div>'; return; }
+
+    listEl.innerHTML = users.map((u) => {
+      const initial = (u.display_name || u.username || '?')[0].toUpperCase();
+      const avatar = u.avatar_url
+        ? `<img src="${u.avatar_url}" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;" />`
+        : `<span style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:var(--text-primary);background:rgba(168,85,247,0.2);flex-shrink:0;">${initial}</span>`;
+      const roleStyle = ROLE_COLORS[u.role] ?? ROLE_COLORS.user;
+      return `<article style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:0.75rem;min-width:0;">
+            ${avatar}
+            <div style="min-width:0;">
+              <div style="font-weight:600;color:var(--text-primary);font-size:0.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.display_name || u.username}</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">@${u.username}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+            <span style="font-size:0.78rem;padding:0.2rem 0.6rem;border-radius:6px;border:1px solid;font-weight:600;${roleStyle}">${ROLE_EMOJI[u.role] ?? '👤'} ${ROLE_LABELS[u.role] ?? u.role}</span>
+            <select class="roleSelect" data-user-id="${u.id}" data-current-role="${u.role}" style="padding:0.35rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;font-size:0.82rem;cursor:pointer;">
+              <option value="user" ${u.role === 'user' ? 'selected' : ''}>Usuario</option>
+              <option value="moderator" ${u.role === 'moderator' ? 'selected' : ''}>Moderador</option>
+              <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+            </select>
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+
+    listEl.querySelectorAll<HTMLSelectElement>('.roleSelect').forEach((sel) => {
+      sel.addEventListener('change', async () => {
+        const userId = sel.dataset.userId;
+        const newRole = sel.value;
+        const prevRole = sel.dataset.currentRole;
+        if (!userId || newRole === prevRole) return;
+        const labelMap: Record<string, string> = { user: 'Usuario', moderator: 'Moderador', admin: 'Admin' };
+        if (!confirm(`¿Cambiar el rol a "${labelMap[newRole] ?? newRole}"?`)) { sel.value = prevRole ?? 'user'; return; }
+        sel.disabled = true;
+        try {
+          const formData = new FormData();
+          formData.append('user_id', userId);
+          formData.append('role', newRole);
+          const res = await fetch('/api/admin/users', { method: 'PUT', body: formData });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            sel.dataset.currentRole = newRole;
+          } else {
+            alert(data.error === 'cannot_change_own_role' ? 'No podés cambiar tu propio rol.' : 'Error al cambiar el rol.');
+            sel.value = prevRole ?? 'user';
+          }
+        } catch {
+          alert('Error de conexión.');
+          sel.value = prevRole ?? 'user';
+        } finally { sel.disabled = false; }
+      });
+    });
+  }
+
+  function renderPagination(page: number, totalPages: number) {
+    if (!paginationEl || totalPages <= 1) { if (paginationEl) paginationEl.innerHTML = ''; return; }
+    let html = '';
+    if (page > 1) html += `<button data-page="${page - 1}" style="padding:0.4rem 0.8rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;font-size:0.82rem;">← Anterior</button>`;
+    html += `<span style="padding:0.4rem 0.6rem;font-size:0.82rem;color:var(--text-muted);">Página ${page} de ${totalPages}</span>`;
+    if (page < totalPages) html += `<button data-page="${page + 1}" style="padding:0.4rem 0.8rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;font-size:0.82rem;">Siguiente →</button>`;
+    paginationEl.innerHTML = html;
+    paginationEl.querySelectorAll('button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const p = parseInt(btn.dataset.page ?? '1', 10);
+        if (p !== currentPage) { currentPage = p; load(); }
+      });
+    });
+  }
+
+  async function load() {
+    if (!listEl) return;
+    listEl.innerHTML = '<div style="background:var(--bg-card);border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;color:var(--text-muted);">Cargando...</div>';
+    const data = await fetchUsers(currentPage, currentQuery);
+    if (!data) { listEl.innerHTML = '<div style="background:var(--bg-card);border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;color:var(--text-muted);">Error al cargar usuarios.</div>'; return; }
+    renderStats(data.total);
+    renderUsers(data.users);
+    renderPagination(data.page, data.totalPages);
+  }
+
+  searchInput?.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      currentQuery = searchInput.value.trim();
+      currentPage = 1;
+      load();
+    }, 300);
+  });
+
+  load();
+
+  // ══════════════════════════════════════════════════════════════════
+  // FEATURED CANDIDATES
+  // ══════════════════════════════════════════════════════════════════
+
+  const featuredList = document.getElementById('featuredList')!;
+  const featuredCountEl = document.getElementById('featuredCount')!;
+  const featuredForm = document.getElementById('featuredForm') as HTMLFormElement | null;
+  const editIdInput = document.getElementById('editId') as HTMLInputElement;
+  const submitBtn = document.getElementById('featuredSubmitBtn') as HTMLButtonElement;
+  const cancelEditBtn = document.getElementById('featuredCancelEdit') as HTMLButtonElement;
+
+  const STATUS_LABELS: Record<string, string> = { pending: 'Pendiente', approved: 'Aprobado', rejected: 'Rechazado', removed: 'Eliminado' };
+  const STATUS_STYLES: Record<string, string> = {
+    pending: 'background:rgba(251,191,36,0.12);color:#fbbf24;border-color:rgba(251,191,36,0.3)',
+    approved: 'background:rgba(34,197,94,0.1);color:#86efac;border-color:rgba(34,197,94,0.3)',
+    rejected: 'background:rgba(248,113,113,0.1);color:#fca5a5;border-color:rgba(248,113,113,0.3)',
+    removed: 'background:rgba(248,113,113,0.1);color:#fca5a5;border-color:rgba(248,113,113,0.3)',
+  };
+
+  function cancelEdit() {
+    editIdInput.value = '';
+    submitBtn.textContent = 'Guardar perfil';
+    cancelEditBtn.style.display = 'none';
+    featuredForm.reset();
+  }
+
+  async function loadFeatured() {
+    try {
+      const res = await fetch('/api/admin/featured-candidates');
+      if (!res.ok) throw new Error('fetch failed');
+      const candidates: Array<{
+        id: string; name: string; role: string; bio: string; tags: string[];
+        availability: string; topSkill: string; image: string; sortOrder: number; isActive: boolean;
+        motivation: string | null; status: string; moderationNotes: string | null;
+        profileId: string | null;
+      }> = await res.json();
+
+      featuredCountEl.textContent = String(candidates.length);
+
+      if (!candidates.length) {
+        featuredList.innerHTML = '<div style="background:var(--bg-card);border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;color:var(--text-muted);">No hay perfiles destacados. Agregá uno usando el formulario de arriba.</div>';
+        return;
+      }
+
+      featuredList.innerHTML = candidates.map((c) => `
+        <article style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.4rem;display:flex;flex-direction:column;gap:0.7rem;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:0.75rem;min-width:0;">
+              <div style="width:40px;height:40px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;color:#0a0a0f;flex-shrink:0;">${c.name.charAt(0)}</div>
+              <div style="min-width:0;">
+                <div style="font-family:var(--font-display);font-weight:700;color:var(--text-primary);font-size:1.05rem;">${c.name}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:0.4rem;font-size:0.82rem;color:var(--text-muted);margin-top:0.15rem;">
+                  <span>${c.role}</span>
+                  <span>·</span>
+                  <span>${c.availability}</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0;flex-wrap:wrap;">
+              <span style="font-size:0.72rem;padding:0.15rem 0.5rem;border-radius:6px;border:1px solid;font-weight:600;${STATUS_STYLES[c.status] || STATUS_STYLES.pending}">${STATUS_LABELS[c.status] ?? c.status}</span>
+              <span style="font-size:0.75rem;color:var(--text-muted);">#${c.sortOrder}</span>
+              <label style="display:flex;align-items:center;gap:0.25rem;font-size:0.78rem;color:var(--text-muted);cursor:pointer;">
+                <input type="checkbox" class="toggle-active" data-id="${c.id}" ${c.isActive ? 'checked' : ''} />
+                Activo
+              </label>
+            </div>
+          </div>
+
+          <p style="font-size:0.88rem;color:var(--text-secondary);line-height:1.6;margin:0;">${c.bio}</p>
+
+          ${c.motivation ? `<details style="font-size:0.82rem;"><summary style="cursor:pointer;color:var(--text-muted);font-weight:600;">Motivación del postulante</summary><p style="margin-top:0.4rem;padding:0.6rem 0.8rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;color:var(--text-secondary);line-height:1.6;">${c.motivation}</p></details>` : ''}
+
+          <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+            ${c.tags.map((t) => `<span style="font-size:0.72rem;color:var(--text-muted);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.18rem 0.55rem;">${t}</span>`).join('')}
+            <span style="font-size:0.72rem;color:var(--cyan);background:rgba(0,245,255,0.08);border:1px solid rgba(0,245,255,0.2);border-radius:6px;padding:0.18rem 0.55rem;">⭐ ${c.topSkill}</span>
+          </div>
+
+          <div style="display:flex;gap:0.5rem;padding-top:0.3rem;border-top:1px solid var(--border);flex-wrap:wrap;">
+            <button class="edit-featured" data-id="${c.id}" style="padding:0.4rem 0.9rem;border-radius:8px;border:1px solid rgba(99,102,241,0.3);background:rgba(99,102,241,0.12);color:#a5b4fc;cursor:pointer;font-size:0.8rem;font-weight:600;">✏️ Editar</button>
+            <button class="delete-featured" data-id="${c.id}" style="padding:0.4rem 0.9rem;border-radius:8px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.1);color:#fca5a5;cursor:pointer;font-size:0.8rem;font-weight:600;">🗑️ Eliminar</button>
+          </div>
+        </article>
+      `).join('');
+
+      // Toggle active
+      featuredList.querySelectorAll<HTMLInputElement>('.toggle-active').forEach((cb) => {
+        cb.addEventListener('change', async () => {
+          const formData = new FormData();
+          formData.append('id', cb.dataset.id ?? '');
+          formData.append('is_active', cb.checked ? 'true' : 'false');
+          try {
+            await fetch('/api/admin/featured-candidates', { method: 'PUT', body: formData });
+          } catch { cb.checked = !cb.checked; }
+        });
+      });
+
+      // Edit
+      featuredList.querySelectorAll<HTMLButtonElement>('.edit-featured').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const c = candidates.find(x => x.id === btn.dataset.id);
+          if (!c) return;
+          editIdInput.value = c.id;
+          submitBtn.textContent = 'Actualizar perfil';
+          cancelEditBtn.style.display = '';
+          (featuredForm.querySelector('[name="name"]') as HTMLInputElement).value = c.name;
+          (featuredForm.querySelector('[name="role"]') as HTMLInputElement).value = c.role;
+          (featuredForm.querySelector('[name="bio"]') as HTMLTextAreaElement).value = c.bio;
+          (featuredForm.querySelector('[name="tags"]') as HTMLInputElement).value = c.tags.join(', ');
+          (featuredForm.querySelector('[name="availability"]') as HTMLInputElement).value = c.availability;
+          (featuredForm.querySelector('[name="top_skill"]') as HTMLInputElement).value = c.topSkill;
+          (featuredForm.querySelector('[name="sort_order"]') as HTMLInputElement).value = String(c.sortOrder);
+          (featuredForm.querySelector('[name="motivation"]') as HTMLTextAreaElement).value = c.motivation || '';
+          (featuredForm.querySelector('[name="status"]') as HTMLSelectElement).value = c.status;
+          (featuredForm.querySelector('[name="moderation_notes"]') as HTMLInputElement).value = c.moderationNotes || '';
+          featuredForm.querySelector('details')!.open = true;
+        });
+      });
+
+      // Delete
+      featuredList.querySelectorAll<HTMLButtonElement>('.delete-featured').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('¿Eliminar este perfil destacado?')) return;
+          try {
+            const res = await fetch(`/api/admin/featured-candidates?id=${btn.dataset.id}`, { method: 'DELETE' });
+            if (res.ok) { loadFeatured(); loadFeaturedCount(); }
+            else { alert('Error al eliminar'); }
+          } catch { alert('Error de conexión'); }
+        });
+      });
+    } catch {
+      featuredList.innerHTML = '<div style="background:var(--bg-card);border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;color:var(--text-muted);">Error al cargar perfiles destacados.</div>';
+    }
+  }
+
+  async function loadFeaturedCount() {
+    try {
+      const res = await fetch('/api/admin/featured-candidates');
+      if (res.ok) {
+        const data = await res.json();
+        featuredCountEl.textContent = String(data.length);
+      }
+    } catch { /* ignore */ }
+  }
+
+  cancelEditBtn?.addEventListener('click', cancelEdit);
+
+  featuredForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = featuredForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = 'Guardando...';
+
+    try {
+      const formData = new FormData(featuredForm);
+      const imageFile = formData.get('image');
+      if (!(imageFile instanceof File && imageFile.size > 0)) {
+        const preset = (document.querySelector<HTMLSelectElement>('[name="image_preset"]'))?.value;
+        if (preset) {
+          formData.delete('image');
+          formData.set('image', preset);
+        }
+      }
+      const isEdit = !!editIdInput.value;
+      const method = isEdit ? 'PUT' : 'POST';
+      if (isEdit) {
+        formData.set('id', editIdInput.value);
+      }
+      const res = await fetch('/api/admin/featured-candidates', { method, body: formData });
+      if (res.ok) {
+        cancelEdit();
+        loadFeatured();
+        loadFeaturedCount();
+      } else {
+        const data = await res.json();
+        alert(`Error: ${data.error ?? 'No se pudo guardar.'}`);
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+
+  loadFeatured();
+</script>

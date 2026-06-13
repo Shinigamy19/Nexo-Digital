@@ -1,0 +1,176 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/layout/Navbar/index.astro';
+import Footer from '../../components/layout/Footer/index.astro';
+import logoImg from '../../assets/brand/logo.webp';
+import { isAuthenticated } from '../../lib/roles';
+import { submissionErrorMessage } from '../../lib/submission-errors';
+import { EVENT_TYPES, EVENT_CATEGORIES } from '../../lib/portal-meta';
+import styles from '../../styles/forms.module.css';
+
+const user = Astro.locals.user;
+if (!isAuthenticated(user)) {
+  return Astro.redirect('/login?next=' + encodeURIComponent('/eventos/nuevo'), 303);
+}
+
+const errorCode = Astro.url.searchParams.get('error');
+const fieldName = Astro.url.searchParams.get('field');
+const errorMessage = submissionErrorMessage(errorCode);
+const createdId = Astro.url.searchParams.get('id');
+const justCreated = Astro.url.searchParams.get('created') === 'event';
+---
+
+<Layout
+  title="Publicar evento — Nexo Digital"
+  description="Publicá un evento en Nexo Digital. La revisaremos y lo publicaremos apenas esté aprobado."
+>
+  <Navbar />
+  <main class={styles.page}>
+    <div class={styles.card}>
+      <header class={styles.header}>
+        <h1 class={styles.title}>Publicar nuevo evento</h1>
+        <p class={styles.subtitle}>
+          Tu envío queda en revisión. Lo aprueba un moderador antes de salir al público.
+        </p>
+      </header>
+
+      {errorMessage && (
+        <p class={styles.error} role="alert">
+          ⚠️ {errorMessage}
+          {fieldName && <small> (campo: <code>{fieldName}</code>)</small>}
+        </p>
+      )}
+
+      {justCreated && createdId && (
+        <p class={styles.disclaimer}>
+          ✅ Evento creado (id <code>{createdId.slice(0, 8)}</code>). Te avisamos cuando se apruebe.
+        </p>
+      )}
+
+      <form method="POST" action="/api/eventos" class={styles.form} novalidate>
+        <div class={styles.field}>
+          <label class={styles.label} for="title">Título del evento <span class={styles.required}>*</span></label>
+          <input class={styles.input} type="text" id="title" name="title" required minlength="4" maxlength="120" placeholder="Meetup de JavaScript" />
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="description">Descripción <span class={styles.required}>*</span></label>
+          <textarea class={styles.textarea} id="description" name="description" required minlength="20" maxlength="2000" placeholder="Contá de qué trata el evento, la agenda, los speakers…"></textarea>
+        </div>
+
+        <div class={styles.row}>
+          <div class={styles.field}>
+            <label class={styles.label}>Tipo de evento <span class={styles.required}>*</span></label>
+            <div class={styles.pills} role="radiogroup" aria-label="Tipo de evento">
+              {EVENT_TYPES.map((m) => (
+                <label class={styles.pill}>
+                  <input type="radio" name="event_type" value={m.value} required />
+                  <span>{m.emoji} {m.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class={styles.field}>
+            <label class={styles.label} for="category">Categoría <span class={styles.required}>*</span></label>
+            <select class={styles.select} id="category" name="category" required>
+              <option value="" disabled selected>Elegí…</option>
+              {EVENT_CATEGORIES.map((c) => (
+                <option value={c.value}>{c.emoji} {c.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div class={styles.row}>
+          <div class={styles.field}>
+            <label class={styles.label} for="start_date">Fecha de inicio <span class={styles.required}>*</span></label>
+            <input class={styles.input} type="date" id="start_date" name="start_date" required />
+          </div>
+          <div class={styles.field}>
+            <label class={styles.label} for="end_date">Fecha de fin</label>
+            <input class={styles.input} type="date" id="end_date" name="end_date" />
+            <span class={styles.hint}>Opcional. Si dura un solo día, dejalo vacío.</span>
+          </div>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="start_time">Horario</label>
+          <input class={styles.input} type="time" id="start_time" name="start_time" />
+          <span class={styles.hint}>Opcional. Ej: 18:00</span>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="location">Ubicación</label>
+          <input class={styles.input} type="text" id="location" name="location" maxlength="200" placeholder="Ej: Palermo, CABA (para presenciales o híbridos)" />
+          <span class={styles.hint}>Opcional. Para eventos presenciales o híbridos.</span>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="url">Link del evento</label>
+          <input class={styles.input} type="url" id="url" name="url" maxlength="500" placeholder="https://meetup.com/..." />
+          <span class={styles.hint}>Opcional. URL con más información o para inscripción.</span>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="contact_info">Contacto</label>
+          <input class={styles.input} type="text" id="contact_info" name="contact_info" maxlength="200" placeholder="@usuario en redes o email" />
+          <span class={styles.hint}>Opcional. Cómo contactarte o dónde seguir el evento.</span>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="max_participants">Cupo máximo</label>
+          <input class={styles.input} type="number" id="max_participants" name="max_participants" min="0" step="1" placeholder="50" />
+          <span class={styles.hint}>Opcional. Límite de participantes.</span>
+        </div>
+
+        <div class={styles.actions}>
+          <button type="submit" class={styles.submit}>Enviar a revisión</button>
+          <a href="/eventos" class={styles.cancel}>Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </main>
+  <Footer logoImg={logoImg} />
+</Layout>
+
+<script>
+  const form = document.querySelector('form');
+  if (!form) throw new Error('Form not found');
+  const key = 'form-draft:' + (form.getAttribute('action') || 'unknown');
+  const hasError = new URLSearchParams(location.search).has('error');
+
+  if (hasError) {
+    const saved = sessionStorage.getItem(key);
+    if (saved) {
+      const data: Record<string, string> = JSON.parse(saved);
+      for (const [name, value] of Object.entries(data)) {
+        const el = form.elements.namedItem(name);
+        if (!el) continue;
+        if (el instanceof RadioNodeList) {
+          for (const radio of el) {
+            if (radio instanceof HTMLInputElement) radio.checked = radio.value === value;
+          }
+        } else if (el instanceof HTMLInputElement && el.type === 'checkbox') {
+          (el as HTMLInputElement).checked = value === 'true';
+        } else if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+          el.value = value;
+        }
+      }
+      sessionStorage.removeItem(key);
+    }
+  } else {
+    sessionStorage.removeItem(key);
+  }
+
+  form.addEventListener('submit', () => {
+    const fd = new FormData(form);
+    const data: Record<string, string> = {};
+    for (const [key, val] of fd.entries()) {
+      if (typeof val === 'string') data[key] = val;
+    }
+    sessionStorage.setItem(key, JSON.stringify(data));
+  });
+</script>

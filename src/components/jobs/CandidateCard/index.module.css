@@ -9,7 +9,6 @@
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   position: relative;
   backdrop-filter: blur(10px);
-  height: 500px; /* Altura fija absoluta para consistencia */
 }
 
 .candidate-card:hover {
@@ -23,8 +22,7 @@
   display: flex;
   gap: 1rem;
   align-items: center;
-  margin-bottom: 1.5rem;
-  height: 60px; /* Altura fija para el encabezado */
+  margin-bottom: 1rem;
 }
 
 .avatar-wrapper {
@@ -42,6 +40,20 @@
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(0, 245, 255, 0.4));
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 700;
   border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -80,12 +92,6 @@
   line-height: 1.5;
   color: var(--text-secondary);
   opacity: 0.9;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  height: 4.5rem; /* Forzamos altura de 3 líneas */
   margin: 0;
 }
 
@@ -113,8 +119,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  height: 60px; /* Espacio fijo para 2 líneas de tags */
+  margin-bottom: 1rem;
   align-content: flex-start;
 }
 

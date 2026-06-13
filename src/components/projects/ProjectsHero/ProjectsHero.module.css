@@ -63,3 +63,11 @@
   gap: 0.4rem;
   opacity: 0.75;
 }
+
+@media (max-width: 768px) {
+  .projects-hero { padding-top: 7rem; padding-bottom: 3rem; }
+}
+
+@media (max-width: 480px) {
+  .projects-hero { padding-top: 6rem; padding-bottom: 2.5rem; }
+}

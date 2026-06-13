@@ -1,0 +1,102 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import AuthCard from '../components/auth/AuthCard.astro';
+import OAuthButtons from '../components/auth/OAuthButtons.astro';
+import styles from '../components/auth/AuthCard.module.css';
+
+const url = Astro.url;
+const next = url.searchParams.get('next') ?? '/perfil';
+const error = url.searchParams.get('error');
+const emailParam = url.searchParams.get('email') ?? '';
+
+const errorMessages: Record<string, string> = {
+  // We deliberately collapse invalid_credentials and email_not_confirmed
+  // into the same message to avoid user-enumeration attacks: an attacker
+  // shouldn't be able to learn whether an email is registered.
+  invalid_credentials: 'Email o contraseña incorrectos. Si tu cuenta es nueva, confirmá el email desde el link que te enviamos.',
+  email_not_confirmed: 'Email o contraseña incorrectos. Si tu cuenta es nueva, confirmá el email desde el link que te enviamos.',
+  too_many_requests: 'Demasiados intentos. Esperá unos minutos y probá de nuevo.',
+  signup_disabled: 'El registro está deshabilitado temporalmente.',
+  oauth_failed: 'No pudimos completar el inicio de sesión con ese proveedor. Probá con email y contraseña.',
+  generic: 'No pudimos iniciar sesión. Probá de nuevo.',
+};
+
+const errorMessage = error ? (errorMessages[error] ?? errorMessages.generic) : null;
+---
+
+<Layout title="Iniciar sesión — Nexo Digital">
+  <main style="min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6rem 1.5rem 2rem;">
+    <a href="/" style="position: fixed; top: 1.5rem; left: 1.5rem; display: flex; align-items: center; gap: 0.4rem; text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.9rem; opacity: 0.7; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+      ← Inicio
+    </a>
+    <a href="/" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text); margin-bottom: 2rem; font-weight: 600;">
+      <img src="/favicons/logo.webp" alt="Nexo Digital" width="32" height="32" style="border-radius: 8px;" />
+      Nexo <span class="gradient-text">Digital</span>
+    </a>
+    <AuthCard
+      title="Bienvenido de vuelta"
+      subtitle="Iniciá sesión para acceder a tu perfil y la comunidad."
+      error={errorMessage}
+    >
+      <OAuthButtons next={next} />
+
+      <div class={styles.divider}>o con email</div>
+
+      <form class={styles.form} method="POST" action={`/api/auth/login?next=${encodeURIComponent(next)}`}>
+        <div class={styles.field}>
+          <label class={styles.label} for="email">Email o usuario</label>
+          <input
+            class={styles.input}
+            type="text"
+            id="email"
+            name="email"
+            required
+            autocomplete="username"
+            value={emailParam}
+            placeholder="tu@email.com o usuario"
+          />
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="password">Contraseña</label>
+          <div class={styles.passwordWrapper}>
+            <input
+              class={styles.input}
+              type="password"
+              id="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              minlength="8"
+              placeholder="••••••••"
+            />
+            <button class={styles.togglePassword} type="button" aria-label="Mostrar contraseña" data-toggle="password">👁</button>
+          </div>
+        </div>
+
+        <button class={styles.submit} type="submit">Iniciar sesión</button>
+      </form>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-toggle="password"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = (btn.parentElement?.querySelector('.input') ?? btn.previousElementSibling) as HTMLInputElement | null;
+      if (!input) return;
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.textContent = isPassword ? '\u{1F648}' : '\u{1F441}';
+      btn.setAttribute('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    });
+  });
+</script>
+
+      <div class={styles.footer}>
+        ¿Olvidaste tu contraseña? <a href="/recuperar">Recuperarla</a>
+        <br />
+        ¿No tenés cuenta? <a href={`/registro?next=${encodeURIComponent(next)}`}>Crear una</a>
+      </div>
+    </AuthCard>
+  </main>
+</Layout>

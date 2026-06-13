@@ -1,0 +1,255 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/layout/Navbar/index.astro';
+import Footer from '../../components/layout/Footer/index.astro';
+import RoleBadge from '../../components/ui/RoleBadge.astro';
+import JobCard from '../../components/jobs/JobCard/index.astro';
+import ProjectCard from '../../components/projects/ProjectCard/index.astro';
+import logoImg from '../../assets/brand/logo.webp';
+import styles from '../../components/profile/Profile.module.css';
+import { prisma } from '../../lib/prisma';
+import { createClient } from '@supabase/supabase-js';
+import { env } from '../../lib/env';
+
+const { username } = Astro.params;
+
+if (!username || typeof username !== 'string' || !/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
+  return new Response('Not found', { status: 404 });
+}
+
+const data = await prisma.profile.findUnique({ where: { username } });
+
+if (!data) {
+  return new Response('Not found', { status: 404 });
+}
+
+let userEmail: string | null = null;
+if (data.showEmail) {
+  const admin = createClient(env.PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+  const { data: authUser } = await admin.auth.admin.getUserById(data.id);
+  userEmail = authUser?.user?.email ?? null;
+}
+
+const profile = {
+  id: data.id,
+  username: data.username,
+  display_name: data.displayName,
+  avatar_url: data.avatarUrl,
+  bio: data.bio,
+  discipline: data.discipline,
+  skills: data.skills,
+  website: data.website,
+  github: data.github,
+  behance: data.behance,
+  substack: data.substack,
+  itch: data.itch,
+  youtube: data.youtube,
+  linkedin: data.linkedin,
+  twitter: data.twitter,
+  tiktok: data.tiktok,
+  instagram: data.instagram,
+  linktree: data.linktree,
+  show_email: data.showEmail,
+  role: data.role,
+  created_at: data.createdAt.toISOString(),
+};
+
+const displayName = profile.display_name ?? profile.username;
+const initial = displayName.charAt(0).toUpperCase();
+const skills = profile.skills ?? [];
+const joined = profile.created_at
+  ? new Date(profile.created_at).toLocaleDateString('es', { year: 'numeric', month: 'long' })
+  : null;
+
+const isOwnProfile = Astro.locals.user?.id === profile.id;
+
+const [jobs, projects, events] = await Promise.all([
+  prisma.job.findMany({
+    where: { authorId: data.id, status: 'approved' },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+  }),
+  prisma.project.findMany({
+    where: { authorId: data.id, status: 'approved' },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+  }),
+  prisma.event.findMany({
+    where: { authorId: data.id, status: 'approved' },
+    orderBy: { createdAt: 'desc' },
+    take: 10,
+  }),
+]);
+---
+
+<Layout title={`@${profile.username} — Nexo Digital`} description={profile.bio ?? `Perfil de ${displayName} en Nexo Digital`}>
+  <Navbar />
+
+  <main class={styles.page}>
+    <div class={styles.header}>
+      {profile.avatar_url ? (
+        <img src={profile.avatar_url} alt="" class={styles.avatar} />
+      ) : (
+        <div class={styles.avatarFallback} aria-hidden="true">{initial}</div>
+      )}
+
+      <div class={styles.identity}>
+        <div class={styles.displayName}>
+          {displayName}
+          <RoleBadge role={profile.role} />
+        </div>
+        <div class={styles.username}>@{profile.username}</div>
+      </div>
+
+      {isOwnProfile && (
+        <div class={styles.actions}>
+          <a href="/perfil/editar" class={`${styles.btn} ${styles.btnPrimary}`}>Editar perfil</a>
+        </div>
+      )}
+    </div>
+
+    {profile.bio ? (
+      <p class={styles.bio}>{profile.bio}</p>
+    ) : (
+      <div class={styles.empty}>Este miembro aún no agregó una bio.</div>
+    )}
+
+    {skills.length > 0 && (
+      <div class={styles.tags}>
+        {skills.map((skill) => (
+          <span class={styles.tag}>{skill}</span>
+        ))}
+      </div>
+    )}
+
+    {(profile.website || profile.github || profile.behance || profile.substack || profile.itch || profile.youtube || profile.linkedin || profile.twitter || profile.tiktok || profile.instagram || profile.linktree) && (
+      <div class={styles.links}>
+        {profile.website && (
+          <a class={styles.link} href={profile.website} target="_blank" rel="noopener noreferrer">🌐 Sitio</a>
+        )}
+        {profile.github && (
+          <a class={styles.link} href={profile.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+        )}
+        {profile.behance && (
+          <a class={styles.link} href={profile.behance} target="_blank" rel="noopener noreferrer">Behance</a>
+        )}
+        {profile.substack && (
+          <a class={styles.link} href={profile.substack} target="_blank" rel="noopener noreferrer">Substack</a>
+        )}
+        {profile.itch && (
+          <a class={styles.link} href={profile.itch} target="_blank" rel="noopener noreferrer">Itch.io</a>
+        )}
+        {profile.youtube && (
+          <a class={styles.link} href={profile.youtube} target="_blank" rel="noopener noreferrer">YouTube</a>
+        )}
+        {profile.linkedin && (
+          <a class={styles.link} href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        )}
+        {profile.twitter && (
+          <a class={styles.link} href={profile.twitter} target="_blank" rel="noopener noreferrer">Twitter / X</a>
+        )}
+        {profile.tiktok && (
+          <a class={styles.link} href={profile.tiktok} target="_blank" rel="noopener noreferrer">TikTok</a>
+        )}
+        {profile.instagram && (
+          <a class={styles.link} href={profile.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
+        )}
+        {profile.linktree && (
+          <a class={styles.link} href={profile.linktree} target="_blank" rel="noopener noreferrer">Linktree</a>
+        )}
+      </div>
+    )}
+
+    <div class={styles.meta}>
+      {profile.discipline && profile.discipline.length > 0 && (
+        <div class={styles.metaItem}>
+          <div class={styles.metaLabel}>Disciplina</div>
+          <div class={styles.metaValue}>{profile.discipline.join(', ')}</div>
+        </div>
+      )}
+      {joined && (
+        <div class={styles.metaItem}>
+          <div class={styles.metaLabel}>Miembro desde</div>
+          <div class={styles.metaValue}>{joined}</div>
+        </div>
+      )}
+      {profile.show_email && userEmail && (
+        <div class={styles.metaItem}>
+          <div class={styles.metaLabel}>Email</div>
+          <div class={styles.metaValue}>{userEmail}</div>
+        </div>
+      )}
+    </div>
+
+    {jobs.length > 0 && (
+      <h2 class={styles.sectionTitle}>Empleos publicados</h2>
+      <div class={styles.cardsGrid}>
+        {jobs.map((j) => (
+          <JobCard
+            id={j.id}
+            title={j.title}
+            company={j.company}
+            description={j.description}
+            requirements={j.requirements}
+            modality={j.modality}
+            category={j.category}
+            salaryMin={j.salaryMin ?? 0}
+            salaryMax={j.salaryMax ?? 0}
+            currency={j.currency ?? 'ARS'}
+            salaryType="/mes"
+            contact={j.contact}
+            publishedAt={j.createdAt.toISOString()}
+            location={j.location ?? 'No especificada'}
+          />
+        ))}
+      </div>
+    )}
+
+    {projects.length > 0 && (
+      <h2 class={styles.sectionTitle}>Proyectos publicados</h2>
+      <div class={styles.cardsGrid}>
+        {projects.map((p) => (
+          <ProjectCard
+            id={p.id}
+            title={p.title}
+            description={p.description}
+            category={p.category}
+            technologies={p.technologies}
+            author={p.authorName}
+            authorGithub={p.authorGithub ?? ''}
+            repo={p.repo ?? ''}
+            demo={p.demo ?? ''}
+            status={p.projectStatus}
+            featured={p.featured}
+          />
+        ))}
+      </div>
+    )}
+
+    {events.length > 0 && (
+      <h2 class={styles.sectionTitle}>Eventos publicados</h2>
+      <div class={styles.cardsGrid}>
+        {events.map((e) => (
+          <div class={styles.eventCard}>
+            <div class={styles.eventHeader}>
+              <span class={styles.eventBadge}>{e.category}</span>
+              <span class={styles.eventBadge}>{e.eventType}</span>
+            </div>
+            <h3 class={styles.eventTitle}>{e.title}</h3>
+            <p class={styles.eventDesc}>{e.description}</p>
+            <div class={styles.eventMeta}>
+              <span>📅 {e.startDate.toLocaleDateString('es')}{e.endDate ? ` → ${e.endDate.toLocaleDateString('es')}` : ''}</span>
+              {e.startTime && <span> ⏰ {e.startTime}</span>}
+              {e.location && <span> 📍 {e.location}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+    </div>
+  </main>
+
+  <Footer logoImg={logoImg} />
+</Layout>

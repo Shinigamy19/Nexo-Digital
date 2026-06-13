@@ -1,7 +1,18 @@
 ---
+export const prerender = false;
+
 import CandidateCard from '../CandidateCard/index.astro';
-import candidates from '../../../data/candidates.json';
 import styles from './index.module.css';
+import { prisma } from '../../../lib/prisma';
+
+const dbCandidates = await prisma.featuredCandidate.findMany({
+  where: { isActive: true, status: 'approved' },
+  orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+  select: { id: true, name: true, role: true, bio: true, tags: true, availability: true, topSkill: true, image: true },
+});
+
+const candidates = dbCandidates.length > 0 ? dbCandidates : [];
+const total = candidates.length;
 ---
 
 <section class={styles['slider-section']}>
@@ -22,67 +33,230 @@ import styles from './index.module.css';
     </div>
   </div>
 
-  <div class={`${styles['slider-viewport']} reveal reveal-delay-1`}>
-    <div id="sliderTrack" class={styles['slider-track']}>
-      {candidates.map(candidate => (
-        <CandidateCard {...candidate} />
-      ))}
-      {/* Duplicados para el carrusel */}
-      {candidates.map(candidate => (
-        <CandidateCard {...candidate} />
-      ))}
+  {candidates.length > 0 && (
+    <div class={`${styles['carousel-container']} reveal reveal-delay-1`}>
+      <div id="carouselTrack" class={styles['carousel-track']} data-total={total}>
+        {candidates.map((candidate, i) => (
+          <div
+            class={styles['carousel-item']}
+            data-index={i}
+          >
+            <CandidateCard {...candidate} />
+          </div>
+        ))}
+      </div>
+      {total > 1 && (
+        <div class={styles['carousel-dots']} id="carouselDots">
+          {candidates.map((_, i) => (
+            <button class={styles['dot']} data-dot-index={i} aria-label={`Ir al perfil ${i + 1}`}></button>
+          ))}
+        </div>
+      )}
     </div>
-  </div>
-  
+  )}
+
   <div class="container">
     <div class={`${styles['slider-footer']} reveal reveal-delay-2`}>
-      <p>¿Sos miembro de la comunidad y buscás trabajo? <strong>Postulate para aparecer acá.</strong></p>
+      {candidates.length > 0 ? (
+        <p>¿Sos miembro de la comunidad y buscás trabajo? <strong id="applyTrigger" style="cursor:pointer;">Postulate para aparecer acá.</strong></p>
+      ) : (
+        <p>Próximamente: perfiles destacados de la comunidad. <strong id="applyTrigger" style="cursor:pointer;">¿Querés aparecer acá?</strong></p>
+      )}
     </div>
   </div>
 </section>
 
+<!-- ════════════ Modal: postulación ════════════ -->
+<div id="applyModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:2rem 1.5rem;position:relative;">
+    <button id="closeModal" style="position:absolute;top:0.75rem;right:1rem;background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer;">&times;</button>
+    <h3 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:0.3rem;">Postulate como destacado</h3>
+    <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1.25rem;">Completá el formulario y un moderador evaluará tu perfil para aparecer en el carrusel.</p>
+
+    <form id="applyForm" style="display:flex;flex-direction:column;gap:0.75rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+        <input type="text" name="name" placeholder="Nombre completo" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+        <input type="text" name="role" placeholder="Rol (Ej: Frontend Developer)" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+      </div>
+      <textarea name="bio" placeholder="Contá sobre vos (mín 10 caracteres)" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;resize:vertical;min-height:60px;"></textarea>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+        <input type="text" name="tags" placeholder="Tags (separados por coma)" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+        <input type="text" name="availability" placeholder="Disponibilidad" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+      </div>
+      <input type="text" name="top_skill" placeholder="Skill destacada" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+      <label style="display:flex;flex-direction:column;gap:0.3rem;font-size:0.78rem;color:var(--text-muted);">
+        Foto de perfil (opcional)
+        <div id="imagePicker" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color 0.15s;">
+          <span id="imageBtn" style="padding:0.35rem 0.7rem;border-radius:6px;border:1px solid rgba(0,245,255,0.3);background:rgba(0,245,255,0.08);color:var(--cyan);font-size:0.8rem;font-weight:600;white-space:nowrap;transition:background 0.15s;">Elegir archivo</span>
+          <span id="imageLabel" style="font-size:0.85rem;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Sin archivos seleccionados</span>
+          <input type="file" name="image" accept="image/*" style="display:none;" />
+        </div>
+      </label>
+      <textarea name="motivation" placeholder="¿Por qué te gustaría aparecer como perfil destacado? (mín 10 caracteres — solo visible para moderadores)" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;resize:vertical;min-height:80px;"></textarea>
+      <div id="applyFeedback" style="display:none;padding:0.6rem 0.8rem;border-radius:8px;font-size:0.85rem;"></div>
+      <button type="submit" style="padding:0.65rem 1.2rem;border-radius:8px;border:1px solid var(--border-glow);background:rgba(0,245,255,0.1);color:var(--cyan);font-weight:600;font-size:0.9rem;cursor:pointer;width:fit-content;transition:background 0.15s;">Enviar postulación</button>
+    </form>
+  </div>
+</div>
+
 <script>
-  const track = document.getElementById('sliderTrack');
+  const track = document.getElementById('carouselTrack') as HTMLElement | null;
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
+  const dotsContainer = document.getElementById('carouselDots');
 
   if (track && prevBtn && nextBtn) {
-    const scrollAmount = 320; // card width + gap
+    const items = Array.from(track.querySelectorAll<HTMLElement>('[data-index]'));
+    const total = items.length;
+    let currentIndex = 0;
+    let autoPlayTimer: ReturnType<typeof setInterval>;
 
-    nextBtn.addEventListener('click', () => {
-      track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    function setPosition(el: HTMLElement, index: number, current: number) {
+      const diff = index - current;
+      let translateX = 0;
+      let scale = 1;
+      let opacity = 1;
+      let zIndex = 3;
+      let blur = 0;
+
+      if (diff === 0) {
+        translateX = 0; scale = 1; opacity = 1; zIndex = 3; blur = 0;
+      } else if (diff === -1 || (current === 0 && index === total - 1)) {
+        translateX = -360; scale = 0.88; opacity = 0.55; zIndex = 2; blur = 1;
+      } else if (diff === 1 || (current === total - 1 && index === 0)) {
+        translateX = 360; scale = 0.88; opacity = 0.55; zIndex = 2; blur = 1;
+      } else if (diff < -1 || (current <= 1 && index >= total - 2 && diff > 0)) {
+        translateX = -640; scale = 0.75; opacity = 0.2; zIndex = 1; blur = 2;
+      } else {
+        translateX = 640; scale = 0.75; opacity = 0.2; zIndex = 1; blur = 2;
+      }
+
+      el.style.transform = `translateX(calc(-50% + ${translateX}px)) scale(${scale})`;
+      el.style.opacity = String(opacity);
+      el.style.zIndex = String(zIndex);
+      el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none';
+      el.style.left = '50%';
+    }
+
+    function updateCarousel() {
+      items.forEach((item, i) => setPosition(item, i, currentIndex));
+
+      if (dotsContainer) {
+        dotsContainer.querySelectorAll<HTMLButtonElement>('button').forEach((dot, i) => {
+          const isActive = i === currentIndex;
+          dot.style.background = isActive ? 'var(--cyan)' : 'rgba(255,255,255,0.2)';
+          dot.style.width = isActive ? '24px' : '8px';
+          dot.style.borderRadius = isActive ? '4px' : '50%';
+        });
+      }
+    }
+
+    function goTo(index: number) {
+      currentIndex = ((index % total) + total) % total;
+      updateCarousel();
+    }
+
+    function next() { goTo(currentIndex + 1); }
+    function prev() { goTo(currentIndex - 1); }
+
+    function startAutoPlay() {
+      stopAutoPlay();
+      autoPlayTimer = setInterval(next, 4000);
+    }
+
+    function stopAutoPlay() { clearInterval(autoPlayTimer); }
+
+    nextBtn.addEventListener('click', () => { next(); startAutoPlay(); });
+    prevBtn.addEventListener('click', () => { prev(); startAutoPlay(); });
+
+    dotsContainer?.querySelectorAll('button').forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const idx = parseInt(dot.getAttribute('data-dot-index') ?? '0');
+        goTo(idx);
+        startAutoPlay();
+      });
     });
 
-    prevBtn.addEventListener('click', () => {
-      track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    track.addEventListener('mouseenter', stopAutoPlay);
+    track.addEventListener('mouseleave', startAutoPlay);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { prev(); startAutoPlay(); }
+      if (e.key === 'ArrowRight') { next(); startAutoPlay(); }
     });
 
-    // Drag to scroll functionality
-    let isDown = false;
-    let startX: number;
-    let scrollLeft: number;
+    let touchStartX = 0;
+    track.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; stopAutoPlay(); }, { passive: true });
+    track.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) { diff > 0 ? next() : prev(); }
+      startAutoPlay();
+    }, { passive: true });
 
-    track.addEventListener('mousedown', (e) => {
-      isDown = true;
-      track.classList.add('active');
-      startX = e.pageX - track.offsetLeft;
-      scrollLeft = track.scrollLeft;
-    });
-
-    track.addEventListener('mouseleave', () => {
-      isDown = false;
-    });
-
-    track.addEventListener('mouseup', () => {
-      isDown = false;
-    });
-
-    track.addEventListener('mousemove', (e) => {
-      if (!isDown) return;
-      e.preventDefault();
-      const x = e.pageX - track.offsetLeft;
-      const walk = (x - startX) * 2;
-      track.scrollLeft = scrollLeft - walk;
-    });
+    updateCarousel();
+    startAutoPlay();
   }
+
+  // ─── Modal de postulación ───
+  const modal = document.getElementById('applyModal')!;
+  const trigger = document.getElementById('applyTrigger');
+  const closeBtn = document.getElementById('closeModal');
+  const applyForm = document.getElementById('applyForm') as HTMLFormElement | null;
+  const feedback = document.getElementById('applyFeedback')!;
+
+  const imagePicker = document.getElementById('imagePicker');
+  const imageInput = imagePicker?.querySelector('input[type="file"]') as HTMLInputElement | null;
+  const imageLabel = document.getElementById('imageLabel');
+  imagePicker?.addEventListener('click', () => imageInput?.click());
+  imageInput?.addEventListener('change', () => {
+    if (imageLabel) {
+      imageLabel.textContent = imageInput.files?.length ? imageInput.files[0].name : 'Sin archivos seleccionados';
+      imageLabel.style.color = imageInput.files?.length ? 'var(--text-primary)' : 'var(--text-muted)';
+    }
+  });
+
+  trigger?.addEventListener('click', () => {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  });
+
+  closeBtn?.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+  function closeModal() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  applyForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = applyForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+    feedback.style.display = 'none';
+
+    try {
+      const formData = new FormData(applyForm);
+      const res = await fetch('/api/featured-candidates/apply', { method: 'POST', body: formData });
+      if (res.ok) {
+        feedback.className = '';
+        feedback.style.cssText = 'display:block;padding:0.6rem 0.8rem;border-radius:8px;font-size:0.85rem;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#86efac;';
+        feedback.textContent = '¡Postulación enviada! Un moderador la revisará pronto.';
+        applyForm.reset();
+        if (imageLabel) { imageLabel.textContent = 'Sin archivos seleccionados'; imageLabel.style.color = 'var(--text-muted)'; }
+      } else {
+        const data = await res.json();
+        feedback.className = '';
+        feedback.style.cssText = 'display:block;padding:0.6rem 0.8rem;border-radius:8px;font-size:0.85rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#fca5a5;';
+        feedback.textContent = data.error === 'invalid_motivation' ? 'El motivo debe tener al menos 10 caracteres.' : (data.error ?? 'No se pudo enviar la postulación.');
+      }
+    } catch {
+      feedback.className = '';
+      feedback.style.cssText = 'display:block;padding:0.6rem 0.8rem;border-radius:8px;font-size:0.85rem;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#fca5a5;';
+      feedback.textContent = 'Error de conexión. Probá de nuevo.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enviar postulación';
+    }
+  });
 </script>

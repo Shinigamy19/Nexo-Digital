@@ -1,0 +1,20 @@
+---
+import styles from './RoleBadge.module.css';
+import type { UserRole } from '../../types/database';
+
+interface Props {
+  role: UserRole;
+}
+
+const { role } = Astro.props;
+
+const labels: Record<UserRole, string> = {
+  user: 'Miembro',
+  moderator: 'Moderador',
+  admin: 'Admin',
+};
+---
+
+<span class={`${styles.badge} ${styles[role]}`} title={`Rol: ${labels[role]}`}>
+  {labels[role]}
+</span>

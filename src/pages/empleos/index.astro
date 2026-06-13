@@ -1,14 +1,16 @@
 ---
+export const prerender = false;
+
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/layout/Navbar/index.astro';
 import Footer from '../../components/layout/Footer/index.astro';
-import JobForm from '../../components/jobs/JobForm/index.astro';
 import CandidateSlider from '../../components/jobs/CandidateSlider/index.astro';
 import JobsHero from '../../components/jobs/JobsHero/index.astro';
 import JobsStats from '../../components/jobs/JobsStats/index.astro';
 import JobListings from '../../components/jobs/JobListings/index.astro';
 import logoImg from '../../assets/brand/logo.webp';
 import jobsData from '../../data/jobs.json';
+import { prisma } from '../../lib/prisma';
 
 const modalityOptions = [
   { value: 'remoto',     label: '🌐 Remoto' },
@@ -25,6 +27,54 @@ const categoryOptions = [
   { value: 'marketing',  label: '📢 Marketing' },
   { value: 'rrhh',       label: '👥 RRHH' },
 ];
+
+let data = jobsData;
+
+try {
+  const now = new Date();
+  const dbJobs = await prisma.job.findMany({
+    where: {
+      status: 'approved',
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 100,
+    select: {
+      id: true,
+      title: true,
+      company: true,
+      description: true,
+      requirements: true,
+      modality: true,
+      category: true,
+      salaryMin: true,
+      salaryMax: true,
+      currency: true,
+      contact: true,
+      location: true,
+      createdAt: true,
+    },
+  });
+
+  if (dbJobs.length > 0) {
+    data = dbJobs.map(j => ({
+      id: j.id,
+      title: j.title,
+      company: j.company,
+      description: j.description,
+      requirements: j.requirements,
+      modality: j.modality,
+      category: j.category,
+      salaryMin: j.salaryMin ?? 0,
+      salaryMax: j.salaryMax ?? 0,
+      currency: j.currency ?? 'USD',
+      salaryType: 'mensual',
+      contact: j.contact,
+      publishedAt: j.createdAt instanceof Date ? j.createdAt.toISOString().split('T')[0] : String(j.createdAt),
+      location: j.location ?? '',
+    }));
+  }
+} catch {}
 ---
 
 <Layout
@@ -34,19 +84,17 @@ const categoryOptions = [
   <Navbar />
 
   <main>
-    <JobsHero />
+    <JobsHero publishLink="/empleos/nuevo" browseLink="#listado-empleos" />
 
-    <JobsStats jobsData={jobsData} />
+    <JobsStats jobsData={data} />
 
-    <JobListings 
-      jobsData={jobsData}
+    <JobListings
+      jobsData={data}
       modalityOptions={modalityOptions}
       categoryOptions={categoryOptions}
     />
 
     <CandidateSlider />
-
-    <JobForm />
   </main>
 
   <Footer logoImg={logoImg} />
@@ -54,7 +102,5 @@ const categoryOptions = [
 
 <script>
   import { initRevealObserver } from '../../scripts/reveal';
-  
-  // Re-initialize on component load/navigation
   initRevealObserver();
 </script>

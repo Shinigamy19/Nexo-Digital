@@ -95,7 +95,19 @@ img {
 }
 
 section {
-  padding: 8rem 1.5rem;
+  padding: 6rem 1.5rem;
+}
+
+@media (max-width: 768px) {
+  section {
+    padding: 4rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  section {
+    padding: 3rem 0.75rem;
+  }
 }
 
 .container {
@@ -146,7 +158,13 @@ section {
 
 /* Section common wrappers */
 .section-header {
-  margin-bottom: 4.5rem;
+  margin-bottom: 3.5rem;
+}
+
+@media (max-width: 768px) {
+  .section-header {
+    margin-bottom: 2.5rem;
+  }
 }
 
 .section-header.centered {

@@ -1,0 +1,314 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────
+
+enum UserRole {
+  user
+  moderator
+  admin
+}
+
+enum ModerationStatus {
+  pending
+  approved
+  rejected
+  removed
+}
+
+enum JobModality {
+  remoto
+  hibrido
+  presencial
+}
+
+enum JobCategory {
+  desarrollo
+  diseno      @map("diseño")
+  ia
+  edicion
+  audio
+  marketing
+  rrhh
+}
+
+enum ResourceType {
+  herramienta
+  tutorial
+  recurso
+  template
+  documentacion
+}
+
+enum ResourceCategory {
+  desarrollo
+  diseno      @map("diseño")
+  ia
+  marketing
+  audio
+  edicion
+  negocios
+  aprendizaje
+  iot
+}
+
+enum ProjectStatusKind {
+  activo
+  en_progreso
+  archivado
+}
+
+enum EventType {
+  presencial
+  en_linea
+  hibrido
+}
+
+enum EventCategory {
+  conferencia
+  workshop
+  networking
+  hackathon
+  curso
+  encuentro
+  otro
+}
+
+enum ProjectCategory {
+  desarrollo
+  diseno      @map("diseño")
+  ia
+  iot
+  edicion
+  audio
+  gamedev
+}
+
+// ─── Models ─────────────────────────────────────────────────────────────
+
+model ReservedUsername {
+  username String @id
+}
+
+model Profile {
+  id           String      @id @db.Uuid
+  username     String      @unique @db.VarChar(30)
+  displayName  String?     @map("display_name")
+  avatarUrl    String?     @map("avatar_url")
+  bio          String?     @db.VarChar(500)
+  discipline   String[]    @default([]) @db.VarChar
+  skills       String[]    @default([]) @db.VarChar
+  website      String?
+  github       String?
+  behance      String?
+  substack     String?
+  itch         String?
+  youtube      String?
+  linkedin     String?
+  twitter      String?
+  tiktok       String?
+  instagram    String?
+  linktree     String?
+  showEmail    Boolean    @default(false) @map("show_email")
+  twoFactorEnabled Boolean @default(false) @map("two_factor_enabled")
+  twoFactorSecret  String? @map("two_factor_secret") @db.VarChar(255)
+  role         UserRole    @default(user)
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt    DateTime    @default(now()) @map("updated_at") @db.Timestamptz()
+
+  jobs              Job[]
+  resources         Resource[]
+  projects          Project[]
+  events            Event[]
+  moderatedJobs     Job[]              @relation("ModeratedJobs")
+  moderatedResources Resource[]        @relation("ModeratedResources")
+  moderatedProjects Project[]          @relation("ModeratedProjects")
+  moderatedEvents   Event[]            @relation("ModeratedEvents")
+  featuredCandidates FeaturedCandidate[]
+  moderatedFeatured  FeaturedCandidate[] @relation("ModeratedFeatured")
+  moderationLogs    ModerationLog[]
+
+  @@map("profiles")
+}
+
+model Job {
+  id              String           @id @default(uuid()) @db.Uuid
+  authorId        String?          @map("author_id") @db.Uuid
+  isSystem        Boolean          @default(false) @map("is_system")
+  title           String           @db.VarChar(120)
+  company         String           @db.VarChar(80)
+  description     String           @db.VarChar(2000)
+  requirements    String[]         @default([]) @db.VarChar
+  modality        JobModality
+  category        JobCategory
+  salaryMin       Int?             @map("salary_min")
+  salaryMax       Int?             @map("salary_max")
+  currency        String?          @db.VarChar(8)
+  contact         String           @db.VarChar(200)
+  location        String?          @db.VarChar(120)
+  featured        Boolean          @default(false)
+  expiresAt       DateTime?        @map("expires_at") @db.Timestamptz()
+  status          ModerationStatus @default(pending)
+  moderatorId     String?          @map("moderator_id") @db.Uuid
+  moderatedAt     DateTime?        @map("moderated_at") @db.Timestamptz()
+  moderationNotes String?          @map("moderation_notes") @db.VarChar(500)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt       DateTime         @default(now()) @map("updated_at") @db.Timestamptz()
+
+  author   Profile? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  moderator Profile? @relation("ModeratedJobs", fields: [moderatorId], references: [id], onDelete: SetNull)
+
+  @@index([status], map: "jobs_status_idx")
+  @@index([authorId], map: "jobs_author_idx")
+  @@index([createdAt(sort: Desc)], map: "jobs_created_at_idx")
+  @@index([category, status], map: "jobs_category_idx")
+  @@index([modality, status], map: "jobs_modality_idx")
+  @@map("jobs")
+}
+
+model Resource {
+  id              String           @id @default(uuid()) @db.Uuid
+  authorId        String?          @map("author_id") @db.Uuid
+  isSystem        Boolean          @default(false) @map("is_system")
+  title           String           @db.VarChar(120)
+  description     String           @db.VarChar(2000)
+  type            ResourceType
+  category        ResourceCategory
+  url             String           @db.VarChar(500)
+  tags            String[]         @default([]) @db.VarChar
+  addedBy         String           @map("added_by") @db.VarChar(80)
+  featured        Boolean          @default(false)
+  status          ModerationStatus @default(pending)
+  moderatorId     String?          @map("moderator_id") @db.Uuid
+  moderatedAt     DateTime?        @map("moderated_at") @db.Timestamptz()
+  moderationNotes String?          @map("moderation_notes") @db.VarChar(500)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt       DateTime         @default(now()) @map("updated_at") @db.Timestamptz()
+
+  author   Profile? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  moderator Profile? @relation("ModeratedResources", fields: [moderatorId], references: [id], onDelete: SetNull)
+
+  @@index([status], map: "resources_status_idx")
+  @@index([authorId], map: "resources_author_idx")
+  @@index([createdAt(sort: Desc)], map: "resources_created_at_idx")
+  @@index([type, status], map: "resources_type_idx")
+  @@index([category, status], map: "resources_category_idx")
+  @@map("resources")
+}
+
+model Project {
+  id              String           @id @default(uuid()) @db.Uuid
+  authorId        String?          @map("author_id") @db.Uuid
+  isSystem        Boolean          @default(false) @map("is_system")
+  title           String           @db.VarChar(120)
+  description     String           @db.VarChar(2000)
+  category        ProjectCategory
+  technologies    String[]         @default([]) @db.VarChar
+  authorName      String           @map("author") @db.VarChar(80)
+  authorGithub    String?          @map("author_github") @db.VarChar(80)
+  repo            String?          @db.VarChar(500)
+  demo            String?          @db.VarChar(500)
+  projectStatus   ProjectStatusKind @default(activo) @map("project_status")
+  featured        Boolean          @default(false)
+  status          ModerationStatus @default(pending)
+  moderatorId     String?          @map("moderator_id") @db.Uuid
+  moderatedAt     DateTime?        @map("moderated_at") @db.Timestamptz()
+  moderationNotes String?          @map("moderation_notes") @db.VarChar(500)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt       DateTime         @default(now()) @map("updated_at") @db.Timestamptz()
+
+  author   Profile? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  moderator Profile? @relation("ModeratedProjects", fields: [moderatorId], references: [id], onDelete: SetNull)
+
+  @@index([status], map: "projects_status_idx")
+  @@index([authorId], map: "projects_author_idx")
+  @@index([createdAt(sort: Desc)], map: "projects_created_at_idx")
+  @@index([category, status], map: "projects_category_idx")
+  @@map("projects")
+}
+
+model Event {
+  id              String           @id @default(uuid()) @db.Uuid
+  authorId        String?          @map("author_id") @db.Uuid
+  isSystem        Boolean          @default(false) @map("is_system")
+  title           String           @db.VarChar(120)
+  description     String           @db.VarChar(2000)
+  eventType       EventType        @map("event_type")
+  category        EventCategory
+  startDate       DateTime         @map("start_date") @db.Timestamptz()
+  endDate         DateTime?        @map("end_date") @db.Timestamptz()
+  startTime       String?          @map("start_time") @db.VarChar(10)
+  location        String?          @db.VarChar(200)
+  url             String?          @db.VarChar(500)
+  contactInfo     String?          @map("contact_info") @db.VarChar(200)
+  maxParticipants Int?             @map("max_participants")
+  featured        Boolean          @default(false)
+  status          ModerationStatus @default(pending)
+  moderatorId     String?          @map("moderator_id") @db.Uuid
+  moderatedAt     DateTime?        @map("moderated_at") @db.Timestamptz()
+  moderationNotes String?          @map("moderation_notes") @db.VarChar(500)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt       DateTime         @default(now()) @map("updated_at") @db.Timestamptz()
+
+  author   Profile? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  moderator Profile? @relation("ModeratedEvents", fields: [moderatorId], references: [id], onDelete: SetNull)
+
+  @@index([status], map: "events_status_idx")
+  @@index([authorId], map: "events_author_idx")
+  @@index([createdAt(sort: Desc)], map: "events_created_at_idx")
+  @@index([category, status], map: "events_category_idx")
+  @@index([eventType, status], map: "events_type_idx")
+  @@index([startDate], map: "events_start_date_idx")
+  @@map("events")
+}
+
+model FeaturedCandidate {
+  id              String           @id @default(uuid()) @db.Uuid
+  profileId       String?          @map("profile_id") @db.Uuid
+  name            String           @db.VarChar(120)
+  role            String           @db.VarChar(120)
+  bio             String           @db.VarChar(500)
+  tags            String[]         @default([]) @db.VarChar
+  availability    String           @db.VarChar(50)
+  topSkill        String           @db.VarChar(80)
+  image           String           @db.Text
+  motivation      String?          @db.Text
+  sortOrder       Int              @default(0) @map("sort_order")
+  isActive        Boolean          @default(true) @map("is_active")
+  status          ModerationStatus @default(pending)
+  moderatorId     String?          @map("moderator_id") @db.Uuid
+  moderatedAt     DateTime?        @map("moderated_at") @db.Timestamptz()
+  moderationNotes String?          @map("moderation_notes") @db.VarChar(500)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt       DateTime         @default(now()) @map("updated_at") @db.Timestamptz()
+
+  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: SetNull)
+  moderator Profile? @relation("ModeratedFeatured", fields: [moderatorId], references: [id], onDelete: SetNull)
+
+  @@index([isActive, sortOrder], map: "featured_candidates_active_idx")
+  @@index([status], map: "featured_candidates_status_idx")
+  @@map("featured_candidates")
+}
+
+model ModerationLog {
+  id           Int      @id @default(autoincrement())
+  moderatorId  String   @map("moderator_id") @db.Uuid
+  targetType   String   @map("target_type") @db.VarChar(20)
+  targetId     String   @map("target_id") @db.Uuid
+  action       String   @db.VarChar(20)
+  notes        String?  @db.VarChar(500)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  moderator Profile @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
+
+  @@index([targetType, targetId], map: "moderation_log_target_idx")
+  @@index([moderatorId, createdAt(sort: Desc)], map: "moderation_log_moderator_idx")
+  @@map("moderation_log")
+}

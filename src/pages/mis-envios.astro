@@ -1,0 +1,174 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/layout/Navbar/index.astro';
+import Footer from '../components/layout/Footer/index.astro';
+import logoImg from '../assets/brand/logo.webp';
+import StatusBadge from '../components/ui/StatusBadge.astro';
+import { isAuthenticated } from '../lib/roles';
+import { submissionErrorMessage } from '../lib/submission-errors';
+import { prisma } from '../lib/prisma';
+import styles from '../styles/mis-envios.module.css';
+
+const user = Astro.locals.user;
+if (!isAuthenticated(user)) {
+  return Astro.redirect('/login?next=' + encodeURIComponent('/mis-envios'), 303);
+}
+
+const [jobs, resources, projects, events] = await Promise.all([
+  prisma.job.findMany({
+    where: { authorId: user.id },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    select: { id: true, title: true, status: true, moderationNotes: true, createdAt: true, company: true },
+  }),
+  prisma.resource.findMany({
+    where: { authorId: user.id },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    select: { id: true, title: true, status: true, moderationNotes: true, createdAt: true, type: true },
+  }),
+  prisma.project.findMany({
+    where: { authorId: user.id },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    select: { id: true, title: true, status: true, moderationNotes: true, createdAt: true, category: true },
+  }),
+  prisma.event.findMany({
+    where: { authorId: user.id },
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    select: { id: true, title: true, status: true, moderationNotes: true, createdAt: true, eventType: true },
+  }),
+]);
+
+interface Item {
+  id: string;
+  title: string;
+  status: 'pending' | 'approved' | 'rejected' | 'removed';
+  moderation_notes: string | null;
+  created_at: string;
+  type: 'job' | 'resource' | 'project';
+  subtitle: string;
+}
+
+const items: Item[] = [
+  ...jobs.map((r) => ({
+    id: r.id, title: r.title, status: r.status as Item['status'],
+    moderation_notes: r.moderationNotes, created_at: r.createdAt.toISOString(),
+    type: 'job' as const,
+    subtitle: `${r.company} • ${r.createdAt.toLocaleDateString('es')}`,
+  })),
+  ...resources.map((r) => ({
+    id: r.id, title: r.title, status: r.status as Item['status'],
+    moderation_notes: r.moderationNotes, created_at: r.createdAt.toISOString(),
+    type: 'resource' as const,
+    subtitle: `${r.type} • ${r.createdAt.toLocaleDateString('es')}`,
+  })),
+  ...projects.map((r) => ({
+    id: r.id, title: r.title, status: r.status as Item['status'],
+    moderation_notes: r.moderationNotes, created_at: r.createdAt.toISOString(),
+    type: 'project' as const,
+    subtitle: `${r.category} • ${r.createdAt.toLocaleDateString('es')}`,
+  })),
+  ...events.map((r) => ({
+    id: r.id, title: r.title, status: r.status as Item['status'],
+    moderation_notes: r.moderationNotes, created_at: r.createdAt.toISOString(),
+    type: 'event' as const,
+    subtitle: `${r.eventType} • ${r.createdAt.toLocaleDateString('es')}`,
+  })),
+].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+
+const counts = {
+  total: items.length,
+  pending: items.filter((i) => i.status === 'pending').length,
+  approved: items.filter((i) => i.status === 'approved').length,
+  rejected: items.filter((i) => i.status === 'rejected').length,
+};
+
+const errorMessage = submissionErrorMessage(Astro.url.searchParams.get('error'));
+const justCreated = Astro.url.searchParams.get('created');
+const createdId = Astro.url.searchParams.get('id');
+
+const TYPE_LABELS: Record<Item['type'], string> = {
+  job: 'Empleo', resource: 'Recurso', project: 'Proyecto', event: 'Evento',
+};
+---
+
+<Layout title="Mis envíos — Nexo Digital" description="Revisá el estado de tus envíos a la comunidad Nexo Digital.">
+  <Navbar />
+  <main class={styles.page}>
+    <div class={styles.container}>
+      <header class={styles.header}>
+        <h1 class={styles.title}>Mis envíos</h1>
+        <p class={styles.subtitle}>
+          Acá ves todo lo que enviaste a revisión. Te avisamos cuando un moderador lo apruebe o lo rechace.
+        </p>
+
+        {errorMessage && (
+          <p class={styles.empty} role="alert">⚠️ {errorMessage}</p>
+        )}
+
+        {justCreated && createdId && (
+          <p class={styles.empty}>
+            ✅ {TYPE_LABELS[justCreated as Item['type']] ?? 'Envío'} enviado (id <code>{createdId.slice(0, 8)}</code>). Está en revisión.
+          </p>
+        )}
+
+        <div class={styles.stats}>
+          <div class={styles.stat}>
+            <span class={styles.statValue}>{counts.total}</span>
+            <span class={styles.statLabel}>Total</span>
+          </div>
+          <div class={styles.stat}>
+            <span class={styles.statValue}>{counts.pending}</span>
+            <span class={styles.statLabel}>Pendientes</span>
+          </div>
+          <div class={styles.stat}>
+            <span class={styles.statValue}>{counts.approved}</span>
+            <span class={styles.statLabel}>Aprobados</span>
+          </div>
+          <div class={styles.stat}>
+            <span class={styles.statValue}>{counts.rejected}</span>
+            <span class={styles.statLabel}>Rechazados</span>
+          </div>
+        </div>
+
+        <div class={styles.actions}>
+          <a class={styles.btn} href="/empleos/nuevo">+ Publicar empleo</a>
+          <a class={styles.btn} href="/recursos/nuevo">+ Recomendar recurso</a>
+          <a class={styles.btn} href="/proyectos/nuevo">+ Publicar proyecto</a>
+          <a class={styles.btn} href="/eventos/nuevo">+ Publicar evento</a>
+        </div>
+      </header>
+
+      {items.length === 0 ? (
+        <div class={styles.empty}>
+          <p>Aún no enviaste nada. Probá recomendando un recurso o publicando un proyecto.</p>
+        </div>
+      ) : (
+        <div class={styles.list}>
+          {items.map((it) => (
+            <article class={styles.row}>
+              <div class={styles.rowMeta}>
+                <span class={styles.rowType}>{TYPE_LABELS[it.type]}</span>
+                <StatusBadge status={it.status} size="sm" />
+              </div>
+              <h2 class={styles.rowTitle}>{it.title}</h2>
+              <div class={styles.rowFooter}>
+                <span>{it.subtitle}</span>
+              </div>
+              {it.moderation_notes && (
+                <p class={styles.rowNotes}>
+                  <strong>Nota del moderador:</strong> {it.moderation_notes}
+                </p>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  </main>
+  <Footer logoImg={logoImg} />
+</Layout>

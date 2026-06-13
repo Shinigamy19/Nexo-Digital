@@ -1,0 +1,161 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/layout/Navbar/index.astro';
+import Footer from '../../components/layout/Footer/index.astro';
+import logoImg from '../../assets/brand/logo.webp';
+import { isAuthenticated } from '../../lib/roles';
+import { submissionErrorMessage } from '../../lib/submission-errors';
+import { PROJECT_CATEGORIES, PROJECT_STATUSES } from '../../lib/portal-meta';
+import styles from '../../styles/forms.module.css';
+
+const user = Astro.locals.user;
+if (!isAuthenticated(user)) {
+  return Astro.redirect('/login?next=' + encodeURIComponent('/proyectos/nuevo'), 303);
+}
+
+const errorCode = Astro.url.searchParams.get('error');
+const fieldName = Astro.url.searchParams.get('field');
+const errorMessage = submissionErrorMessage(errorCode);
+const createdId = Astro.url.searchParams.get('id');
+const justCreated = Astro.url.searchParams.get('created') === 'project';
+---
+
+<Layout
+  title="Publicar proyecto — Nexo Digital"
+  description="Compartí tu proyecto open source con la comunidad Nexo Digital."
+>
+  <Navbar />
+  <main class={styles.page}>
+    <div class={styles.card}>
+      <header class={styles.header}>
+        <h1 class={styles.title}>Publicar proyecto</h1>
+        <p class={styles.subtitle}>
+          Tu proyecto queda en revisión. Lo aprueba un moderador antes de salir al público.
+        </p>
+      </header>
+
+      {errorMessage && (
+        <p class={styles.error} role="alert">
+          ⚠️ {errorMessage}
+          {fieldName && <small> (campo: <code>{fieldName}</code>)</small>}
+        </p>
+      )}
+
+      {justCreated && createdId && (
+        <p class={styles.disclaimer}>
+          ✅ Proyecto enviado (id <code>{createdId.slice(0, 8)}</code>). Te avisamos cuando se apruebe.
+        </p>
+      )}
+
+      <form method="POST" action="/api/proyectos" class={styles.form} novalidate>
+        <div class={styles.field}>
+          <label class={styles.label} for="title">Nombre del proyecto <span class={styles.required}>*</span></label>
+          <input class={styles.input} type="text" id="title" name="title" required minlength="4" maxlength="120" placeholder="Nexo CLI" />
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="description">Descripción <span class={styles.required}>*</span></label>
+          <textarea class={styles.textarea} id="description" name="description" required minlength="20" maxlength="2000" placeholder="¿Qué hace? ¿Qué problema resuelve? ¿Para quién es?"></textarea>
+        </div>
+
+        <div class={styles.row}>
+          <div class={styles.field}>
+            <label class={styles.label} for="category">Categoría <span class={styles.required}>*</span></label>
+            <select class={styles.select} id="category" name="category" required>
+              <option value="" disabled selected>Elegí…</option>
+              {PROJECT_CATEGORIES.map((c) => (
+                <option value={c.value}>{c.emoji} {c.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div class={styles.field}>
+            <label class={styles.label} for="project_status">Estado del proyecto</label>
+            <select class={styles.select} id="project_status" name="project_status">
+              {PROJECT_STATUSES.map((s) => (
+                <option value={s.value} selected={s.value === 'activo'}>{s.emoji} {s.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="technologies">Tecnologías <span class={styles.required}>*</span></label>
+          <input class={styles.input} type="text" id="technologies" name="technologies" required placeholder="TypeScript, Node.js, Astro" />
+          <span class={styles.hint}>Separalas con comas.</span>
+        </div>
+
+        <div class={styles.row}>
+          <div class={styles.field}>
+            <label class={styles.label} for="author">Tu nombre o el del autor <span class={styles.required}>*</span></label>
+            <input class={styles.input} type="text" id="author" name="author" required minlength="1" maxlength="80" placeholder="Ana Pérez" />
+          </div>
+
+          <div class={styles.field}>
+            <label class={styles.label} for="author_github">Usuario de GitHub</label>
+            <input class={styles.input} type="text" id="author_github" name="author_github" maxlength="80" placeholder="anaperez" />
+            <span class={styles.hint}>Opcional, sin @.</span>
+          </div>
+        </div>
+
+        <div class={styles.row}>
+          <div class={styles.field}>
+            <label class={styles.label} for="repo">Link al repo</label>
+            <input class={styles.input} type="url" id="repo" name="repo" maxlength="500" placeholder="https://github.com/usuario/proyecto" />
+          </div>
+          <div class={styles.field}>
+            <label class={styles.label} for="demo">Link a la demo</label>
+            <input class={styles.input} type="url" id="demo" name="demo" maxlength="500" placeholder="https://proyecto.example.com" />
+          </div>
+        </div>
+
+        <div class={styles.actions}>
+          <button type="submit" class={styles.submit}>Enviar a revisión</button>
+          <a href="/proyectos" class={styles.cancel}>Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </main>
+  <Footer logoImg={logoImg} />
+</Layout>
+
+<script>
+  const form = document.querySelector('form');
+  if (!form) throw new Error('Form not found');
+  const key = 'form-draft:' + (form.getAttribute('action') || 'unknown');
+  const hasError = new URLSearchParams(location.search).has('error');
+
+  if (hasError) {
+    const saved = sessionStorage.getItem(key);
+    if (saved) {
+      const data: Record<string, string> = JSON.parse(saved);
+      for (const [name, value] of Object.entries(data)) {
+        const el = form.elements.namedItem(name);
+        if (!el) continue;
+        if (el instanceof RadioNodeList) {
+          for (const radio of el) {
+            if (radio instanceof HTMLInputElement) radio.checked = radio.value === value;
+          }
+        } else if (el instanceof HTMLInputElement && el.type === 'checkbox') {
+          (el as HTMLInputElement).checked = value === 'true';
+        } else if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+          el.value = value;
+        }
+      }
+      sessionStorage.removeItem(key);
+    }
+  } else {
+    sessionStorage.removeItem(key);
+  }
+
+  form.addEventListener('submit', () => {
+    const fd = new FormData(form);
+    const data: Record<string, string> = {};
+    for (const [key, val] of fd.entries()) {
+      if (typeof val === 'string') data[key] = val;
+    }
+    sessionStorage.setItem(key, JSON.stringify(data));
+  });
+</script>

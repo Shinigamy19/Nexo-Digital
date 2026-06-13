@@ -92,6 +92,7 @@
 }
 
 @media (max-width: 768px) {
+  .jobs-hero { padding-top: 7rem; padding-bottom: 3rem; }
   .hero-actions {
     flex-direction: column;
     width: 100%;
@@ -104,4 +105,8 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+@media (max-width: 480px) {
+  .jobs-hero { padding-top: 6rem; padding-bottom: 2.5rem; }
 }

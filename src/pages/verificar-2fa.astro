@@ -1,0 +1,83 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import AuthCard from '../components/auth/AuthCard.astro';
+import styles from '../components/auth/AuthCard.module.css';
+import { getTempSession } from '../lib/auth-cookie';
+
+const tempSession = getTempSession(Astro.cookies, Astro.request);
+if (!tempSession) {
+  return Astro.redirect('/login', 303);
+}
+
+const next = Astro.url.searchParams.get('next') ?? '/perfil';
+const error = Astro.url.searchParams.get('error');
+
+const errorMessages: Record<string, string> = {
+  invalid_token: 'Código incorrecto. Revisá tu app de autenticación e intentá de nuevo.',
+  session_expired: 'La sesión expiró. Iniciá sesión de nuevo.',
+  invalid_state: 'Ocurrió un error. Iniciá sesión de nuevo.',
+  generic: 'Ocurrió un error. Probá de nuevo.',
+};
+
+const errorMessage = error ? (errorMessages[error] ?? errorMessages.generic) : null;
+---
+
+<Layout title="Verificar identidad — Nexo Digital">
+  <main style="min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6rem 1.5rem 2rem;">
+    <a href="/" style="position: fixed; top: 1.5rem; left: 1.5rem; display: flex; align-items: center; gap: 0.4rem; text-decoration: none; color: var(--text); font-weight: 500; font-size: 0.9rem; opacity: 0.7; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+      ← Inicio
+    </a>
+    <a href="/" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text); margin-bottom: 2rem; font-weight: 600;">
+      <img src="/favicons/logo.webp" alt="Nexo Digital" width="32" height="32" style="border-radius: 8px;" />
+      Nexo <span class="gradient-text">Digital</span>
+    </a>
+    <AuthCard
+      title="Verificación en dos pasos"
+      subtitle="Ingresá el código de 6 dígitos de tu app de autenticación."
+      error={errorMessage}
+    >
+      <form class={styles.form} method="POST" action="/api/auth/2fa/validate">
+        <input type="hidden" name="next" value={next} />
+        <div class={styles.field}>
+          <label class={styles.label} for="token">Código de verificación</label>
+          <input
+            class={styles.input}
+            type="text"
+            id="token"
+            name="token"
+            required
+            inputmode="numeric"
+            pattern="[0-9]{6}"
+            maxlength="6"
+            autocomplete="one-time-code"
+            placeholder="000000"
+            style="text-align: center; font-size: 1.5rem; letter-spacing: 0.3em; font-variant-numeric: tabular-nums;"
+          />
+          <p class={styles.hint}>Abrí tu app de autenticación (Google Authenticator, Authy, etc.) y escribí el código actual.</p>
+        </div>
+
+        <button class={styles.submit} type="submit">Verificar</button>
+      </form>
+
+      <div class={styles.footer}>
+        ¿No tenés acceso a tu app? Contactá al soporte para recuperar tu cuenta.
+      </div>
+    </AuthCard>
+  </main>
+</Layout>
+
+<script>
+  // Auto-focus and auto-submit when 6 digits are entered
+  const input = document.getElementById('token') as HTMLInputElement | null;
+  if (input) {
+    input.focus();
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '').slice(0, 6);
+      if (input.value.length === 6) {
+        input.closest('form')?.requestSubmit();
+      }
+    });
+  }
+</script>

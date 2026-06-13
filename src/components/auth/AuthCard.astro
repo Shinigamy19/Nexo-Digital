@@ -1,0 +1,24 @@
+---
+import styles from './AuthCard.module.css';
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  error?: string | null;
+  success?: string | null;
+}
+
+const { title, subtitle, error, success } = Astro.props;
+---
+
+<div class={styles.card}>
+  <header class={styles.header}>
+    <h1 class={styles.title}>{title}</h1>
+    {subtitle && <p class={styles.subtitle}>{subtitle}</p>}
+  </header>
+
+  {error && <div class={styles.error} role="alert">{error}</div>}
+  {success && <div class={styles.success} role="status">{success}</div>}
+
+  <slot />
+</div>
