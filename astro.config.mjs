@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 // Output is hybrid by default: pages are prerendered (static) unless they
@@ -8,15 +8,14 @@ import node from '@astrojs/node';
 // use SSR to read/write cookies and talk to Supabase.
 export default defineConfig({
   output: 'static',
-  adapter: node({ mode: 'standalone' }),
+  adapter: vercel(),
   server: {
     port: 4321,
     host: true,
   },
   vite: {
     ssr: {
-      noExternal: ['@supabase/ssr'],
-      external: ['@prisma/client'],
+      noExternal: ['@supabase/ssr', '@prisma/client'],
     },
   },
 });

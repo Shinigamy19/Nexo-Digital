@@ -49,3 +49,6 @@ coverage/
 # ─── Misc ────────────────────────────────────────────────────────────
 *.tgz
 .cache/
+
+# Vercel build output
+.vercel/
