@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module';
 import type {
   JobCategory as AppJobCategory,
   JobModality as AppJobModality,
@@ -8,8 +7,11 @@ import type {
   EventCategoryKind as AppEventCategory,
 } from '../types/database';
 
-const require = createRequire(import.meta.url);
-const { PrismaClient } = require('@prisma/client');
+// Use native require via new Function to bypass Vite's CJS→ESM transform
+// which corrupts .prisma/client/default into an invalid ESM specifier.
+// eslint-disable-next-line no-new-func
+const nativeRequire = new Function('m', 'return require(m)') as NodeRequire;
+const { PrismaClient } = nativeRequire('@prisma/client');
 
 const globalForPrisma = globalThis as unknown as { prisma: InstanceType<typeof PrismaClient> };
 

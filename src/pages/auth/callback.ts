@@ -9,19 +9,20 @@ import {
 import { prisma } from '../../lib/prisma';
 
 export const GET: APIRoute = async (context) => {
-  const code = context.url.searchParams.get('code');
-  const nextParam = context.url.searchParams.get('next') ?? '/perfil';
-  const next = nextParam.startsWith('/') ? nextParam : '/perfil';
-  const linking = context.url.searchParams.get('linking') === 'true';
+  try {
+    const code = context.url.searchParams.get('code');
+    const nextParam = context.url.searchParams.get('next') ?? '/perfil';
+    const next = nextParam.startsWith('/') ? nextParam : '/perfil';
+    const linking = context.url.searchParams.get('linking') === 'true';
 
-  if (!code) {
-    return context.redirect('/auth/error?reason=missing_code', 303);
-  }
+    if (!code) {
+      return context.redirect('/auth/error?reason=missing_code', 303);
+    }
 
-  const codeVerifier = context.cookies.get(codeVerifierCookieName())?.value;
-  if (!codeVerifier) {
-    return context.redirect('/auth/error?reason=missing_code_verifier', 303);
-  }
+    const codeVerifier = context.cookies.get(codeVerifierCookieName())?.value;
+    if (!codeVerifier) {
+      return context.redirect('/auth/error?reason=missing_code_verifier', 303);
+    }
 
   const { session: rawSession, error } = await exchangePkceCodeForSession(code, codeVerifier);
 
@@ -140,4 +141,8 @@ export const GET: APIRoute = async (context) => {
     status: 303,
     headers: { Location: next, 'Set-Cookie': cookieHeader },
   });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return context.redirect(`/auth/error?reason=${encodeURIComponent(msg)}`, 303);
+  }
 };
