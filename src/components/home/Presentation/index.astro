@@ -1,14 +1,12 @@
 ---
-import { Image } from 'astro:assets';
 import AreaCard from '../AreaCard/index.astro';
 import styles from './Presentation.module.css';
 
 interface Props {
-  logoImg: any;
   areas: Array<{ emoji: string; label: string }>;
 }
 
-const { logoImg, areas } = Astro.props;
+const { areas } = Astro.props;
 ---
 
 <section id="presentacion" class={`section ${styles['section-presentation']}`}>
@@ -17,7 +15,7 @@ const { logoImg, areas } = Astro.props;
       <div class={`${styles['pres-visual']} reveal`}>
         <div class={styles['logo-showcase']}>
           <div class={styles['logo-glow-ring']} aria-hidden="true"></div>
-          <Image src={logoImg} alt="Logo de Nexo Digital" class={styles['logo-big']} width={200} height={200} />
+          <img src="/logo.webp" alt="Logo de Nexo Digital" class={styles['logo-big']} width={200} height={200} />
         </div>
       </div>
 

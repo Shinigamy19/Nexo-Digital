@@ -1,13 +1,11 @@
 ---
-import { Image } from 'astro:assets';
 import styles from './Invite.module.css';
 
 interface Props {
   whatsappLink: string;
-  qrLightImg: any;
 }
 
-const { whatsappLink, qrLightImg } = Astro.props;
+const { whatsappLink } = Astro.props;
 ---
 
 <section id="invitacion" class={styles['section-invite']}>
@@ -26,7 +24,7 @@ const { whatsappLink, qrLightImg } = Astro.props;
       </p>
       <div class={`${styles['invite-actions']} reveal reveal-delay-3`}>
         <div class={styles['qr-container']}>
-          <Image src={qrLightImg} alt="QR de invitación a WhatsApp" class={styles['invite-qr']} width={140} height={140} />
+          <img src="/qr-light.webp" alt="QR de invitación a WhatsApp" class={styles['invite-qr']} width={140} height={140} />
           <span class={styles['qr-label']}>Escanear para unirse</span>
         </div>
         <a href={whatsappLink} id="invite-cta" class={styles['btn-invite']} target="_blank" rel="noopener noreferrer">

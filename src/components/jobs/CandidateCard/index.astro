@@ -1,5 +1,4 @@
 ---
-import { Image } from 'astro:assets';
 import styles from './index.module.css';
 
 interface Props {
@@ -14,32 +13,14 @@ interface Props {
 
 const { name, role, bio, tags, availability, topSkill, image } = Astro.props;
 
-const isDirectUrl = image && (image.startsWith('data:') || image.startsWith('http://') || image.startsWith('https://'));
-let imageSrc: any = null;
-let hasValidImage = false;
-
-if (isDirectUrl) {
-  hasValidImage = true;
-} else if (image) {
-  // Try to load preset image
-  const images = import.meta.glob<{ default: ImageMetadata }>('../../../assets/candidates/*.{jpeg,jpg,png,gif,webp}');
-  const imagePath = `../../../assets/candidates/${image}`;
-  if (images[imagePath]) {
-    imageSrc = images[imagePath]();
-    hasValidImage = true;
-  }
-}
+const hasValidImage = image && (image.startsWith('data:') || image.startsWith('http://') || image.startsWith('https://'));
 ---
 
 <article class={styles['candidate-card']}>
   <header class={styles['card-header']}>
     <div class={styles['avatar-wrapper']} aria-hidden="true">
       {hasValidImage ? (
-        isDirectUrl ? (
-          <img src={image} alt={`Foto de ${name}`} class={styles['avatar-img']} width={52} height={52} />
-        ) : (
-          <Image src={imageSrc} alt={`Foto de ${name}`} class={styles['avatar-img']} width={52} height={52} />
-        )
+        <img src={image} alt={`Foto de ${name}`} class={styles['avatar-img']} width={52} height={52} />
       ) : (
         <div class={styles['avatar-fallback']}>{name.charAt(0).toUpperCase()}</div>
       )}

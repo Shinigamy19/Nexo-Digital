@@ -1,6 +1,4 @@
 ---
-import { Image } from 'astro:assets';
-import logoImg from '../../../assets/brand/logo.webp';
 import UserMenu from '../../auth/UserMenu.astro';
 import { isModerator } from '../../../lib/roles';
 import styles from './Navbar.module.css';
@@ -13,7 +11,7 @@ const isMod = isModerator(user);
 <header class={styles.navbar} id="navbar" data-scrolled-class={styles.scrolled} data-menu-open-class={styles.menuOpen}>
   <div class={styles.navContainer}>
     <a href="/" class={styles.navLogo} aria-label="Nexo Digital inicio">
-      <Image src={logoImg} alt="Nexo Digital logo" width={38} height={38} loading="eager" fetchpriority="high" />
+      <img src="/logo.webp" alt="Nexo Digital logo" width={38} height={38} loading="eager" fetchpriority="high" />
       <span class={styles.navLogoText}>Nexo <span class="gradient-text">Digital</span></span>
     </a>
 

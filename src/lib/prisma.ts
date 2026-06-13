@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { createRequire } from 'node:module';
 import type {
   JobCategory as AppJobCategory,
   JobModality as AppJobModality,
@@ -8,9 +8,12 @@ import type {
   EventCategoryKind as AppEventCategory,
 } from '../types/database';
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+const require = createRequire(import.meta.url);
+const { PrismaClient } = require('@prisma/client');
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+const globalForPrisma = globalThis as unknown as { prisma: InstanceType<typeof PrismaClient> };
+
+export const prisma: InstanceType<typeof PrismaClient> = globalForPrisma.prisma ?? new PrismaClient();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
