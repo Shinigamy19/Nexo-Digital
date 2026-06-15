@@ -19,27 +19,27 @@ const isMod = isModerator(user);
       <span></span><span></span><span></span>
     </button>
 
-    <nav class={styles.navLinks} id="navLinks" role="navigation" data-open-class={styles.open}>
-      <a href="/#presentacion" class={styles.navLink}>Presentación</a>
-      <a href="/#objetivos" class={styles.navLink}>Objetivos</a>
-      <a href="/proyectos" class={styles.navLink}>Proyectos</a>
-      <a href="/recursos" class={styles.navLink}>Recursos</a>
-      <a href="/empleos" class={styles.navLink}>Empleos</a>
-      <a href="/eventos" class={styles.navLink}>Eventos</a>
+    {isAuthed && user ? (
+      <nav class={styles.navLinks} id="navLinks" role="navigation" data-open-class={styles.open}>
+        <a href="/empleos" class={styles.navLink}>Empleos</a>
+        <a href="/proyectos" class={styles.navLink}>Proyectos</a>
+        <a href="/recursos" class={styles.navLink}>Recursos</a>
+        <a href="/eventos" class={styles.navLink}>Eventos</a>
 
-      {isMod && (
-        <a href="/moderacion" class={styles.navLink} style="color: var(--magenta);">🛡️ Moderación</a>
-      )}
+        {isMod && (
+          <a href="/moderacion" class={styles.navLink} style="color: var(--magenta);">Moderación</a>
+        )}
 
-      {isAuthed && user ? (
         <UserMenu user={user} />
-      ) : (
-        <>
-          <a href="/login" class={styles.navLink}>Iniciar sesión</a>
-          <a href="/registro" class={styles.navCta}>Unirme ahora</a>
-        </>
-      )}
-    </nav>
+      </nav>
+    ) : (
+      <nav class={styles.navLinks} id="navLinks" role="navigation" data-open-class={styles.open}>
+        <a href="/#presentacion" class={styles.navLink}>Presentación</a>
+        <a href="/#objetivos" class={styles.navLink}>Objetivos</a>
+        <a href="/login" class={styles.navLink}>Iniciar sesión</a>
+        <a href="/registro" class={styles.navCta}>Unirme</a>
+      </nav>
+    )}
   </div>
 </header>
 

@@ -16,6 +16,10 @@
   transition: all 0.35s ease;
   position: relative;
   overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
 }
 
 .obj-card::before {

@@ -19,13 +19,21 @@ import styles from './Objectives.module.css';
     </div>
 
     <div class={styles['objectives-grid']}>
-      {objectivesData.map((obj, i) => (
-        <article class={`${styles['obj-card']} ${styles[`obj-${obj.color}`]} reveal reveal-delay-${(i % 3) + 1}`}>
-          <div class={`${styles['obj-icon']} ${styles[`obj-icon-${obj.color}`]}`} set:html={obj.icon} aria-hidden="true" />
-          <h3 class={styles['obj-title']}>{obj.title}</h3>
-          <p class={styles['obj-desc']}>{obj.desc}</p>
-        </article>
-      ))}
+      {objectivesData.map((obj, i) => {
+        const isExternal = obj.link?.startsWith('http');
+        const Tag = obj.link ? 'a' : 'article';
+        return (
+          <Tag
+            class={`${styles['obj-card']} ${styles[`obj-${obj.color}`]} reveal reveal-delay-${(i % 3) + 1}`}
+            {...(obj.link ? { href: obj.link } : {})}
+            {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          >
+            <div class={`${styles['obj-icon']} ${styles[`obj-icon-${obj.color}`]}`} set:html={obj.icon} aria-hidden="true" />
+            <h3 class={styles['obj-title']}>{obj.title}</h3>
+            <p class={styles['obj-desc']}>{obj.desc}</p>
+          </Tag>
+        );
+      })}
     </div>
   </div>
 </section>
