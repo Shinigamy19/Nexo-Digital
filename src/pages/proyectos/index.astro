@@ -14,7 +14,7 @@ const NEW_PROJECT_URL = '/proyectos/nuevo';
 
 const filterOptions = [
   { value: 'desarrollo', label: '💻 Desarrollo' },
-  { value: 'diseño',     label: '🎨 Diseño' },
+  { value: 'diseno',     label: '🎨 Diseño' },
   { value: 'ia',         label: '🤖 IA' },
   { value: 'iot',        label: '🏠 IoT' },
   { value: 'edicion',    label: '🎦 Edición' },
@@ -41,6 +41,10 @@ try {
       demo: true,
       projectStatus: true,
       featured: true,
+      projectType: true,
+      mediaUrls: true,
+      socialLinks: true,
+      collaborative: true,
     },
   });
 
@@ -57,6 +61,13 @@ try {
       demo: p.demo ?? '',
       status: p.projectStatus === 'en_progreso' ? 'en progreso' : p.projectStatus,
       featured: p.featured,
+      projectType: p.projectType ?? 'desarrollo',
+      mediaUrls: p.mediaUrls ?? [],
+      socialLinks: (() => {
+        try { return JSON.parse(p.socialLinks as string); }
+        catch { return []; }
+      })(),
+      collaborative: p.collaborative,
     }));
   }
 } catch {}

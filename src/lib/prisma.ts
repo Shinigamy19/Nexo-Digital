@@ -5,24 +5,20 @@ import type {
   ResourceCategory as AppResourceCategory,
   ResourceType as AppResourceType,
   ProjectCategory as AppProjectCategory,
+  ProjectType as AppProjectType,
   EventCategoryKind as AppEventCategory,
 } from '../types/database';
 
-// Vite's CJS→ESM interop corrupts `@prisma/client` into `.prisma/client/default`
-// (an invalid ESM specifier). Using createRequire() gives us a native CJS
-// require function that resolves @prisma/client entirely at runtime, bypassing
-// Vite's module transform.
 const _require = createRequire(import.meta.url);
 const { PrismaClient } = _require('@prisma/client') as { PrismaClient: new () => any };
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClientType };
+type PrismaClientInstance = InstanceType<typeof PrismaClient>;
 
-export const prisma: PrismaClientType = globalForPrisma.prisma ?? new PrismaClient();
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClientInstance };
+
+export const prisma: PrismaClientInstance = globalForPrisma.prisma ?? new PrismaClient();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-
-// ─── App → Prisma enum mapping ─────────────────────────────────────────
-// App types use 'diseño' (with ñ); Prisma generated enums use 'diseno'.
 
 const JOB_CATEGORY_MAP: Record<AppJobCategory, string> = {
   desarrollo: 'desarrollo',
@@ -70,6 +66,21 @@ const PROJECT_CATEGORY_MAP: Record<AppProjectCategory, string> = {
   gamedev: 'gamedev',
 };
 
+const PROJECT_TYPE_MAP: Record<AppProjectType, string> = {
+  desarrollo: 'desarrollo',
+  audiovisual: 'audiovisual',
+};
+
+const EVENT_CATEGORY_MAP: Record<AppEventCategory, string> = {
+  conferencia: 'conferencia',
+  workshop: 'workshop',
+  networking: 'networking',
+  hackathon: 'hackathon',
+  curso: 'curso',
+  encuentro: 'encuentro',
+  otro: 'otro',
+};
+
 export function toPrismaJobCategory(v: AppJobCategory): string {
   return JOB_CATEGORY_MAP[v] ?? v;
 }
@@ -90,15 +101,9 @@ export function toPrismaProjectCategory(v: AppProjectCategory): string {
   return PROJECT_CATEGORY_MAP[v] ?? v;
 }
 
-const EVENT_CATEGORY_MAP: Record<AppEventCategory, string> = {
-  conferencia: 'conferencia',
-  workshop: 'workshop',
-  networking: 'networking',
-  hackathon: 'hackathon',
-  curso: 'curso',
-  encuentro: 'encuentro',
-  otro: 'otro',
-};
+export function toPrismaProjectType(v: AppProjectType): string {
+  return PROJECT_TYPE_MAP[v] ?? v;
+}
 
 export function toPrismaEventCategory(v: AppEventCategory): string {
   return EVENT_CATEGORY_MAP[v] ?? v;

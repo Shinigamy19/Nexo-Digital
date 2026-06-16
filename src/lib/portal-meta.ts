@@ -8,6 +8,7 @@ import type {
   JobModality,
   ProjectCategory,
   ProjectStatusKind,
+  ProjectType,
   ResourceCategory,
   ResourceType,
   EventCategoryKind,
@@ -64,6 +65,11 @@ export const RESOURCE_CATEGORIES: readonly SelectOption<ResourceCategory>[] = [
 
 // ---- Proyectos ----
 
+export const PROJECT_TYPES: readonly SelectOption<ProjectType>[] = [
+  { value: 'desarrollo',  label: 'Desarrollo',  emoji: '💻' },
+  { value: 'audiovisual', label: 'Audiovisual', emoji: '🎨' },
+];
+
 export const PROJECT_CATEGORIES: readonly SelectOption<ProjectCategory>[] = [
   { value: 'desarrollo', label: 'Desarrollo', emoji: '💻' },
   { value: 'diseño',     label: 'Diseño',     emoji: '🎨' },
@@ -74,10 +80,34 @@ export const PROJECT_CATEGORIES: readonly SelectOption<ProjectCategory>[] = [
   { value: 'gamedev',    label: 'Game Dev',   emoji: '🎮' },
 ];
 
+export const SOCIAL_PLATFORMS: readonly SelectOption<string>[] = [
+  { value: 'github',     label: 'GitHub',     emoji: '🐙' },
+  { value: 'behance',    label: 'Behance',    emoji: '🅱️' },
+  { value: 'itchio',     label: 'Itch.io',    emoji: '🕹️' },
+  { value: 'youtube',    label: 'YouTube',    emoji: '📺' },
+  { value: 'twitter',    label: 'X / Twitter', emoji: '✖️' },
+  { value: 'instagram',  label: 'Instagram',  emoji: '📸' },
+  { value: 'linkedin',   label: 'LinkedIn',   emoji: '💼' },
+  { value: 'tiktok',     label: 'TikTok',     emoji: '🎵' },
+  { value: 'portfolio',  label: 'Portafolio',  emoji: '🌐' },
+];
+
+export const SOCIAL_PLATFORM_URLS: Record<string, (username: string) => string> = {
+  github:    (u) => `https://github.com/${u}`,
+  behance:   (u) => `https://behance.net/${u}`,
+  itchio:    (u) => `https://${u}.itch.io`,
+  youtube:   (u) => u.startsWith('http') ? u : `https://youtube.com/@${u}`,
+  twitter:   (u) => `https://x.com/${u}`,
+  instagram: (u) => `https://instagram.com/${u}`,
+  linkedin:  (u) => u.startsWith('http') ? u : `https://linkedin.com/in/${u}`,
+  tiktok:    (u) => `https://tiktok.com/@${u}`,
+  portfolio: (u) => u.startsWith('http') ? u : `https://${u}`,
+};
+
 export const PROJECT_STATUSES: readonly SelectOption<ProjectStatusKind>[] = [
   { value: 'activo',      label: 'Activo',      emoji: '🟢' },
   { value: 'en_progreso', label: 'En progreso', emoji: '🔵' },
-  { value: 'archivado',   label: 'Archivado',   emoji: '⚫' },
+  { value: 'finalizado', label: 'Finalizado', emoji: '✅' },
 ];
 
 // ---- Eventos ----

@@ -196,3 +196,171 @@
   line-height: 1.5;
 }
 .disclaimer svg { flex-shrink: 0; color: var(--cyan); }
+
+/* ── Type selector ── */
+
+.typeSelector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+.typeOption {
+  cursor: pointer;
+}
+
+.typeOption input { position: absolute; opacity: 0; pointer-events: none; }
+
+.typeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1rem 0.75rem;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border);
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.typeEmoji { font-size: 1.5rem; }
+
+.typeLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.typeOption input:checked + .typeCard {
+  border-color: rgba(0, 245, 255, 0.6);
+  background: rgba(0, 245, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.12);
+}
+
+.typeOption input:checked + .typeCard .typeLabel {
+  color: var(--cyan);
+}
+
+.typeCard:hover {
+  border-color: rgba(0, 245, 255, 0.3);
+}
+
+/* ── Dynamic lists (media URLs / social links) ── */
+
+.dynamicList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dynamicRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.dynamicRow .input,
+.dynamicRow .select {
+  flex: 1;
+  min-width: 0;
+}
+
+.removeBtn {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.08);
+  color: #f87171;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.removeBtn:hover {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: rgba(248, 113, 113, 0.6);
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.15);
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 10px;
+  border: 1.5px dashed rgba(0, 245, 255, 0.25);
+  background: rgba(0, 245, 255, 0.04);
+  color: var(--cyan);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addBtn:hover {
+  border-color: rgba(0, 245, 255, 0.5);
+  background: rgba(0, 245, 255, 0.08);
+  box-shadow: 0 0 12px rgba(0, 245, 255, 0.1);
+}
+
+/* ── Toggle (colaborativo) ── */
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle input { position: absolute; opacity: 0; pointer-events: none; }
+
+.toggleTrack {
+  position: relative;
+  width: 2.6rem;
+  height: 1.4rem;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #888;
+  transition: all 0.25s ease;
+}
+
+.toggle input:checked + .toggleTrack {
+  background: rgba(0, 245, 255, 0.2);
+  border-color: rgba(0, 245, 255, 0.5);
+}
+
+.toggle input:checked + .toggleTrack .toggleThumb {
+  left: calc(100% - 1rem - 2px);
+  background: var(--cyan);
+  box-shadow: 0 0 8px rgba(0, 245, 255, 0.4);
+}
+
+.toggleLabel {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}

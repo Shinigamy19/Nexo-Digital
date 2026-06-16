@@ -89,6 +89,18 @@ const justCreated = Astro.url.searchParams.get('created') === 'resource';
         </div>
 
         <div class={styles.field}>
+          <label class={styles.label}>Imágenes o videos del recurso</label>
+          <p class={styles.hint}>Opcional. Mostrá capturas, demos o contenido relacionado.</p>
+          <div class={styles.dynamicList} id="mediaList">
+            <div class={styles.dynamicRow}>
+              <input class={styles.input} type="url" name="media_urls" maxlength="500" placeholder="https://youtube.com/watch?v=... o https://i.imgur.com/..." />
+              <button type="button" class={styles.removeBtn} data-remove aria-label="Quitar">×</button>
+            </div>
+          </div>
+          <button type="button" class={styles.addBtn} id="addMedia">+ Agregar media</button>
+        </div>
+
+        <div class={styles.field}>
           <label class={styles.label} for="tags">Tags</label>
           <input class={styles.input} type="text" id="tags" name="tags" placeholder="diseño, ui, gratis" />
           <span class={styles.hint}>Opcional. Separalas con comas.</span>
@@ -141,9 +153,28 @@ const justCreated = Astro.url.searchParams.get('created') === 'resource';
   form.addEventListener('submit', () => {
     const fd = new FormData(form);
     const data: Record<string, string> = {};
-    for (const [key, val] of fd.entries()) {
-      if (typeof val === 'string') data[key] = val;
+    for (const [k, val] of fd.entries()) {
+      if (typeof val === 'string') data[k] = val;
     }
     sessionStorage.setItem(key, JSON.stringify(data));
+  });
+
+  document.getElementById('addMedia')?.addEventListener('click', () => {
+    const list = document.getElementById('mediaList');
+    if (!list) return;
+    const row = list.querySelector('.dynamic-row')?.cloneNode(true) as HTMLElement;
+    if (!row) return;
+    (row.querySelector('input') as HTMLInputElement).value = '';
+    list.appendChild(row);
+  });
+
+  form.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('[data-remove]');
+    if (!btn) return;
+    const row = btn.closest('.dynamic-row');
+    const list = row?.parentElement;
+    if (list && list.querySelectorAll('.dynamic-row').length > 1) {
+      row?.remove();
+    }
   });
 </script>

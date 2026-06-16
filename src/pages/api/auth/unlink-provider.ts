@@ -35,20 +35,19 @@ export const POST: APIRoute = async (context) => {
     const admin = createSupabaseAdminClient();
 
     // Get the identity ID for this provider
-    const { data: identities, error: idError } = await admin.auth.admin.listUserIdentities(user.id);
+    const adminAny = admin.auth.admin as any;
+    const { data: identities, error: idError } = await adminAny.listUserIdentities(user.id);
 
     if (idError || !identities) {
       return context.redirect('/perfil/editar?tab=seguridad&error=unlink_failed', 303);
     }
 
-    // Find the identity for this provider
-    const identity = identities.find((id) => id.provider === provider);
+    const identity = identities.find((id: any) => id.provider === provider);
     if (!identity) {
       return context.redirect('/perfil/editar?tab=seguridad&error=provider_not_found', 303);
     }
 
-    // Unlink the provider by deleting the identity
-    const { error: unlinkError } = await admin.auth.admin.unlinkIdentity(user.id, identity.identity_id);
+    const { error: unlinkError } = await adminAny.unlinkIdentity(user.id, identity.identity_id);
 
     if (unlinkError) {
       return context.redirect('/perfil/editar?tab=seguridad&error=unlink_failed', 303);

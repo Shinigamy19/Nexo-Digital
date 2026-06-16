@@ -87,7 +87,8 @@ export type ResourceCategory =
   | 'aprendizaje'
   | 'iot';
 
-export type ProjectStatusKind = 'activo' | 'en_progreso' | 'archivado';
+export type ProjectStatusKind = 'activo' | 'en_progreso' | 'finalizado';
+export type ProjectType = 'desarrollo' | 'audiovisual';
 export type ProjectCategory =
   | 'desarrollo'
   | 'diseño'
@@ -96,6 +97,11 @@ export type ProjectCategory =
   | 'edicion'
   | 'audio'
   | 'gamedev';
+
+export interface SocialLink {
+  platform: string;
+  value: string;
+}
 
 // ---- events ----
 export type EventTypeKind = 'presencial' | 'en_linea' | 'hibrido';
@@ -195,6 +201,7 @@ export interface Resource {
   type: ResourceType;
   category: ResourceCategory;
   url: string;
+  media_urls: string[];
   tags: string[];
   added_by: string;
   status: ModerationStatus;
@@ -211,6 +218,7 @@ export interface ResourceCreate {
   type: ResourceType;
   category: ResourceCategory;
   url: string;
+  media_urls?: string[];
   tags: string[];
   added_by: string;
 }
@@ -220,15 +228,19 @@ export interface Project {
   id: string;
   author_id: string | null;
   is_system: boolean;
+  project_type: ProjectType;
   title: string;
   description: string;
   category: ProjectCategory;
   technologies: string[];
+  media_urls: string[];
+  social_links: SocialLink[];
   author: string;
   author_github: string | null;
   repo: string | null;
   demo: string | null;
   project_status: ProjectStatusKind;
+  collaborative: boolean;
   featured: boolean;
   status: ModerationStatus;
   moderator_id: string | null;
@@ -239,15 +251,19 @@ export interface Project {
 }
 
 export interface ProjectCreate {
+  project_type: ProjectType;
   title: string;
   description: string;
   category: ProjectCategory;
   technologies: string[];
+  media_urls?: string[];
+  social_links?: SocialLink[];
   author: string;
   author_github?: string | null;
   repo?: string | null;
   demo?: string | null;
   project_status?: ProjectStatusKind;
+  collaborative?: boolean;
 }
 
 // ---- moderation log ----

@@ -14,7 +14,7 @@ const NEW_RESOURCE_URL = '/recursos/nuevo';
 
 const filterOptions = [
   { value: 'desarrollo', label: '💻 Desarrollo' },
-  { value: 'diseño',     label: '🎨 Diseño' },
+  { value: 'diseno',     label: '🎨 Diseño' },
   { value: 'ia',         label: '🤖 IA' },
   { value: 'marketing',  label: '📢 Marketing' },
   { value: 'audio',      label: '🎧 Audio' },
@@ -36,6 +36,7 @@ try {
       type: true,
       category: true,
       url: true,
+      mediaUrls: true,
       tags: true,
       addedBy: true,
     },
@@ -49,6 +50,7 @@ try {
       type: r.type,
       category: r.category,
       url: r.url,
+      mediaUrls: r.mediaUrls ?? [],
       tags: r.tags,
       addedBy: r.addedBy,
     }));

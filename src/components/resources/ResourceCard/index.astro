@@ -8,11 +8,12 @@ interface Props {
   type: string;
   category: string;
   url: string;
+  mediaUrls?: string[];
   tags: string[];
   addedBy: string;
 }
 
-const { title, description, type, category, url, tags, addedBy } = Astro.props;
+const { title, description, type, category, url, mediaUrls = [], tags, addedBy } = Astro.props;
 
 const typeIcons: Record<string, string> = {
   herramienta: '🔧',
@@ -32,21 +33,70 @@ const typeColorMap: Record<string, string> = {
 
 const categoryLabels: Record<string, string> = {
   desarrollo: '💻 Desarrollo',
-  diseño: '🎨 Diseño',
+  diseno: '🎨 Diseño',
   ia: '🤖 IA',
   iot: '🏠 IoT',
   edicion: '🎬 Edición',
   audio: '🎧 Audio',
   aprendizaje: '📚 Aprendizaje',
+  marketing: '📣 Marketing',
+  negocios: '💼 Negocios',
 };
+
+const categoryColorClass: Record<string, string> = {
+  desarrollo: 'cat-dev',
+  diseno: 'cat-design',
+  ia: 'cat-ai',
+  iot: 'cat-iot',
+  edicion: 'cat-edit',
+  audio: 'cat-audio',
+  aprendizaje: 'cat-learn',
+  marketing: 'cat-mkt',
+  negocios: 'cat-biz',
+};
+
+function isYouTubeUrl(url: string): boolean {
+  return /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/.test(url);
+}
+
+function getYouTubeEmbed(url: string): string {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/);
+  return match ? `https://www.youtube.com/embed/${match[1]}` : '';
+}
 ---
 
 <article class={styles['resource-card']}>
+  {mediaUrls.length > 0 && (
+    <div class={styles['media-preview']}>
+      {isYouTubeUrl(mediaUrls[0]) ? (
+        <iframe
+          src={getYouTubeEmbed(mediaUrls[0])}
+          class={styles['media-embed']}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          loading="lazy"
+          title={title}
+        />
+      ) : (
+        <img
+          src={mediaUrls[0]}
+          alt={title}
+          class={styles['media-img']}
+          loading="lazy"
+          onerror="this.style.display='none'"
+        />
+      )}
+      {mediaUrls.length > 1 && (
+        <span class={styles['media-count']}>+{mediaUrls.length - 1} más</span>
+      )}
+    </div>
+  )}
+
   <div class={styles['card-header']}>
     <span class={`${styles['type-badge']} ${styles[typeColorMap[type] ?? ''] ?? ''}`}>
       {typeIcons[type] ?? '📌'} {type}
     </span>
-    <span class={styles['category-label']}>{categoryLabels[category] ?? category}</span>
+    <span class={`${styles['category-label']} ${styles[categoryColorClass[category] ?? ''] ?? ''}`}>{categoryLabels[category] ?? category}</span>
   </div>
 
   <h3 class={styles['card-title']}>{title}</h3>

@@ -62,7 +62,7 @@ enum ResourceCategory {
 enum ProjectStatusKind {
   activo
   en_progreso
-  archivado
+  finalizado
 }
 
 enum EventType {
@@ -89,6 +89,11 @@ enum ProjectCategory {
   edicion
   audio
   gamedev
+}
+
+enum ProjectType {
+  desarrollo
+  audiovisual
 }
 
 // ─── Models ─────────────────────────────────────────────────────────────
@@ -182,6 +187,7 @@ model Resource {
   type            ResourceType
   category        ResourceCategory
   url             String           @db.VarChar(500)
+  mediaUrls       String[]         @default([]) @db.VarChar @map("media_urls")
   tags            String[]         @default([]) @db.VarChar
   addedBy         String           @map("added_by") @db.VarChar(80)
   featured        Boolean          @default(false)
@@ -207,15 +213,19 @@ model Project {
   id              String           @id @default(uuid()) @db.Uuid
   authorId        String?          @map("author_id") @db.Uuid
   isSystem        Boolean          @default(false) @map("is_system")
+  projectType     ProjectType      @default(desarrollo) @map("project_type")
   title           String           @db.VarChar(120)
   description     String           @db.VarChar(2000)
   category        ProjectCategory
   technologies    String[]         @default([]) @db.VarChar
+  mediaUrls       String[]         @default([]) @db.VarChar @map("media_urls")
+  socialLinks     Json             @default("[]") @map("social_links")
   authorName      String           @map("author") @db.VarChar(80)
   authorGithub    String?          @map("author_github") @db.VarChar(80)
   repo            String?          @db.VarChar(500)
   demo            String?          @db.VarChar(500)
   projectStatus   ProjectStatusKind @default(activo) @map("project_status")
+  collaborative   Boolean          @default(false)
   featured        Boolean          @default(false)
   status          ModerationStatus @default(pending)
   moderatorId     String?          @map("moderator_id") @db.Uuid

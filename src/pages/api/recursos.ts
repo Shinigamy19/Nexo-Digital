@@ -65,6 +65,17 @@ export const POST: APIRoute = async (context) => {
   const addedBy = parseText(formValue(form, 'added_by'), 1, LIMITS.MAX_COMPANY_LENGTH);
   if (!addedBy) return fail(context.url, 'invalid_added_by', 'added_by');
 
+  const mediaUrls: string[] = [];
+  const rawUrls = form.getAll('media_urls');
+  for (const raw of rawUrls) {
+    if (typeof raw !== 'string') continue;
+    const u = raw.trim();
+    if (!u) continue;
+    try { new URL(u); } catch { continue; }
+    mediaUrls.push(u);
+    if (mediaUrls.length >= 5) break;
+  }
+
   let resource;
   try {
     resource = await prisma.resource.create({
@@ -76,6 +87,7 @@ export const POST: APIRoute = async (context) => {
         type: toPrismaResourceType(type) as any,
         category: toPrismaResourceCategory(category) as any,
         url: resourceUrl,
+        mediaUrls,
         tags,
         addedBy,
         status: 'pending',

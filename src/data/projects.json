@@ -10,7 +10,8 @@
     "repo": "https://github.com/nexo-digital/nexo-bot",
     "demo": "",
     "status": "activo",
-    "featured": true
+    "featured": true,
+    "projectType": "desarrollo"
   },
   {
     "id": "nexo-ui-kit",
@@ -23,7 +24,10 @@
     "repo": "https://github.com/nexo-digital/nexo-ui-kit",
     "demo": "https://nexo-ui-kit.vercel.app",
     "status": "activo",
-    "featured": true
+    "featured": true,
+    "projectType": "audiovisual",
+    "mediaUrls": [],
+    "socialLinks": [{"platform": "behance", "value": "pixelcreator"}]
   },
   {
     "id": "portafolio-template",
@@ -36,7 +40,8 @@
     "repo": "https://github.com/devargento/portfolio-template",
     "demo": "https://portfolio-template-nexo.netlify.app",
     "status": "activo",
-    "featured": false
+    "featured": false,
+    "projectType": "desarrollo"
   },
   {
     "id": "iot-dashboard",
@@ -49,7 +54,8 @@
     "repo": "https://github.com/iotero/iot-dashboard-nexo",
     "demo": "",
     "status": "en progreso",
-    "featured": false
+    "featured": false,
+    "projectType": "desarrollo"
   },
   {
     "id": "ai-prompt-manager",
@@ -62,6 +68,21 @@
     "repo": "https://github.com/promptlord/ai-prompt-manager",
     "demo": "https://promptlord.vercel.app",
     "status": "activo",
-    "featured": true
+    "featured": true,
+    "projectType": "desarrollo"
+  },
+  {
+    "id": "cine-reel",
+    "title": "CineReel — Showreel Comunidad",
+    "description": "Showreel interactivo de las mejores piezas audiovisuales de la comunidad Nexo Digital. Edición, motion graphics y arte conceptual.",
+    "category": "edicion",
+    "technologies": ["After Effects", "Premiere Pro", "DaVinci Resolve"],
+    "author": "ReelMaker",
+    "authorGithub": "reelmaker",
+    "status": "activo",
+    "featured": true,
+    "projectType": "audiovisual",
+    "mediaUrls": ["https://i.imgur.com/5gvDwWk.png"],
+    "socialLinks": [{"platform": "youtube", "value": "reelmaker"}, {"platform": "behance", "value": "reelmaker"}]
   }
 ]

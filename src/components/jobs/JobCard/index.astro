@@ -39,13 +39,24 @@ const modalityConfig: Record<string, { label: string; cls: string }> = {
 
 const categoryLabels: Record<string, string> = {
   desarrollo: '💻 Desarrollo',
-  diseño: '🎨 Diseño',
+  diseno: '🎨 Diseño',
   ia: '🤖 IA',
   iot: '🏠 IoT',
   edicion: '🎬 Edición',
   audio: '🎧 Audio',
   marketing: '📢 Marketing',
   rrhh: '👥 RRHH',
+};
+
+const categoryColorClass: Record<string, string> = {
+  desarrollo: 'cat-dev',
+  diseno: 'cat-design',
+  ia: 'cat-ai',
+  iot: 'cat-iot',
+  edicion: 'cat-edit',
+  audio: 'cat-audio',
+  marketing: 'cat-mkt',
+  rrhh: 'cat-rrhh',
 };
 
 const modalities = Array.isArray(modality) 
@@ -71,7 +82,7 @@ const mailtoLink = isEmail
         const mod = modalityConfig[m] ?? { label: m, cls: '' };
         return <span class={`${styles['mod-badge']} ${styles[mod.cls] ?? ''}`}>{mod.label}</span>
       })}
-      <span class={styles['cat-badge']}>{categoryLabels[category] ?? category}</span>
+      <span class={`${styles['cat-badge']} ${styles[categoryColorClass[category] ?? ''] ?? ''}`}>{categoryLabels[category] ?? category}</span>
     </div>
     <span class={styles['days-badge']} title={`Publicado el ${pubDate.toLocaleDateString('es-AR')}`}>{daysLabel}</span>
   </div>

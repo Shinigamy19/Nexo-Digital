@@ -52,7 +52,7 @@ export const GET: APIRoute = async (context) => {
   ]);
 
   return new Response(JSON.stringify({
-    users: profiles.map((p) => ({
+    users: profiles.map((p: any) => ({
       id: p.id,
       username: p.username,
       display_name: p.displayName,

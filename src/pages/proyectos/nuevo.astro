@@ -4,10 +4,9 @@ export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/layout/Navbar/index.astro';
 import Footer from '../../components/layout/Footer/index.astro';
-import logoImg from '../../assets/brand/logo.webp';
 import { isAuthenticated } from '../../lib/roles';
 import { submissionErrorMessage } from '../../lib/submission-errors';
-import { PROJECT_CATEGORIES, PROJECT_STATUSES } from '../../lib/portal-meta';
+import { PROJECT_TYPES, PROJECT_CATEGORIES, SOCIAL_PLATFORMS, PROJECT_STATUSES } from '../../lib/portal-meta';
 import styles from '../../styles/forms.module.css';
 
 const user = Astro.locals.user;
@@ -24,7 +23,7 @@ const justCreated = Astro.url.searchParams.get('created') === 'project';
 
 <Layout
   title="Publicar proyecto — Nexo Digital"
-  description="Compartí tu proyecto open source con la comunidad Nexo Digital."
+  description="Compartí tu proyecto con la comunidad Nexo Digital."
 >
   <Navbar />
   <main class={styles.page}>
@@ -49,10 +48,26 @@ const justCreated = Astro.url.searchParams.get('created') === 'project';
         </p>
       )}
 
-      <form method="POST" action="/api/proyectos" class={styles.form} novalidate>
+      <form method="POST" action="/api/proyectos" class={styles.form} novalidate data-project-form>
+
+        <div class={styles.field}>
+          <label class={styles.label}>Tipo de proyecto <span class={styles.required}>*</span></label>
+          <div class={styles.typeSelector}>
+            {PROJECT_TYPES.map((t) => (
+              <label class={styles.typeOption}>
+                <input type="radio" name="project_type" value={t.value} required checked={t.value === 'desarrollo'} />
+                <span class={styles.typeCard}>
+                  <span class={styles.typeEmoji}>{t.emoji}</span>
+                  <span class={styles.typeLabel}>{t.label}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
         <div class={styles.field}>
           <label class={styles.label} for="title">Nombre del proyecto <span class={styles.required}>*</span></label>
-          <input class={styles.input} type="text" id="title" name="title" required minlength="4" maxlength="120" placeholder="Nexo CLI" />
+          <input class={styles.input} type="text" id="title" name="title" required minlength="4" maxlength="120" placeholder="Mi proyecto increíble" />
         </div>
 
         <div class={styles.field}>
@@ -82,33 +97,68 @@ const justCreated = Astro.url.searchParams.get('created') === 'project';
         </div>
 
         <div class={styles.field}>
-          <label class={styles.label} for="technologies">Tecnologías <span class={styles.required}>*</span></label>
-          <input class={styles.input} type="text" id="technologies" name="technologies" required placeholder="TypeScript, Node.js, Astro" />
+          <label class={styles.label}>¿Es colaborativo?</label>
+          <p class={styles.hint}>Si está abierto a contribuciones de la comunidad, marcalo.</p>
+          <label class={styles.toggle}>
+            <input type="checkbox" name="collaborative" value="true" />
+            <span class={styles.toggleTrack}>
+              <span class={styles.toggleThumb}></span>
+            </span>
+            <span class={styles.toggleLabel}>Proyecto colaborativo</span>
+          </label>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="technologies">Tecnologías / Herramientas <span class={styles.required}>*</span></label>
+          <input class={styles.input} type="text" id="technologies" name="technologies" required placeholder="TypeScript, Figma, After Effects…" />
           <span class={styles.hint}>Separalas con comas.</span>
         </div>
 
-        <div class={styles.row}>
-          <div class={styles.field}>
-            <label class={styles.label} for="author">Tu nombre o el del autor <span class={styles.required}>*</span></label>
-            <input class={styles.input} type="text" id="author" name="author" required minlength="1" maxlength="80" placeholder="Ana Pérez" />
-          </div>
+        <div class={styles.field}>
+          <label class={styles.label} for="author">Tu nombre o el del autor <span class={styles.required}>*</span></label>
+          <input class={styles.input} type="text" id="author" name="author" required minlength="1" maxlength="80" placeholder="Ana Pérez" />
+        </div>
 
-          <div class={styles.field}>
-            <label class={styles.label} for="author_github">Usuario de GitHub</label>
-            <input class={styles.input} type="text" id="author_github" name="author_github" maxlength="80" placeholder="anaperez" />
-            <span class={styles.hint}>Opcional, sin @.</span>
+        <div class={styles.field} data-dev-only>
+          <div class={styles.row}>
+            <div class={styles.field}>
+              <label class={styles.label} for="repo">Link al repo</label>
+              <input class={styles.input} type="url" id="repo" name="repo" maxlength="500" placeholder="https://github.com/usuario/proyecto" />
+            </div>
+            <div class={styles.field}>
+              <label class={styles.label} for="demo">Link a la demo</label>
+              <input class={styles.input} type="url" id="demo" name="demo" maxlength="500" placeholder="https://proyecto.example.com" />
+            </div>
           </div>
         </div>
 
-        <div class={styles.row}>
-          <div class={styles.field}>
-            <label class={styles.label} for="repo">Link al repo</label>
-            <input class={styles.input} type="url" id="repo" name="repo" maxlength="500" placeholder="https://github.com/usuario/proyecto" />
+        <div class={styles.field} data-audiovisual-only style="display: none;">
+          <label class={styles.label}>Links de media <span class={styles.required}>*</span></label>
+          <p class={styles.hint}>Agregá links a imágenes, videos o contenido relacionado con tu proyecto.</p>
+          <div class={styles.dynamicList} id="mediaList">
+            <div class={styles.dynamicRow}>
+              <input class={styles.input} type="url" name="media_urls" maxlength="500" placeholder="https://youtube.com/watch?v=... o https://i.imgur.com/..." />
+              <button type="button" class={styles.removeBtn} data-remove aria-label="Quitar">×</button>
+            </div>
           </div>
-          <div class={styles.field}>
-            <label class={styles.label} for="demo">Link a la demo</label>
-            <input class={styles.input} type="url" id="demo" name="demo" maxlength="500" placeholder="https://proyecto.example.com" />
+          <button type="button" class={styles.addBtn} id="addMedia">+ Agregar link</button>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label}>Redes sociales</label>
+          <p class={styles.hint}>Mostrá dónde encontrarte. Opcional pero recomendado.</p>
+          <div class={styles.dynamicList} id="socialList">
+            <div class={styles.dynamicRow} data-social-row>
+              <select class={styles.select} name="social_platform" style="max-width: 200px;">
+                {SOCIAL_PLATFORMS.map((p) => (
+                  <option value={p.value}>{p.emoji} {p.label}</option>
+                ))}
+              </select>
+              <input class={styles.input} type="text" name="social_value" placeholder="Usuario o URL completa" />
+              <button type="button" class={styles.removeBtn} data-remove aria-label="Quitar">×</button>
+            </div>
           </div>
+          <button type="button" class={styles.addBtn} id="addSocial">+ Agregar red</button>
         </div>
 
         <div class={styles.actions}>
@@ -122,9 +172,57 @@ const justCreated = Astro.url.searchParams.get('created') === 'project';
 </Layout>
 
 <script>
-  const form = document.querySelector('form');
+  const form = document.querySelector('[data-project-form]') as HTMLFormElement;
   if (!form) throw new Error('Form not found');
-  const key = 'form-draft:' + (form.getAttribute('action') || 'unknown');
+
+  const typeRadios = form.querySelectorAll<HTMLInputElement>('input[name="project_type"]');
+  const devFields = form.querySelectorAll<HTMLElement>('[data-dev-only]');
+  const audiovisualFields = form.querySelectorAll<HTMLElement>('[data-audiovisual-only]');
+
+  function updateTypeFields() {
+    const selected = form.querySelector<HTMLInputElement>('input[name="project_type"]:checked')?.value ?? 'desarrollo';
+    const isDev = selected === 'desarrollo';
+    devFields.forEach(el => el.style.display = isDev ? '' : 'none');
+    audiovisualFields.forEach(el => el.style.display = isDev ? 'none' : '');
+  }
+
+  typeRadios.forEach(r => r.addEventListener('change', updateTypeFields));
+  updateTypeFields();
+
+  // Dynamic media URLs
+  document.getElementById('addMedia')?.addEventListener('click', () => {
+    const list = document.getElementById('mediaList');
+    if (!list) return;
+    const row = list.querySelector('.dynamic-row')?.cloneNode(true) as HTMLElement;
+    if (!row) return;
+    (row.querySelector('input') as HTMLInputElement).value = '';
+    list.appendChild(row);
+  });
+
+  // Dynamic social links
+  document.getElementById('addSocial')?.addEventListener('click', () => {
+    const list = document.getElementById('socialList');
+    if (!list) return;
+    const row = list.querySelector('[data-social-row]')?.cloneNode(true) as HTMLElement;
+    if (!row) return;
+    (row.querySelector('select') as HTMLSelectElement).selectedIndex = 0;
+    (row.querySelector('input') as HTMLInputElement).value = '';
+    list.appendChild(row);
+  });
+
+  // Remove buttons
+  form.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('[data-remove]');
+    if (!btn) return;
+    const row = btn.closest('.dynamic-row');
+    const list = row?.parentElement;
+    if (list && list.querySelectorAll('.dynamic-row').length > 1) {
+      row?.remove();
+    }
+  });
+
+  // Form draft persistence
+  const key = 'form-draft:project';
   const hasError = new URLSearchParams(location.search).has('error');
 
   if (hasError) {
@@ -138,14 +236,13 @@ const justCreated = Astro.url.searchParams.get('created') === 'project';
           for (const radio of el) {
             if (radio instanceof HTMLInputElement) radio.checked = radio.value === value;
           }
-        } else if (el instanceof HTMLInputElement && el.type === 'checkbox') {
-          (el as HTMLInputElement).checked = value === 'true';
         } else if (el instanceof HTMLSelectElement || el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
           el.value = value;
         }
       }
       sessionStorage.removeItem(key);
     }
+    updateTypeFields();
   } else {
     sessionStorage.removeItem(key);
   }
@@ -153,8 +250,8 @@ const justCreated = Astro.url.searchParams.get('created') === 'project';
   form.addEventListener('submit', () => {
     const fd = new FormData(form);
     const data: Record<string, string> = {};
-    for (const [key, val] of fd.entries()) {
-      if (typeof val === 'string') data[key] = val;
+    for (const [k, val] of fd.entries()) {
+      if (typeof val === 'string') data[k] = val;
     }
     sessionStorage.setItem(key, JSON.stringify(data));
   });
