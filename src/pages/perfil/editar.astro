@@ -45,7 +45,9 @@ const profile = user.profile;
 const url = Astro.url;
 const error = url.searchParams.get('error');
 const success = url.searchParams.get('success');
-const activeTab = url.searchParams.get('tab') === 'seguridad' ? 'seguridad' : 'perfil';
+const activeTab = ['perfil', 'seguridad'].includes(Astro.url.searchParams.get('tab') ?? '')
+  ? (Astro.url.searchParams.get('tab') as string)
+  : 'perfil';
 
 const errorMessages: Record<string, string> = {
   username_taken: 'Ese username ya está en uso.',

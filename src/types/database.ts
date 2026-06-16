@@ -266,6 +266,33 @@ export interface ProjectCreate {
   collaborative?: boolean;
 }
 
+// ---- portfolio items ----
+export interface PortfolioItem {
+  id: string;
+  author_id: string;
+  title: string;
+  description: string;
+  category: ProjectCategory;
+  technologies: string[];
+  media_urls: string[];
+  repo: string | null;
+  demo: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PortfolioItemCreate {
+  title: string;
+  description: string;
+  category: ProjectCategory;
+  technologies: string[];
+  media_urls?: string[];
+  repo?: string | null;
+  demo?: string | null;
+  sort_order?: number;
+}
+
 // ---- moderation log ----
 export interface ModerationLogEntry {
   id: number;

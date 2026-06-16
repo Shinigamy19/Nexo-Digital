@@ -67,6 +67,15 @@ const [jobs, projects, events] = await Promise.all([
       </div>
 
       <div class={styles.actions}>
+        {username && (
+          <button type="button" id="shareBtn" class={styles.btn} data-username={username}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            Compartir
+          </button>
+        )}
         <a href="/perfil/editar" class={`${styles.btn} ${styles.btnPrimary}`}>Editar perfil</a>
         <form method="POST" action="/api/auth/signout" style="margin: 0;">
           <button type="submit" class={styles.btn}>Cerrar sesión</button>
@@ -149,6 +158,74 @@ const [jobs, projects, events] = await Promise.all([
       )}
     </div>
 
+    <div id="portfolioManager">
+      <h2 class={styles.sectionTitle} style="display:flex;align-items:center;gap:0.6rem;">
+        Portfolio
+        <button id="pfAddBtn" style="margin-left:auto;padding:0.35rem 0.8rem;border-radius:8px;border:1px solid rgba(0,245,255,0.3);background:rgba(0,245,255,0.06);color:var(--cyan);font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;">+ Agregar</button>
+      </h2>
+      <div id="pfList" class={styles.cardsGrid}></div>
+      <div id="pfEmpty" class={styles.empty} style="display:none;">
+        ¿Tenés proyectos personales? ¡Agregalos acá!
+      </div>
+      <div id="pfFormWrap" style="display:none;margin-bottom:1.5rem;">
+        <div style="padding:1.2rem;border-radius:14px;border:1px solid var(--border);background:var(--bg-card);">
+          <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+            <h3 id="pfFormTitle" style="font-size:1rem;font-weight:700;margin:0;color:var(--text-primary);">Agregar proyecto</h3>
+            <button id="pfCancelBtn" style="margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;padding:0;">×</button>
+          </div>
+          <form id="pfForm" style="display:flex;flex-direction:column;gap:0.8rem;">
+            <input type="hidden" name="id" id="pfId" />
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+              <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Nombre <span style="color:var(--magenta);">*</span></label>
+                <input type="text" name="title" required minlength="4" maxlength="120" placeholder="Mi proyecto" style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Categoría <span style="color:var(--magenta);">*</span></label>
+                <select name="category" required style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;">
+                  <option value="desarrollo">💻 Desarrollo</option>
+                  <option value="diseno">🎨 Diseño</option>
+                  <option value="ia">🤖 IA</option>
+                  <option value="iot">🔌 IoT</option>
+                  <option value="edicion">🎬 Edición</option>
+                  <option value="audio">🎧 Audio</option>
+                  <option value="gamedev">🕹️ Game Dev</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.25rem;">
+              <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Descripción <span style="color:var(--magenta);">*</span></label>
+              <textarea name="description" required minlength="10" maxlength="2000" rows="2" placeholder="¿Qué hace? ¿Qué aprendiste?" style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;resize:vertical;min-height:60px;"></textarea>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+              <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Tecnologías <span style="color:var(--magenta);">*</span></label>
+                <input type="text" name="technologies" required placeholder="TypeScript, React…" style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Media URLs</label>
+                <input type="text" name="media_urls" placeholder="https://... (un link)" style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+              <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Repo</label>
+                <input type="url" name="repo" placeholder="https://github.com/..." style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+              </div>
+              <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Demo</label>
+                <input type="url" name="demo" placeholder="https://..." style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+              </div>
+            </div>
+            <div style="display:flex;gap:0.5rem;margin-top:0.2rem;">
+              <button type="submit" id="pfSubmitBtn" style="flex:1;padding:0.6rem;border-radius:10px;background:var(--gradient-main);border:none;color:#fff;font-family:inherit;font-size:0.88rem;font-weight:600;cursor:pointer;">Agregar</button>
+              <button type="button" id="pfCancelBtn2" style="padding:0.6rem 1rem;border-radius:10px;background:transparent;border:1px solid var(--border);color:var(--text-secondary);font-family:inherit;font-size:0.88rem;cursor:pointer;">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     {jobs.length > 0 && (
       <h2 class={styles.sectionTitle}>Empleos publicados</h2>
       <div class={styles.cardsGrid}>
@@ -218,3 +295,160 @@ const [jobs, projects, events] = await Promise.all([
 
   <Footer />
 </Layout>
+
+<script>
+  const CATEGORIES: Record<string, string> = {
+    desarrollo: '💻 Desarrollo', diseno: '🎨 Diseño', ia: '🤖 IA',
+    iot: '🔌 IoT', edicion: '🎬 Edición', audio: '🎧 Audio', gamedev: '🕹️ Game Dev',
+  };
+
+  const pfList = document.getElementById('pfList');
+  const pfEmpty = document.getElementById('pfEmpty');
+  const pfFormWrap = document.getElementById('pfFormWrap');
+  const pfForm = document.getElementById('pfForm') as HTMLFormElement;
+  const pfFormTitle = document.getElementById('pfFormTitle');
+  const pfId = document.getElementById('pfId') as HTMLInputElement;
+  const pfAddBtn = document.getElementById('pfAddBtn');
+  const pfCancelBtn = document.getElementById('pfCancelBtn');
+  const pfCancelBtn2 = document.getElementById('pfCancelBtn2');
+  const pfSubmitBtn = document.getElementById('pfSubmitBtn');
+
+  let items: any[] = [];
+  let editingId: string | null = null;
+
+  function ytEmbed(url: string): string {
+    const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/);
+    return m ? `https://www.youtube.com/embed/${m[1]}` : '';
+  }
+
+  function isYT(url: string): boolean {
+    return /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/.test(url);
+  }
+
+  function renderItems() {
+    if (!pfList || !pfEmpty) return;
+    if (items.length === 0) {
+      pfList.innerHTML = '';
+      pfEmpty.style.display = '';
+      return;
+    }
+    pfEmpty.style.display = 'none';
+    pfList.innerHTML = items.map(p => `
+      <div class="portfolioCard" data-id="${p.id}">
+        ${p.media_urls?.length > 0 ? `
+          <div class="portfolioMedia">
+            ${isYT(p.media_urls[0])
+              ? `<iframe src="${ytEmbed(p.media_urls[0])}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="${p.title}" style="width:100%;height:100%;border:none;"></iframe>`
+              : `<img src="${p.media_urls[0]}" alt="${p.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />`}
+          </div>` : ''}
+        <div class="portfolioBody">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div style="flex:1;">
+              <h3 class="portfolioTitle">${p.title}</h3>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.1rem;">${CATEGORIES[p.category] ?? p.category}</div>
+            </div>
+            <div style="display:flex;gap:0.25rem;flex-shrink:0;">
+              <button class="pfEdit" data-id="${p.id}" style="padding:0.25rem 0.5rem;border-radius:6px;border:1px solid rgba(0,245,255,0.3);background:rgba(0,245,255,0.06);color:var(--cyan);cursor:pointer;font-size:0.72rem;font-family:inherit;">✏️</button>
+              <button class="pfDel" data-id="${p.id}" style="padding:0.25rem 0.5rem;border-radius:6px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);color:#f87171;cursor:pointer;font-size:0.72rem;font-family:inherit;">🗑️</button>
+            </div>
+          </div>
+          <p class="portfolioDesc">${p.description}</p>
+          <div class="portfolioTechs">${p.technologies.map((t: string) => `<span class="tag">${t}</span>`).join('')}</div>
+          <div class="portfolioLinks">
+            ${p.repo ? `<a href="${p.repo}" target="_blank" rel="noopener noreferrer" class="portfolioLink">🐙 Repo</a>` : ''}
+            ${p.demo ? `<a href="${p.demo}" target="_blank" rel="noopener noreferrer" class="portfolioLink">🚀 Demo</a>` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    pfList.querySelectorAll('.pfEdit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = (btn as HTMLElement).dataset.id!;
+        const item = items.find(i => i.id === id);
+        if (item) showForm(item);
+      });
+    });
+    pfList.querySelectorAll('.pfDel').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = (btn as HTMLElement).dataset.id!;
+        if (!confirm('¿Eliminar este proyecto del portfolio?')) return;
+        const fd = new FormData();
+        fd.append('id', id);
+        await fetch('/api/portfolio', { method: 'DELETE', body: fd });
+        items = items.filter(i => i.id !== id);
+        renderItems();
+      });
+    });
+  }
+
+  function showForm(item?: any) {
+    if (!pfFormWrap || !pfForm || !pfFormTitle || !pfSubmitBtn) return;
+    editingId = item?.id ?? null;
+    pfId.value = editingId ?? '';
+    pfFormTitle.textContent = editingId ? 'Editar proyecto' : 'Agregar proyecto';
+    pfSubmitBtn.textContent = editingId ? 'Guardar cambios' : 'Agregar';
+
+    (pfForm.elements.namedItem('title') as HTMLInputElement).value = item?.title ?? '';
+    (pfForm.elements.namedItem('description') as HTMLTextAreaElement).value = item?.description ?? '';
+    (pfForm.elements.namedItem('category') as HTMLSelectElement).value = item?.category ?? 'desarrollo';
+    (pfForm.elements.namedItem('technologies') as HTMLInputElement).value = item?.technologies?.join(', ') ?? '';
+    (pfForm.elements.namedItem('media_urls') as HTMLInputElement).value = item?.media_urls?.[0] ?? '';
+    (pfForm.elements.namedItem('repo') as HTMLInputElement).value = item?.repo ?? '';
+    (pfForm.elements.namedItem('demo') as HTMLInputElement).value = item?.demo ?? '';
+
+    pfFormWrap.style.display = '';
+    pfFormWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function hideForm() {
+    if (pfFormWrap) pfFormWrap.style.display = 'none';
+    editingId = null;
+    if (pfForm) pfForm.reset();
+  }
+
+  pfAddBtn?.addEventListener('click', () => showForm());
+  pfCancelBtn?.addEventListener('click', hideForm);
+  pfCancelBtn2?.addEventListener('click', hideForm);
+
+  pfForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(pfForm);
+    const method = editingId ? 'PUT' : 'POST';
+    if (editingId) fd.append('id', editingId);
+
+    const res = await fetch('/api/portfolio', { method, body: fd });
+    const data = await res.json();
+    if (data.success) {
+      hideForm();
+      await loadItems();
+      renderItems();
+    } else {
+      alert('No pudimos guardar. Probá de nuevo.');
+    }
+  });
+
+  async function loadItems() {
+    try {
+      const res = await fetch('/api/portfolio');
+      const data = await res.json();
+      items = data.items ?? [];
+    } catch { items = []; }
+  }
+
+  loadItems().then(() => renderItems());
+
+  document.getElementById('shareBtn')?.addEventListener('click', async (e) => {
+    const username = (e.currentTarget as HTMLElement).dataset.username;
+    const url = `${location.origin}/u/${username}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: document.title, url }); } catch {}
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(url);
+      const btn = e.currentTarget as HTMLElement;
+      const original = btn.innerHTML;
+      btn.innerHTML = '✓ Copiado';
+      setTimeout(() => { btn.innerHTML = original; }, 2000);
+    }
+  });
+</script>

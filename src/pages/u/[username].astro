@@ -65,7 +65,7 @@ const joined = profile.created_at
 
 const isOwnProfile = Astro.locals.user?.id === profile.id;
 
-const [jobs, projects, events] = await Promise.all([
+const [jobs, projects, events, portfolioItems] = await Promise.all([
   prisma.job.findMany({
     where: { authorId: data.id, status: 'approved' },
     orderBy: { createdAt: 'desc' },
@@ -80,6 +80,11 @@ const [jobs, projects, events] = await Promise.all([
     where: { authorId: data.id, status: 'approved' },
     orderBy: { createdAt: 'desc' },
     take: 10,
+  }),
+  prisma.portfolioItem.findMany({
+    where: { authorId: data.id },
+    orderBy: { sortOrder: 'asc' },
+    take: 20,
   }),
 ]);
 ---
@@ -105,7 +110,13 @@ const [jobs, projects, events] = await Promise.all([
 
       {isOwnProfile && (
         <div class={styles.actions}>
-          <a href="/perfil/editar" class={`${styles.btn} ${styles.btnPrimary}`}>Editar perfil</a>
+          <button type="button" id="shareBtn" class={`${styles.btn} ${styles.btnPrimary}`}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            Compartir
+          </button>
         </div>
       )}
     </div>
@@ -183,6 +194,43 @@ const [jobs, projects, events] = await Promise.all([
       )}
     </div>
 
+    {portfolioItems.length > 0 && (
+      <h2 class={styles.sectionTitle}>Portfolio</h2>
+      <div class={styles.cardsGrid}>
+        {portfolioItems.map((p) => (
+          <div class={styles.portfolioCard}>
+            {p.mediaUrls.length > 0 && (
+              <div class={styles.portfolioMedia}>
+                {/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/.test(p.mediaUrls[0]) ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${p.mediaUrls[0].match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/)?.[1] ?? ''}`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    loading="lazy"
+                    title={p.title}
+                    style="width:100%;height:100%;border:none;"
+                  />
+                ) : (
+                  <img src={p.mediaUrls[0]} alt={p.title} loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />
+                )}
+              </div>
+            )}
+            <div class={styles.portfolioBody}>
+              <h3 class={styles.portfolioTitle}>{p.title}</h3>
+              <p class={styles.portfolioDesc}>{p.description}</p>
+              <div class={styles.portfolioTechs}>
+                {p.technologies.map(t => <span class={styles.tag}>{t}</span>)}
+              </div>
+              <div class={styles.portfolioLinks}>
+                {p.repo && <a href={p.repo} target="_blank" rel="noopener noreferrer" class={styles.portfolioLink}>🐙 Repo</a>}
+                {p.demo && <a href={p.demo} target="_blank" rel="noopener noreferrer" class={styles.portfolioLink}>🚀 Demo</a>}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
     {jobs.length > 0 && (
       <h2 class={styles.sectionTitle}>Empleos publicados</h2>
       <div class={styles.cardsGrid}>
@@ -253,3 +301,22 @@ const [jobs, projects, events] = await Promise.all([
 
   <Footer />
 </Layout>
+
+<script>
+  document.getElementById('shareBtn')?.addEventListener('click', async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: document.title, url });
+      } catch {}
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(url);
+      const btn = document.getElementById('shareBtn');
+      if (btn) {
+        const original = btn.innerHTML;
+        btn.innerHTML = '✓ Copiado';
+        setTimeout(() => { btn.innerHTML = original; }, 2000);
+      }
+    }
+  });
+</script>

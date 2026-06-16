@@ -139,6 +139,7 @@ model Profile {
   featuredCandidates FeaturedCandidate[]
   moderatedFeatured  FeaturedCandidate[] @relation("ModeratedFeatured")
   moderationLogs    ModerationLog[]
+  portfolioItems    PortfolioItem[]
 
   @@map("profiles")
 }
@@ -321,4 +322,25 @@ model ModerationLog {
   @@index([targetType, targetId], map: "moderation_log_target_idx")
   @@index([moderatorId, createdAt(sort: Desc)], map: "moderation_log_moderator_idx")
   @@map("moderation_log")
+}
+
+model PortfolioItem {
+  id           String   @id @default(uuid()) @db.Uuid
+  authorId     String   @map("author_id") @db.Uuid
+  title        String   @db.VarChar(120)
+  description  String   @db.VarChar(2000)
+  category     ProjectCategory
+  technologies String[] @default([]) @db.VarChar
+  mediaUrls    String[] @default([]) @db.VarChar @map("media_urls")
+  repo         String?  @db.VarChar(500)
+  demo         String?  @db.VarChar(500)
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz()
+
+  author Profile @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId], map: "portfolio_author_idx")
+  @@index([authorId, sortOrder(sort: Asc)], map: "portfolio_author_sort_idx")
+  @@map("portfolio_items")
 }
