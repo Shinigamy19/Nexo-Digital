@@ -111,6 +111,10 @@
   color: var(--text-secondary);
   line-height: 1.7;
   flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .tag-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }

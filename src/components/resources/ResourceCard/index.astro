@@ -1,5 +1,6 @@
 ---
 import styles from './ResourceCard.module.css';
+import modal from '../../shared/CardModal.module.css';
 
 interface Props {
   id: string;
@@ -13,7 +14,7 @@ interface Props {
   addedBy: string;
 }
 
-const { title, description, type, category, url, mediaUrls = [], tags, addedBy } = Astro.props;
+const { id, title, description, type, category, url, mediaUrls = [], tags, addedBy } = Astro.props;
 
 const typeIcons: Record<string, string> = {
   herramienta: '🔧',
@@ -63,9 +64,11 @@ function getYouTubeEmbed(url: string): string {
   const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/);
   return match ? `https://www.youtube.com/embed/${match[1]}` : '';
 }
+
+const modalId = `resource-modal-${id}`;
 ---
 
-<article class={styles['resource-card']}>
+<article class={styles['resource-card']} data-modal-trigger={modalId} style="cursor:pointer;">
   {mediaUrls.length > 0 && (
     <div class={styles['media-preview']}>
       {isYouTubeUrl(mediaUrls[0]) ? (
@@ -116,7 +119,7 @@ function getYouTubeEmbed(url: string): string {
       </svg>
       {addedBy}
     </span>
-    <a href={url} class={styles['visit-btn']} target="_blank" rel="noopener noreferrer">
+    <a href={url} class={styles['visit-btn']} target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
       Visitar
       <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
@@ -126,3 +129,74 @@ function getYouTubeEmbed(url: string): string {
     </a>
   </div>
 </article>
+
+<div class={modal.overlay} id={modalId} data-modal-overlay>
+  <div class={modal.modal}>
+    <button class={modal.closeBtn} data-modal-close type="button" aria-label="Cerrar">&times;</button>
+    <div class={modal.content}>
+      <div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+          <span class={`${styles['type-badge']} ${styles[typeColorMap[type] ?? ''] ?? ''}`}>
+            {typeIcons[type] ?? '📌'} {type}
+          </span>
+          <span class={`${styles['category-label']} ${styles[categoryColorClass[category] ?? ''] ?? ''}`}>{categoryLabels[category] ?? category}</span>
+        </div>
+        <h2 class={modal.title}>{title}</h2>
+      </div>
+
+      {mediaUrls.length > 0 && (
+        <div class={modal.section}>
+          <span class={modal.sectionTitle}>Media</span>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;">
+            {mediaUrls.map((url) => (
+              isYouTubeUrl(url) ? (
+                <iframe
+                  src={getYouTubeEmbed(url)}
+                  style="width:100%;aspect-ratio:16/9;border:none;border-radius:8px;"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  loading="lazy"
+                  title={title}
+                />
+              ) : (
+                <img src={url} alt={title} style="width:100%;border-radius:8px;" loading="lazy" />
+              )
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div class={modal.section}>
+        <span class={modal.sectionTitle}>Descripción</span>
+        <p class={modal.desc}>{description}</p>
+      </div>
+
+      {tags.length > 0 && (
+        <div class={modal.section}>
+          <span class={modal.sectionTitle}>Tags</span>
+          <div class={modal.tags}>
+            {tags.map(tag => (
+              <span class={modal.tag}>{tag}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div class={modal.section}>
+        <span class={modal.sectionTitle}>Agregado por</span>
+        <p style="font-size:0.85rem;color:var(--text-secondary);">{addedBy}</p>
+      </div>
+
+      <div class={modal.actions}>
+        <a href={url} class={`${modal.actionBtn} ${modal.primary}`} target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Visitar recurso
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

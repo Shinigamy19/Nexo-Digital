@@ -46,5 +46,53 @@ const {
   </head>
   <body>
     <slot />
+    <script is:inline>
+      (function() {
+        document.addEventListener('click', function(e) {
+          var target = e.target;
+
+          var trigger = target.closest ? target.closest('[data-modal-trigger]') : null;
+          if (trigger) {
+            var id = trigger.getAttribute('data-modal-trigger');
+            var overlay = document.getElementById(id);
+            if (overlay) {
+              document.body.appendChild(overlay);
+              overlay.classList.add('open');
+              document.body.style.overflow = 'hidden';
+            }
+            return;
+          }
+
+          var closeBtn = target.closest ? target.closest('[data-modal-close]') : null;
+          if (closeBtn) {
+            var el = target;
+            while (el && el.parentNode) {
+              if (el.hasAttribute && el.hasAttribute('data-modal-overlay')) {
+                el.classList.remove('open');
+                document.body.style.overflow = '';
+                return;
+              }
+              el = el.parentNode;
+            }
+            return;
+          }
+
+          if (target.hasAttribute && target.hasAttribute('data-modal-overlay')) {
+            target.classList.remove('open');
+            document.body.style.overflow = '';
+          }
+        });
+
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') {
+            var overlays = document.querySelectorAll('[data-modal-overlay].open');
+            for (var i = 0; i < overlays.length; i++) {
+              overlays[i].classList.remove('open');
+            }
+            document.body.style.overflow = '';
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

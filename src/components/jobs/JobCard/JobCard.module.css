@@ -76,6 +76,10 @@
   font-size: 0.86rem;
   color: var(--text-secondary);
   line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .job-info {

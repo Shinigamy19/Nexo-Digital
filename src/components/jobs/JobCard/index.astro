@@ -1,5 +1,6 @@
 ---
 import styles from './JobCard.module.css';
+import modal from '../../shared/CardModal.module.css';
 
 interface Props {
   id: string;
@@ -19,12 +20,11 @@ interface Props {
 }
 
 const {
-  title, company, description, requirements,
+  id, title, company, description, requirements,
   modality, category, salaryMin, salaryMax,
   currency, salaryType, contact, publishedAt, location
 } = Astro.props;
 
-// Calcular días desde publicación
 const pubDate = new Date(publishedAt);
 const now = new Date();
 const diffMs = now.getTime() - pubDate.getTime();
@@ -73,9 +73,11 @@ const isEmail = contact.includes('@');
 const mailtoLink = isEmail 
   ? `mailto:${contact}?subject=${encodeURIComponent(`Postulación: ${title} — ${company}`)}&body=${encodeURIComponent(`Hola equipo de ${company},\n\nLes escribo con motivo de postularme a la búsqueda de ${title}.\n\n(Adjunto mi CV / portfolio y dejo mi información de contacto).\n\nSaludos,`)}`
   : contact;
+
+const modalId = `job-modal-${id}`;
 ---
 
-<article class={styles['job-card']}>
+<article class={styles['job-card']} data-modal-trigger={modalId} style="cursor:pointer;">
   <div class={styles['job-top']}>
     <div class={styles['job-badges']}>
       {modalities.map(m => {
@@ -116,15 +118,79 @@ const mailtoLink = isEmail
 
   <div class={styles['job-footer']}>
     {isEmail ? (
-      <a href={mailtoLink} class={styles['apply-btn']} title="Aplicar por email">
+      <a href={mailtoLink} class={styles['apply-btn']} title="Aplicar por email" onclick="event.stopPropagation()">
         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         Postularme
       </a>
     ) : (
-      <a href={contact} class={styles['apply-btn']} target="_blank" rel="noopener noreferrer" title="Ver oferta completa">
+      <a href={contact} class={styles['apply-btn']} target="_blank" rel="noopener noreferrer" title="Ver oferta completa" onclick="event.stopPropagation()">
         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         Ver oferta
       </a>
     )}
   </div>
 </article>
+
+<div class={modal.overlay} id={modalId} data-modal-overlay>
+  <div class={modal.modal}>
+    <button class={modal.closeBtn} data-modal-close type="button" aria-label="Cerrar">&times;</button>
+    <div class={modal.content}>
+      <div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+          {modalities.map(m => {
+            const mod = modalityConfig[m] ?? { label: m, cls: '' };
+            return <span class={`${styles['mod-badge']} ${styles[mod.cls] ?? ''}`}>{mod.label}</span>
+          })}
+          <span class={`${styles['cat-badge']} ${styles[categoryColorClass[category] ?? ''] ?? ''}`}>{categoryLabels[category] ?? category}</span>
+          <span class={styles['days-badge']}>{daysLabel}</span>
+        </div>
+        <h2 class={modal.title}>{title}</h2>
+        <p style="font-size:0.88rem;color:var(--text-secondary);margin-top:0.3rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:4px;" aria-hidden="true"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
+          {company}
+        </p>
+      </div>
+
+      <div class={modal.section}>
+        <span class={modal.sectionTitle}>Descripción</span>
+        <p class={modal.desc}>{description}</p>
+      </div>
+
+      <div class={modal.meta}>
+        <span class={modal.metaItem}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {location}
+        </span>
+        <span class={modal.metaItem} style="color:#4ade80;font-weight:600;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          {salaryRange}
+        </span>
+      </div>
+
+      {requirements.length > 0 && (
+        <div class={modal.section}>
+          <span class={modal.sectionTitle}>Requisitos</span>
+          <div class={modal.tags}>
+            {requirements.map(req => (
+              <span class={modal.tag}>{req}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div class={modal.actions}>
+        {isEmail ? (
+          <a href={mailtoLink} class={`${modal.actionBtn} ${modal.primary}`}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Postularme
+          </a>
+        ) : (
+          <a href={contact} class={`${modal.actionBtn} ${modal.primary}`} target="_blank" rel="noopener noreferrer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Ver oferta
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+</div>

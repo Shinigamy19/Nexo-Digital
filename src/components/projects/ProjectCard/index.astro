@@ -1,5 +1,6 @@
 ---
 import styles from './ProjectCard.module.css';
+import modal from '../../shared/CardModal.module.css';
 import type { SocialLink } from '../../../types/database';
 
 interface Props {
@@ -21,7 +22,7 @@ interface Props {
 }
 
 const {
-  title, description, category, technologies, author, authorGithub,
+  id, title, description, category, technologies, author, authorGithub,
   repo, demo, status, featured, collaborative = false,
   projectType = 'desarrollo',
   mediaUrls = [], socialLinks = [],
@@ -92,9 +93,11 @@ const allLinks: SocialLink[] = [
   ...socialLinks,
   ...(authorGithub ? [{ platform: 'github', value: authorGithub }] : []),
 ];
+
+const modalId = `project-modal-${id}`;
 ---
 
-<article class={`${styles['project-card']} ${isAudiovisual ? styles['audiovisual'] : ''} ${featured ? styles['featured'] : ''}`}>
+<article class={`${styles['project-card']} ${isAudiovisual ? styles['audiovisual'] : ''} ${featured ? styles['featured'] : ''}`} data-modal-trigger={modalId} style="cursor:pointer;">
   {featured && <div class={styles['featured-badge']}>⭐ Destacado</div>}
   {collaborative && <div class={styles['collab-badge']}>🤝 Colaborativo</div>}
 
@@ -145,6 +148,7 @@ const allLinks: SocialLink[] = [
       target="_blank"
       rel="noopener noreferrer"
       title={`Ver perfil de ${author}`}
+      onclick="event.stopPropagation()"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
@@ -154,7 +158,7 @@ const allLinks: SocialLink[] = [
 
     <div class={styles['card-links']}>
       {!isAudiovisual && repo && (
-        <a href={repo} class={styles['card-link-btn']} target="_blank" rel="noopener noreferrer" title="Ver repositorio">
+        <a href={repo} class={styles['card-link-btn']} target="_blank" rel="noopener noreferrer" title="Ver repositorio" onclick="event.stopPropagation()">
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
           </svg>
@@ -162,7 +166,7 @@ const allLinks: SocialLink[] = [
         </a>
       )}
       {!isAudiovisual && demo && (
-        <a href={demo} class={`${styles['card-link-btn']} ${styles['demo']}`} target="_blank" rel="noopener noreferrer" title="Ver demo">
+        <a href={demo} class={`${styles['card-link-btn']} ${styles['demo']}`} target="_blank" rel="noopener noreferrer" title="Ver demo" onclick="event.stopPropagation()">
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
             <polyline points="15 3 21 3 21 9"/>
@@ -172,7 +176,7 @@ const allLinks: SocialLink[] = [
         </a>
       )}
       {isAudiovisual && mediaUrls.map((url) => (
-        <a href={url} class={styles['card-link-btn']} target="_blank" rel="noopener noreferrer" title="Ver media">
+        <a href={url} class={styles['card-link-btn']} target="_blank" rel="noopener noreferrer" title="Ver media" onclick="event.stopPropagation()">
           🔗 Media
         </a>
       ))}
@@ -191,6 +195,7 @@ const allLinks: SocialLink[] = [
             target="_blank"
             rel="noopener noreferrer"
             title={link.platform}
+            onclick="event.stopPropagation()"
           >
             {platformIcons[link.platform] ?? '🔗'}
           </a>
@@ -199,3 +204,103 @@ const allLinks: SocialLink[] = [
     </div>
   )}
 </article>
+
+<div class={modal.overlay} id={modalId} data-modal-overlay>
+  <div class={modal.modal}>
+    <button class={modal.closeBtn} data-modal-close type="button" aria-label="Cerrar">&times;</button>
+    <div class={modal.content}>
+      <div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+          <span class={`${styles['category-pill']} ${styles[categoryColorClass[category] ?? ''] ?? ''}`}>{categoryLabels[category] ?? category}</span>
+          <span class={`${styles['status-pill']} ${styles[statusColorMap[status] ?? ''] ?? ''}`}>{status}</span>
+        </div>
+        <h2 class={modal.title}>{title}</h2>
+        {featured && <span style="font-size:0.8rem;color:#ffd600;">⭐ Destacado</span>}
+        {collaborative && <span style="font-size:0.8rem;color:#4ade80;margin-left:0.5rem;">🤝 Colaborativo</span>}
+      </div>
+
+      {isAudiovisual && mediaUrls.length > 0 && (
+        <div class={modal.section}>
+          <span class={modal.sectionTitle}>Media</span>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;">
+            {mediaUrls.map((url) => (
+              isYouTubeUrl(url) ? (
+                <iframe
+                  src={getYouTubeEmbed(url)}
+                  style="width:100%;aspect-ratio:16/9;border:none;border-radius:8px;"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  loading="lazy"
+                  title={title}
+                />
+              ) : (
+                <img src={url} alt={title} style="width:100%;border-radius:8px;" loading="lazy" />
+              )
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div class={modal.section}>
+        <span class={modal.sectionTitle}>Descripción</span>
+        <p class={modal.desc}>{description}</p>
+      </div>
+
+      {technologies.length > 0 && (
+        <div class={modal.section}>
+          <span class={modal.sectionTitle}>Tecnologías</span>
+          <div class={modal.tags}>
+            {technologies.map(tech => (
+              <span class={modal.tag}>{tech}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div class={modal.section}>
+        <span class={modal.sectionTitle}>Autor</span>
+        <a
+          href={`https://github.com/${authorGithub}`}
+          style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.85rem;color:var(--text-secondary);text-decoration:none;"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          {author}
+        </a>
+      </div>
+
+      <div class={modal.actions}>
+        {!isAudiovisual && repo && (
+          <a href={repo} class={`${modal.actionBtn} ${modal.secondary}`} target="_blank" rel="noopener noreferrer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+            Repositorio
+          </a>
+        )}
+        {!isAudiovisual && demo && (
+          <a href={demo} class={`${modal.actionBtn} ${modal.primary}`} target="_blank" rel="noopener noreferrer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Demo
+          </a>
+        )}
+        {isAudiovisual && allLinks.map((link) => {
+          const urlFn = platformUrls[link.platform];
+          const href = urlFn ? urlFn(link.value) : '#';
+          return (
+            <a href={href} class={`${modal.actionBtn} ${modal.secondary}`} target="_blank" rel="noopener noreferrer">
+              {platformIcons[link.platform] ?? '🔗'} {link.platform}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</div>

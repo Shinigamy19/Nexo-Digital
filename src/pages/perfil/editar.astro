@@ -73,6 +73,7 @@ const errorMessages: Record<string, string> = {
   invalid_token: 'El código es incorrecto. Revisá tu app de autenticación.',
   cannot_unlink_last: 'No podés desvincular tu único método de acceso. Agregá una contraseña u otro proveedor primero.',
   unlink_failed: 'No pudimos desvincular el proveedor. Probá de nuevo.',
+  link_failed: 'No pudimos vincular el proveedor. Probá de nuevo.',
   provider_not_found: 'Ese proveedor no está vinculado a tu cuenta.',
 };
 
@@ -82,6 +83,7 @@ const successMessages: Record<string, string> = {
   two_fa_enabled: 'Verificación en dos pasos activada correctamente.',
   two_fa_disabled: 'Verificación en dos pasos desactivada.',
   provider_unlinked: 'Proveedor desvinculado correctamente.',
+  provider_linked: 'Proveedor vinculado correctamente.',
 };
 
 const errorMessage = error ? (errorMessages[error] ?? errorMessages.generic) : null;
@@ -111,7 +113,7 @@ const skillsValue = (profile?.skills ?? []).join(', ');
   <main class={styles.page} style="max-width: 640px;">
     <h1 class={styles.displayName} style="margin-bottom: 0.75rem;">Configuración</h1>
 
-    <div style="display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid var(--border);">
+    <div style="display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
       <a
         href="/perfil/editar?tab=perfil"
         style={`padding: 0.6rem 1.2rem; font-size: 0.9rem; font-weight: 600; text-decoration: none; border-bottom: 2px solid ${activeTab === 'perfil' ? '#00f5ff' : 'transparent'}; color: ${activeTab === 'perfil' ? '#00f5ff' : 'var(--text-muted)'}; transition: all 0.15s ease;`}
@@ -144,7 +146,7 @@ const skillsValue = (profile?.skills ?? []).join(', ');
         </div>
 
         <div class={formStyles.field}>
-          <label class={formStyles.label} for="avatar_url">URL de avatar</label>
+          <label class={formStyles.label} for="avatar_url">URL de avatar (foto de perfil)</label>
           <input class={formStyles.input} type="url" id="avatar_url" name="avatar_url" value={profile?.avatar_url ?? ''} placeholder="https://..." />
         </div>
 

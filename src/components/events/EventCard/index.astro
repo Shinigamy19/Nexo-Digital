@@ -1,5 +1,6 @@
 ---
 import styles from './EventCard.module.css';
+import modal from '../../shared/CardModal.module.css';
 
 interface Props {
   id: string;
@@ -41,13 +42,15 @@ const formatDateRange = (start: string, end: string | null): string => {
 };
 
 const {
-  title, description, event_type, category,
+  id, title, description, event_type, category,
   start_date, end_date, start_time, location,
   url, contact_info, max_participants,
 } = Astro.props;
+
+const modalId = `event-modal-${id}`;
 ---
 
-<article class={styles.card}>
+<article class={styles.card} data-modal-trigger={modalId} style="cursor:pointer;">
   <div class={styles.badges}>
     <span class={styles.categoryBadge}>{categoryLabels[category] ?? category}</span>
     <span class={styles.typeBadge}>{eventTypeIcons[event_type] ?? '📌'} {event_type.replace('_', ' ')}</span>
@@ -83,7 +86,7 @@ const {
 
   <div class={styles.footer}>
     {url && (
-      <a href={url} class={styles.link} target="_blank" rel="noopener noreferrer">
+      <a href={url} class={styles.link} target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         Más info
       </a>
@@ -91,3 +94,64 @@ const {
     {contact_info && <span class={styles.contact}>{contact_info}</span>}
   </div>
 </article>
+
+<div class={modal.overlay} id={modalId} data-modal-overlay>
+  <div class={modal.modal}>
+    <button class={modal.closeBtn} data-modal-close type="button" aria-label="Cerrar">&times;</button>
+    <div class={modal.content}>
+      <div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+          <span class={styles.categoryBadge}>{categoryLabels[category] ?? category}</span>
+          <span class={styles.typeBadge}>{eventTypeIcons[event_type] ?? '📌'} {event_type.replace('_', ' ')}</span>
+        </div>
+        <h2 class={modal.title}>{title}</h2>
+      </div>
+
+      <div class={modal.section}>
+        <span class={modal.sectionTitle}>Descripción</span>
+        <p class={modal.desc}>{description}</p>
+      </div>
+
+      <div class={modal.meta}>
+        <span class={modal.metaItem}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          {formatDateRange(start_date, end_date)}
+        </span>
+        {start_time && (
+          <span class={modal.metaItem}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {start_time}
+          </span>
+        )}
+        {location && (
+          <span class={modal.metaItem}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            {location}
+          </span>
+        )}
+        {max_participants && (
+          <span class={modal.metaItem}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Cupo: {max_participants}
+          </span>
+        )}
+      </div>
+
+      {contact_info && (
+        <div class={modal.section}>
+          <span class={modal.sectionTitle}>Contacto</span>
+          <p style="font-size:0.85rem;color:var(--text-secondary);">{contact_info}</p>
+        </div>
+      )}
+
+      <div class={modal.actions}>
+        {url && (
+          <a href={url} class={`${modal.actionBtn} ${modal.primary}`} target="_blank" rel="noopener noreferrer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Más info
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
