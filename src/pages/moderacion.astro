@@ -30,14 +30,15 @@ const isArchived = mode === 'archived';
 const statusFilter = isPending ? 'pending' : 'approved';
 
 const now = new Date();
+const cutoff = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
 
 const [jobs, resources, projects, events, featuredCandidates] = await Promise.all([
   prisma.job.findMany({
     where: isArchived
-      ? { status: 'approved', expiresAt: { not: null, lt: now } }
+      ? { status: 'approved', OR: [{ expiresAt: { lt: now } }, { expiresAt: null, createdAt: { lt: cutoff } }] }
       : isPending
         ? { status: 'pending' }
-        : { status: 'approved', OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
+        : { status: 'approved', OR: [{ expiresAt: { gt: now } }, { expiresAt: null, createdAt: { gt: cutoff } }] },
     orderBy: { createdAt: 'desc' },
     take: 50,
     select: {

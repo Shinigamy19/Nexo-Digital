@@ -32,10 +32,14 @@ let data = jobsData;
 
 try {
   const now = new Date();
+  const cutoff = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
   const dbJobs = await prisma.job.findMany({
     where: {
       status: 'approved',
-      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      OR: [
+        { expiresAt: { gt: now } },
+        { expiresAt: null, createdAt: { gt: cutoff } },
+      ],
     },
     orderBy: { createdAt: 'desc' },
     take: 100,
