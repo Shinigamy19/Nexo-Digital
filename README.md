@@ -19,7 +19,7 @@ Nexo Digital es una comunidad open source para desarrolladores, diseñadores, ed
 - **💼 Empleos** — Búsquedas laborales tech con publicación directa, expiración automática y modo archivado
 - **📅 Eventos** — Calendario de eventos, workshops, hackathons y encuentros
 - **⭐ Candidatos destacados** — Carrusel coverflow con candidatos de la comunidad
-- **👤 Perfiles** — Login, registro, edición de perfil, OAuth (Google + GitHub), redes sociales
+- **👤 Perfiles** — Login, registro, edición de perfil, OAuth (Google + GitHub + Discord), redes sociales
 - **🔐 Verificación en dos pasos (2FA)** — TOTP con Google Authenticator / Authy
 - **🛡️ Moderación** — Cola de revisión con tabs dinámicas (pendientes, activos, archivados), edición inline, toggle de destacado
 - **⚙️ Panel de administración** — Gestión de usuarios y roles (solo admins)
@@ -38,7 +38,7 @@ Nexo Digital es una comunidad open source para desarrolladores, diseñadores, ed
 | CSS Modules | Estilos por componente |
 | Vanilla CSS | Sistema de diseño global |
 | TypeScript | Tipos en frontmatter + backmatter |
-| Node adapter (`@astrojs/node`) | Render de páginas SSR y APIs |
+| [Node adapter (`@astrojs/vercel`)](https://docs.astro.build/en/guides/deploy/vercel/) | Render de páginas SSR y APIs en Vercel |
 
 ## Instalación y desarrollo local
 
@@ -86,7 +86,7 @@ npm install
 
 5. **(Opcional) Habilitar providers de auth** en *Authentication → Providers*:
    - **Email** viene habilitado por defecto.
-   - **Google** y/o **GitHub** requieren configurar OAuth y agregar `<PUBLIC_SITE_URL>/auth/callback` como redirect URL.
+   - **Google**, **GitHub** y/o **Discord** requieren configurar OAuth y agregar `<PUBLIC_SITE_URL>/auth/callback` como redirect URL.
 
 6. **Promoverse a moderador/admin** — después de registrarte, ejecutá en el SQL Editor:
    ```sql
@@ -206,8 +206,8 @@ Nexo-Digital/
 │   │   ├── profile/            # ProfileCard
 │   │   ├── projects/           # ProjectCard
 │   │   ├── resources/          # ResourceCard
-│   │   └── ui/                 # StatusBadge, Pagination
-│   ├── data/                   # JSON seed/fallback (proyectos, recursos, empleos, eventos)
+│   │   ├── ui/                 # FilterBar, SearchBar, Paginator, listing-controls, StatusBadge, RoleBadge
+│   ├── data/                   # JSON seed/fallback (projects, resources, jobs, events, candidates, objectives, community)
 │   ├── lib/                    # Helpers server-side
 │   │   ├── env.ts              # Env vars centralizadas con validación
 │   │   ├── prisma.ts           # PrismaClient singleton + enum mapping (ñ → en)
@@ -293,6 +293,22 @@ Los empleos tienen un campo opcional **Fecha de expiración** (`expiresAt`). Cua
 - En el panel de moderación aparece en **📦 Archivados** (filtro automático)
 - Los moderadores pueden editar o quitar la expiración desde el modal de edición
 
+Si no se especifica fecha de expiración, los empleos se archivan **automáticamente a los 15 días** desde la fecha de publicación.
+
+### 🔍 Búsqueda y paginación
+
+Todas las listas (empleos, proyectos, recursos, eventos) incluyen:
+- **Búsqueda en tiempo real** por título, empresa, descripción
+- **Filtros por categoría/modalidad** con botones activos
+- **Paginación** con 15 items por página (se oculta automáticamente si hay menos de 15 resultados)
+
+### 📸 Foto de perfil con compresión
+
+Los usuarios pueden subir una foto de perfil directamente desde la edición:
+- Compresión automática a 150×150 px (JPEG quality 0.6)
+- Preview en tiempo real antes de guardar
+- También se acepta URL externa como fallback
+
 ### ✏️ Edición inline en moderación
 
 Los moderadores pueden editar cualquier contenido aprobado o pendiente sin salir del panel:
@@ -327,7 +343,7 @@ El schema completo está en [`prisma/schema.prisma`](prisma/schema.prisma). Mode
 | Modelo | Descripción |
 |---|---|
 | `Profile` | Usuarios, roles, 2FA, redes sociales |
-| `Job` | Ofertas de empleo con expiración |
+| `Job` | Ofertas de empleo con expiración y nivel de experiencia |
 | `Resource` | Recursos, tutoriales, herramientas |
 | `Project` | Proyectos open source |
 | `Event` | Eventos, workshops, hackathons |

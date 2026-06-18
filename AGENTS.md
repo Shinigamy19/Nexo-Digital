@@ -6,7 +6,7 @@ Este archivo documenta las convenciones y el contexto que debe conocer cualquier
 
 | Herramienta | Versión | Notas |
 |---|---|---|
-| Astro | 6.4.x | `output: 'static'` + `@astrojs/node` standalone |
+| Astro | 6.4.x | `output: 'server'` + `@astrojs/vercel` |
 | Supabase | 2.x | Auth manual (sin GoTrueClient), no RLS usada en API routes |
 | Prisma | 5.x | ORM, cliente generado en `node_modules/.prisma` |
 | TypeScript | 6.x | Strict mode |
@@ -16,7 +16,7 @@ Este archivo documenta las convenciones y el contexto que debe conocer cualquier
 
 ### SSR con `output: 'static'`
 
-Astro 6 no tiene modo `hybrid`. Las páginas SSR usan `export const prerender = false` y funcionan porque `@astrojs/node` sirve rutas con `prerender = false` como server-side. Las rutas con `prerender = true` (default) se renderizan a estáticos en build.
+Astro 6 no tiene modo `hybrid`. Las páginas SSR usan `export const prerender = false` y funcionan porque `@astrojs/vercel` sirve rutas con `prerender = false` como server-side. Las rutas con `prerender = true` (default) se renderizan a estáticos en build.
 
 ### Sesión manual (sin GoTrueClient)
 
