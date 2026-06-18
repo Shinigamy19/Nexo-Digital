@@ -28,6 +28,7 @@ function emptyToNull(value: string): string | null {
 
 function validateUrl(value: string | null): boolean {
   if (value === null) return true;
+  if (value.startsWith('data:image/')) return true;
   try {
     const u = new URL(value);
     return u.protocol === 'http:' || u.protocol === 'https:';
@@ -50,7 +51,8 @@ export const POST: APIRoute = async (context) => {
 
   const username = trim(form.get('username'));
   const displayName = trim(form.get('display_name'));
-  const avatarUrl = trim(form.get('avatar_url'));
+  const avatarData = trim(form.get('avatar_data'));
+  const avatarUrl = avatarData.startsWith('data:image/') ? avatarData : trim(form.get('avatar_url'));
   const bio = trim(form.get('bio'));
   const skillsRaw = trim(form.get('skills'));
   const website = trim(form.get('website'));

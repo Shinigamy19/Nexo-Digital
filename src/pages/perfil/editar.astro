@@ -140,8 +140,22 @@ const skillsValue = (profile?.skills ?? []).join(', ');
         </div>
 
         <div class={formStyles.field}>
-          <label class={formStyles.label} for="avatar_url">URL de avatar (foto de perfil)</label>
-          <input class={formStyles.input} type="url" id="avatar_url" name="avatar_url" value={profile?.avatar_url ?? ''} placeholder="https://..." />
+          <label class={formStyles.label}>Foto de perfil</label>
+          <div style="display:flex;gap:1rem;align-items:start;">
+            <div id="avatarPreview" style="width:80px;height:80px;border-radius:50%;border:2px solid var(--border);background:var(--bg-card);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" style="width:100%;height:100%;object-fit:cover;" />
+              ) : (
+                <span style="font-size:1.5rem;color:var(--text-muted);">{(profile?.username ?? 'U')[0].toUpperCase()}</span>
+              )}
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
+              <input type="file" id="avatar_file" accept="image/jpeg,image/png,image/webp" style="font-size:0.85rem;color:var(--text-secondary);" />
+              <p style="font-size:0.75rem;color:var(--text-muted);margin:0;">JPEG o PNG. Se comprime a 150×150 px automáticamente.</p>
+              <input type="hidden" id="avatar_data" name="avatar_data" />
+              <input class={formStyles.input} type="url" id="avatar_url" name="avatar_url" value={profile?.avatar_url ?? ''} placeholder="O pegá una URL de imagen" />
+            </div>
+          </div>
         </div>
 
         <div class={formStyles.field}>
@@ -671,6 +685,49 @@ const skillsValue = (profile?.skills ?? []).join(', ');
       } catch {
         alert('Error de conexión. Probá de nuevo.');
       }
+    });
+  }
+
+  // ─── Avatar Upload + Compression ───
+  const avatarFile = document.getElementById('avatar_file') as HTMLInputElement | null;
+  const avatarData = document.getElementById('avatar_data') as HTMLInputElement | null;
+  const avatarPreview = document.getElementById('avatarPreview') as HTMLElement | null;
+  const avatarUrlInput = document.getElementById('avatar_url') as HTMLInputElement | null;
+
+  if (avatarFile && avatarData && avatarPreview) {
+    avatarFile.addEventListener('change', () => {
+      const file = avatarFile.files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('Solo se permiten imágenes.');
+        avatarFile.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX = 150;
+          let w = img.width;
+          let h = img.height;
+          if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+          else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
+          ctx.drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          avatarData.value = dataUrl;
+          if (avatarUrlInput) avatarUrlInput.value = '';
+          avatarPreview.innerHTML = `<img src="${dataUrl}" alt="" style="width:100%;height:100%;object-fit:cover;" />`;
+        };
+        img.src = reader.result as string;
+      };
+      reader.readAsDataURL(file);
     });
   }
 </script>
