@@ -1,6 +1,8 @@
 ---
 import styles from './JobListings.module.css';
 import FilterBar from '../../ui/FilterBar/index.astro';
+import SearchBar from '../../ui/SearchBar/index.astro';
+import Paginator from '../../ui/Paginator/index.astro';
 import JobCard from '../JobCard/index.astro';
 
 interface Props {
@@ -14,25 +16,32 @@ const { jobsData, modalityOptions, categoryOptions } = Astro.props;
 
 <section class={styles['jobs-listings']} id="listado-empleos">
   <div class="container">
-    <div class={styles['listings-header']}>
-      <h2 class={`${styles['listings-title']} reveal`}>Empleos disponibles</h2>
-      <div class={`${styles['filters-wrapper']} reveal reveal-delay-1`}>
-        <div class={styles['filters-group']}>
-          <span class={styles['filter-label']}>Modalidad:</span>
-          <FilterBar id="jobs-modality" options={modalityOptions} allLabel="Todas" />
-        </div>
-        <div class={styles['filters-group']}>
-          <span class={styles['filter-label']}>Categoría:</span>
-          <FilterBar id="jobs-category" options={categoryOptions} allLabel="Todas" />
+    <div class={`${styles['listings-header']} reveal`}>
+      <h2 class={styles['listings-title']}>Empleos disponibles</h2>
+      <div class={styles['controls']}>
+        <SearchBar id="jobs-search" placeholder="Buscar por título, empresa…" />
+        <div class={styles['filters-wrapper']}>
+          <div class={styles['filters-group']}>
+            <span class={styles['filter-label']}>Modalidad:</span>
+            <FilterBar id="jobs-modality" options={modalityOptions} allLabel="Todas" />
+          </div>
+          <div class={styles['filters-group']}>
+            <span class={styles['filter-label']}>Categoría:</span>
+            <FilterBar id="jobs-category" options={categoryOptions} allLabel="Todas" />
+          </div>
         </div>
       </div>
     </div>
 
-    <div class={styles['jobs-grid']}>
+    <div class={styles['jobs-grid']} id="jobs-grid">
       {jobsData.map((job, i) => (
         <div
-          data-category={job.modality}
-          data-filtergroup="jobs-modality"
+          data-pag-item
+          data-search-title={job.title?.toLowerCase() ?? ''}
+          data-search-company={job.company?.toLowerCase() ?? ''}
+          data-search-description={job.description?.toLowerCase() ?? ''}
+          data-filter-jobs-modality={job.modality}
+          data-filter-jobs-category={job.category}
           class={`reveal reveal-delay-${(i % 3) + 1}`}
         >
           <JobCard {...job} />
@@ -40,12 +49,29 @@ const { jobsData, modalityOptions, categoryOptions } = Astro.props;
       ))}
     </div>
 
+    {jobsData.length > 0 && <Paginator id="jobs-paginator" />}
+
     {jobsData.length === 0 && (
       <div class={styles['empty-state']}>
         <span class={styles['empty-icon']} aria-hidden="true">💼</span>
         <p>No hay búsquedas laborales publicadas todavía.</p>
-        <a href="#publicar-empleo" class={styles['btn-publish-small']}>Sé el primero en publicar</a>
+        <a href="/empleos/nuevo" class={styles['btn-publish-small']}>Sé el primero en publicar</a>
       </div>
     )}
   </div>
 </section>
+
+<script>
+  import { initRevealObserver } from '../../../scripts/reveal';
+  import { initListingControls } from '../../ui/listing-controls';
+
+  initRevealObserver();
+
+  const container = document.getElementById('listado-empleos');
+  if (container) {
+    const searchInput = container.querySelector('#jobs-search') as HTMLInputElement | null;
+    if (searchInput) searchInput.dataset.searchInput = '';
+
+    initListingControls('jobs-grid', ['searchTitle', 'searchCompany', 'searchDescription']);
+  }
+</script>

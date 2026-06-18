@@ -1,0 +1,15 @@
+---
+import styles from './Paginator.module.css';
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<nav class={styles.paginator} id={id} data-paginator data-pag-btn-class={styles.pageBtn} aria-label="Paginación">
+  <button class={styles.btn} data-pag-prev type="button" aria-label="Anterior">&lsaquo; Anterior</button>
+  <div class={styles.pages} data-pag-pages></div>
+  <button class={styles.btn} data-pag-next type="button" aria-label="Siguiente">Siguiente &rsaquo;</button>
+</nav>

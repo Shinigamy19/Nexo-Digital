@@ -17,12 +17,13 @@ interface Props {
   contact: string;
   publishedAt: string;
   location: string;
+  experience?: string;
 }
 
 const {
   id, title, company, description, requirements,
   modality, category, salaryMin, salaryMax,
-  currency, salaryType, contact, publishedAt, location
+  currency, salaryType, contact, publishedAt, location, experience
 } = Astro.props;
 
 const pubDate = new Date(publishedAt);
@@ -35,6 +36,15 @@ const modalityConfig: Record<string, { label: string; cls: string }> = {
   remoto:     { label: '🌐 Remoto',    cls: 'mod-remote' },
   hibrido:    { label: '🔀 Híbrido',   cls: 'mod-hybrid' },
   presencial: { label: '🏢 Presencial', cls: 'mod-onsite' },
+};
+
+const experienceLabels: Record<string, string> = {
+  'sin-experiencia': '🎓 Sin experiencia',
+  'junior': '🌱 Junior',
+  'semi-senior': '📈 Semi-Senior',
+  'senior': '🚀 Senior',
+  'lead': '👑 Lead / Manager',
+  'cualquiera': '🤝 Cualquier nivel',
 };
 
 const categoryLabels: Record<string, string> = {
@@ -85,6 +95,9 @@ const modalId = `job-modal-${id}`;
         return <span class={`${styles['mod-badge']} ${styles[mod.cls] ?? ''}`}>{mod.label}</span>
       })}
       <span class={`${styles['cat-badge']} ${styles[categoryColorClass[category] ?? ''] ?? ''}`}>{categoryLabels[category] ?? category}</span>
+      {experience && experienceLabels[experience] && (
+        <span class={styles['exp-badge']}>{experienceLabels[experience]}</span>
+      )}
     </div>
     <span class={styles['days-badge']} title={`Publicado el ${pubDate.toLocaleDateString('es-AR')}`}>{daysLabel}</span>
   </div>
@@ -143,6 +156,9 @@ const modalId = `job-modal-${id}`;
           })}
           <span class={`${styles['cat-badge']} ${styles[categoryColorClass[category] ?? ''] ?? ''}`}>{categoryLabels[category] ?? category}</span>
           <span class={styles['days-badge']}>{daysLabel}</span>
+          {experience && experienceLabels[experience] && (
+            <span class={styles['exp-badge']}>{experienceLabels[experience]}</span>
+          )}
         </div>
         <h2 class={modal.title}>{title}</h2>
         <p style="font-size:0.88rem;color:var(--text-secondary);margin-top:0.3rem;">

@@ -11,6 +11,13 @@
   flex-wrap: wrap;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .results-count {
   font-size: 0.95rem;
   font-weight: 700;

@@ -1,6 +1,8 @@
 ---
 import styles from "./ProjectsList.module.css";
 import FilterBar from "../../ui/FilterBar/index.astro";
+import SearchBar from "../../ui/SearchBar/index.astro";
+import Paginator from "../../ui/Paginator/index.astro";
 import ProjectCard from "../ProjectCard/index.astro";
 
 interface Props {
@@ -22,15 +24,20 @@ const { projectsData, filterOptions, submitUrl } = Astro.props;
           }</span
         >
       </div>
-      <FilterBar id="projects" options={filterOptions} />
+      <div class={styles["controls"]}>
+        <SearchBar placeholder="Buscar proyecto…" />
+        <FilterBar id="projects" options={filterOptions} />
+      </div>
     </div>
 
-    <div class={styles["projects-grid"]}>
+    <div class={styles["projects-grid"]} id="projects-grid">
       {
         projectsData.map((project, i) => (
           <div
-            data-category={project.category}
-            data-filtergroup="projects"
+            data-pag-item
+            data-search-title={project.title?.toLowerCase() ?? ''}
+            data-search-description={project.description?.toLowerCase() ?? ''}
+            data-filter-projects={project.category}
             class={`reveal reveal-delay-${(i % 3) + 1}`}
           >
             <ProjectCard {...project} />
@@ -38,6 +45,8 @@ const { projectsData, filterOptions, submitUrl } = Astro.props;
         ))
       }
     </div>
+
+    {projectsData.length > 0 && <Paginator id="projects-paginator" />}
 
     <div class={`${styles["contribute-cta"]} reveal`}>
       <div class={styles["cta-inner"]}>
@@ -79,3 +88,11 @@ const { projectsData, filterOptions, submitUrl } = Astro.props;
     </div>
   </div>
 </section>
+
+<script>
+  import { initRevealObserver } from '../../../scripts/reveal';
+  import { initListingControls } from '../../ui/listing-controls';
+
+  initRevealObserver();
+  initListingControls('projects-grid', ['searchTitle', 'searchDescription']);
+</script>

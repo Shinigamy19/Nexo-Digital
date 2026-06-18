@@ -39,6 +39,7 @@ const errorMessage = error ? (errorMessages[error] ?? errorMessages.generic) : n
       error={errorMessage}
     >
       <OAuthButtons next={next} />
+      <p style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-top:-0.5rem;margin-bottom:0;">Podés vincular o desvincular cuentas después desde <a href="/perfil/editar?tab=seguridad" style="color:var(--cyan);text-decoration:none;">Seguridad</a></p>
 
       <div class={styles.divider}>o con email</div>
 

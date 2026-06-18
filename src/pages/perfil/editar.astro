@@ -14,30 +14,24 @@ if (!user) {
   return Astro.redirect('/login', 303);
 }
 
-// Fetch connected OAuth providers
+// Fetch user auth data via Supabase admin API
 let connectedProviders: string[] = [];
-try {
-  const providers = await prisma.$queryRaw<{ providers: string[] }[]>`
-    SELECT COALESCE(
-      (SELECT array_agg(DISTINCT provider) FROM auth.identities WHERE user_id = ${user.id}::uuid),
-      ARRAY[]::text[]
-    ) AS providers
-  `;
-  connectedProviders = providers[0]?.providers ?? [];
-} catch {
-  connectedProviders = [];
-}
-
-// Check if user has password auth
 let hasPassword = false;
 try {
-  const passwordCheck = await prisma.$queryRaw<{ has_password: boolean }[]>`
-    SELECT EXISTS(
-      SELECT 1 FROM auth.users WHERE id = ${user.id}::uuid AND encrypted_password IS NOT NULL AND encrypted_password != ''
-    ) AS has_password
-  `;
-  hasPassword = passwordCheck[0]?.has_password ?? false;
+  const { env } = await import('../../lib/env');
+  const res = await fetch(`${env.PUBLIC_SUPABASE_URL}/auth/v1/admin/users/${user.id}`, {
+    headers: {
+      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+    },
+  });
+  if (res.ok) {
+    const data = await res.json() as { identities?: Array<{ provider: string }>; encrypted_password?: string };
+    connectedProviders = [...new Set((data.identities ?? []).map(i => i.provider))];
+    hasPassword = !!(data.encrypted_password && data.encrypted_password.length > 0);
+  }
 } catch {
+  connectedProviders = [];
   hasPassword = false;
 }
 
@@ -258,7 +252,7 @@ const skillsValue = (profile?.skills ?? []).join(', ');
 
     {/* ─── TAB: SEGURIDAD ─── */}
     {activeTab === 'seguridad' && (
-      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
         {/* Cambiar contraseña */}
         <section>
           <h2 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.6rem; color: var(--text-primary);">Cambiar contraseña</h2>
@@ -468,20 +462,24 @@ const skillsValue = (profile?.skills ?? []).join(', ');
         <hr style="border: none; border-top: 1px solid var(--border); margin: 0;" />
 
         {/* Zona de peligro */}
-        <section style="border: 1px solid rgba(255, 77, 77, 0.3); border-radius: 14px; padding: 1.25rem; background: rgba(255, 77, 77, 0.04);">
-          <h2 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; color: #ff4d4d;">Zona de peligro</h2>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Eliminar tu cuenta es permanente. Se borrarán tu perfil, empleos, proyectos y todos tus datos. Esto no se puede deshacer.</p>
+        <section style="border: 1px solid rgba(255, 77, 77, 0.25); border-radius: 14px; padding: 1.5rem 2rem; background: linear-gradient(135deg, rgba(255, 77, 77, 0.06), rgba(204, 0, 51, 0.03)); position: relative; overflow: hidden;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(255, 77, 77, 0.5), transparent);"></div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span style="font-size: 1.1rem;">⚠️</span>
+            <h2 style="font-size: 1.1rem; font-weight: 700; color: #ff4d4d; margin: 0;">Zona de peligro</h2>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.5;">Eliminar tu cuenta es permanente. Se borrarán tu perfil, empleos, proyectos y todos tus datos. <strong style="color: var(--text-primary);">Esto no se puede deshacer.</strong></p>
           <form method="POST" action="/api/auth/delete-account" class={formStyles.form} id="deleteAccountForm">
             <div class={formStyles.field}>
               <label class={formStyles.label} for="delete_password">Tu contraseña</label>
-              <input class={formStyles.input} type="password" id="delete_password" name="password" required minlength="8" />
+              <input class={formStyles.input} type="password" id="delete_password" name="password" required minlength="8" style="border-color: rgba(255, 77, 77, 0.2); background: rgba(255, 77, 77, 0.04);" />
             </div>
             <div class={formStyles.field}>
-              <label class={formStyles.label} for="delete_confirm">Escribí <strong style="color: #ff4d4d;">ELIMINAR</strong> para confirmar</label>
-              <input class={formStyles.input} type="text" id="delete_confirm" name="confirm_delete" required placeholder="ELIMINAR" style="border-color: rgba(255, 77, 77, 0.3);" />
+              <label class={formStyles.label} for="delete_confirm">Escribí <strong style="color: #ff4d4d; background: rgba(255, 77, 77, 0.12); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.82rem; letter-spacing: 0.05em;">ELIMINAR</strong> para confirmar</label>
+              <input class={formStyles.input} type="text" id="delete_confirm" name="confirm_delete" required placeholder="ELIMINAR" style="border-color: rgba(255, 77, 77, 0.2); background: rgba(255, 77, 77, 0.04); font-weight: 600; letter-spacing: 0.08em;" />
             </div>
             <div>
-              <button type="submit" class={formStyles.submit} style="background: linear-gradient(135deg, #ff4d4d, #cc0033); box-shadow: 0 4px 20px rgba(255, 77, 77, 0.35);">Eliminar mi cuenta permanentemente</button>
+              <button type="submit" class={formStyles.submit} style="background: linear-gradient(135deg, #ff4d4d, #cc0033); box-shadow: 0 4px 24px rgba(255, 77, 77, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 77, 77, 0.3);">Eliminar mi cuenta permanentemente</button>
             </div>
           </form>
         </section>
@@ -491,6 +489,10 @@ const skillsValue = (profile?.skills ?? []).join(', ');
 
   <Footer />
 </Layout>
+
+<style>
+  section { padding: 0; }
+</style>
 
 <script>
   function updateTagStyle(label: HTMLElement, checked: boolean) {

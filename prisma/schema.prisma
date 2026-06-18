@@ -154,6 +154,7 @@ model Job {
   requirements    String[]         @default([]) @db.VarChar
   modality        JobModality
   category        JobCategory
+  experience      String?          @db.VarChar(60)
   salaryMin       Int?             @map("salary_min")
   salaryMax       Int?             @map("salary_max")
   currency        String?          @db.VarChar(8)

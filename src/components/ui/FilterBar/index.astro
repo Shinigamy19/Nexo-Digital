@@ -36,6 +36,49 @@ const { id, options, allLabel = 'Todos' } = Astro.props;
   ))}
 </div>
 
-<script>
-  import './FilterBar.ts';
+<script is:inline>
+(function() {
+  if (window.__filterBarInit) return;
+  window.__filterBarInit = true;
+
+  function initFilters() {
+    document.querySelectorAll('[data-filter][data-group]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var group = btn.dataset.group;
+        var filter = btn.dataset.filter;
+
+        document.querySelectorAll('[data-filter][data-group="' + group + '"]').forEach(function(b) {
+          b.dataset.active = 'false';
+          b.setAttribute('aria-pressed', 'false');
+        });
+
+        btn.dataset.active = 'true';
+        btn.setAttribute('aria-pressed', 'true');
+
+        var attr = 'data-filter-' + group;
+        document.querySelectorAll('[' + attr + ']').forEach(function(card) {
+          var categories = (card.getAttribute(attr) || '').split(',').map(function(s) { return s.trim(); });
+
+          if (filter === 'all' || categories.indexOf(filter) !== -1) {
+            card.style.display = '';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+          } else {
+            card.style.display = 'none';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(10px)';
+            card.style.transition = 'none';
+          }
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFilters);
+  } else {
+    initFilters();
+  }
+})();
 </script>

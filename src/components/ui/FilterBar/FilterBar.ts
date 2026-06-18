@@ -21,14 +21,14 @@ export const initFilters = () => {
       el.setAttribute('aria-pressed', 'true');
 
       // Show/hide categorical cards
-      const cards = document.querySelectorAll(`[data-category][data-filtergroup="${group}"]`);
+      const attr = `data-filter-${group}`;
+      const cards = document.querySelectorAll(`[${attr}]`);
       cards.forEach(card => {
         const cardEl = card as HTMLElement;
-        const categories = (cardEl.dataset.category || '').split(',').map(s => s.trim());
+        const categories = (cardEl.getAttribute(attr) || '').split(',').map(s => s.trim());
         
         if (filter === 'all' || categories.includes(filter)) {
           cardEl.style.display = '';
-          // Trigger a small animation
           requestAnimationFrame(() => {
             cardEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
             cardEl.style.opacity = '1';

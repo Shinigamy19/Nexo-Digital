@@ -1,6 +1,8 @@
 ---
 import styles from "./EventsList.module.css";
 import FilterBar from "../../ui/FilterBar/index.astro";
+import SearchBar from "../../ui/SearchBar/index.astro";
+import Paginator from "../../ui/Paginator/index.astro";
 import EventCard from "../EventCard/index.astro";
 
 interface Props {
@@ -22,15 +24,20 @@ const { eventsData, filterOptions, publishUrl } = Astro.props;
           }</span
         >
       </div>
-      <FilterBar id="events" options={filterOptions} />
+      <div class={styles.controls}>
+        <SearchBar placeholder="Buscar evento…" />
+        <FilterBar id="events" options={filterOptions} />
+      </div>
     </div>
 
-    <div class={styles.grid}>
+    <div class={styles.grid} id="events-grid">
       {
         eventsData.map((event, i) => (
           <div
-            data-category={event.event_type}
-            data-filtergroup="events"
+            data-pag-item
+            data-search-title={event.title?.toLowerCase() ?? ''}
+            data-search-description={event.description?.toLowerCase() ?? ''}
+            data-filter-events={event.event_type}
             class={`reveal reveal-delay-${(i % 3) + 1}`}
           >
             <EventCard {...event} />
@@ -38,6 +45,8 @@ const { eventsData, filterOptions, publishUrl } = Astro.props;
         ))
       }
     </div>
+
+    {eventsData.length > 0 && <Paginator id="events-paginator" />}
 
     {eventsData.length === 0 && (
       <div class={styles.empty}>
@@ -47,3 +56,11 @@ const { eventsData, filterOptions, publishUrl } = Astro.props;
     )}
   </div>
 </section>
+
+<script>
+  import { initRevealObserver } from '../../../scripts/reveal';
+  import { initListingControls } from '../../ui/listing-controls';
+
+  initRevealObserver();
+  initListingControls('events-grid', ['searchTitle', 'searchDescription']);
+</script>

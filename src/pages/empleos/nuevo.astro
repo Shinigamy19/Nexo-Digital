@@ -71,6 +71,20 @@ const justCreated = Astro.url.searchParams.get('created') === 'job';
           <span class={styles.hint}>Separalos con comas.</span>
         </div>
 
+        <div class={styles.field}>
+          <label class={styles.label} for="experience">Experiencia deseada</label>
+          <select class={styles.select} id="experience" name="experience">
+            <option value="" disabled selected>Elegí…</option>
+            <option value="sin-experiencia">Sin experiencia (traínee / junior)</option>
+            <option value="junior">Junior (1–2 años)</option>
+            <option value="semi-senior">Semi-Senior (3–5 años)</option>
+            <option value="senior">Senior (6+ años)</option>
+            <option value="lead">Lead / Manager</option>
+            <option value="cualquiera">Cualquier nivel</option>
+          </select>
+          <span class={styles.hint}>Opcional.</span>
+        </div>
+
         <div class={styles.row}>
           <div class={styles.field}>
             <label class={styles.label}>Modalidad <span class={styles.required}>*</span></label>

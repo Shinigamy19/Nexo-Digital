@@ -74,6 +74,17 @@
   color: var(--text-secondary);
 }
 
+.success {
+  background: rgba(0, 245, 255, 0.06);
+  border: 1px solid rgba(0, 245, 255, 0.25);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  color: #7df7ff;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
 .list { display: flex; flex-direction: column; gap: 0.75rem; }
 
 .row {

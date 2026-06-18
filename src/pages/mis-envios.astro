@@ -111,7 +111,7 @@ const TYPE_LABELS: Record<Item['type'], string> = {
         )}
 
         {justCreated && createdId && (
-          <p class={styles.empty}>
+          <p class={styles.success}>
             ✅ {TYPE_LABELS[justCreated as Item['type']] ?? 'Envío'} enviado (id <code>{createdId.slice(0, 8)}</code>). Está en revisión.
           </p>
         )}

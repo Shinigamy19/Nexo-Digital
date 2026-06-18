@@ -59,6 +59,8 @@ export const POST: APIRoute = async (context) => {
     return fail(context.url, 'invalid_requirements', 'requirements');
   }
 
+  const experience = parseOptionalText(formValue(form, 'experience'), 60);
+
   const modality = parseEnum(formValue(form, 'modality'), JOB_MODALITIES);
   if (!modality) return fail(context.url, 'invalid_modality', 'modality');
 
@@ -104,6 +106,7 @@ export const POST: APIRoute = async (context) => {
         company,
         description,
         requirements,
+        experience,
         modality: toPrismaJobModality(modality) as any,
         category: toPrismaJobCategory(category) as any,
         salaryMin: salaryMinRaw,
