@@ -1,0 +1,82 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/layout/Navbar/index.astro';
+import Footer from '../components/layout/Footer/index.astro';
+import appData from '../data/techcalendar.json';
+import styles from '../styles/techcalendar.module.css';
+
+const { appName, tagline, description, cta, features, stats } = appData;
+---
+
+<Layout
+  title={`${appName} — Nexo Digital`}
+  description={description}
+>
+  <Navbar />
+
+  <main class={styles.page}>
+    <section class={`container ${styles.hero}`}>
+      <span class={`${styles.badge} reveal`}>Aplicación de calendario tech</span>
+      <h1 class={`${styles.title} reveal reveal-delay-1`}>
+        {tagline}
+      </h1>
+      <p class={`${styles.subtitle} reveal reveal-delay-2`}>
+        {description}
+      </p>
+
+      <div class={`${styles.actions} reveal reveal-delay-3`}>
+        <a href={cta.primary.url} class={styles.btnPrimary}>{cta.primary.label}</a>
+        <a href={cta.secondary.url} class={styles.btnSecondary}>{cta.secondary.label}</a>
+      </div>
+
+      <div class={`${styles.stats} reveal reveal-delay-4`}>
+        {stats.map((s) => (
+          <div class={styles.stat}>
+            <span class={`${styles.statValue} gradient-text`}>{s.value}</span>
+            <span class={styles.statLabel}>{s.label}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="container">
+      <div class={`${styles.sectionHeader} reveal`}>
+        <h2 class={styles.sectionTitle}>
+          ¿Qué hace <span class="gradient-text">TechCalendar</span>?
+        </h2>
+        <p class={styles.sectionSubtitle}>
+          Todo lo que un profesional digital necesita para armar su agenda tech en segundos.
+        </p>
+      </div>
+
+      <div class={`${styles.features} reveal reveal-delay-1`}>
+        {features.map((f) => (
+          <article class={styles.feature}>
+            <span class={styles.featureIcon} aria-hidden="true">{f.emoji}</span>
+            <h3 class={styles.featureTitle}>{f.title}</h3>
+            <p class={styles.featureDesc}>{f.desc}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class={`container ${styles.cta}`}>
+      <div class={`${styles.ctaCard} reveal`}>
+        <h2 class={styles.ctaTitle}>Empezá a armar tu agenda</h2>
+        <p class={styles.ctaText}>
+          Sumate a la comunidad de Nexo Digital y no te perdás el próximo evento clave para tu carrera.
+        </p>
+        <a href={cta.primary.url} class={styles.btnPrimary}>{cta.primary.label}</a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<script>
+  import { initRevealObserver } from '../scripts/reveal';
+  initRevealObserver();
+</script>

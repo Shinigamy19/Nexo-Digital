@@ -1,0 +1,42 @@
+{
+  "displayName": "Nexo Digital",
+  "username": "@nexodigital",
+  "description": "Comunidad para creadores del mundo digital",
+  "links": [
+    {
+      "label": "WhatsApp",
+      "url": "https://chat.whatsapp.com/Hbm9wubODmw2ycWx5DTcMZ",
+      "emoji": "🟢"
+    },
+    {
+      "label": "Instagram",
+      "url": "",
+      "emoji": "📸"
+    },
+    {
+      "label": "YouTube",
+      "url": "",
+      "emoji": "📺"
+    },
+    {
+      "label": "TikTok",
+      "url": "",
+      "emoji": "🎵"
+    },
+    {
+      "label": "X / Twitter",
+      "url": "",
+      "emoji": "𝕏"
+    },
+    {
+      "label": "LinkedIn",
+      "url": "",
+      "emoji": "💼"
+    },
+    {
+      "label": "GitHub",
+      "url": "https://github.com/Shinigamy19/Nexo-Digital",
+      "emoji": "🐙"
+    }
+  ]
+}

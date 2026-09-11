@@ -1,0 +1,85 @@
+.page {
+  min-height: 100dvh;
+  padding: 8rem 1.5rem 4rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.card {
+  max-width: 520px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.logo {
+  border-radius: 20px;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 0 40px rgba(0, 245, 255, 0.18);
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 5vw, 2.3rem);
+  font-weight: 800;
+  margin-bottom: 0.2rem;
+}
+
+.handle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.8rem;
+}
+
+.description {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 380px;
+  margin-bottom: 2.2rem;
+}
+
+.list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.95rem 1.2rem;
+  border-radius: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 0.98rem;
+  font-weight: 600;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.item:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-glow);
+  background: var(--bg-card-hover);
+}
+
+.itemEmoji {
+  font-size: 1.25rem;
+  line-height: 1;
+  min-width: 1.6rem;
+  text-align: center;
+}
+
+.itemLabel { flex: 1; text-align: left; }
+
+.itemArrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+.item:hover .itemArrow { color: var(--cyan); transform: translate(2px, -2px); }

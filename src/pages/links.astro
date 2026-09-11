@@ -1,0 +1,51 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/layout/Navbar/index.astro';
+import Footer from '../components/layout/Footer/index.astro';
+import linksData from '../data/links.json';
+import styles from '../styles/links.module.css';
+
+const socialLinks = linksData.links.filter((l) => l.url.trim() !== '');
+const { displayName, username, description } = linksData;
+---
+
+<Layout title={`${linksData.displayName} — Todos nuestros links`} description={linksData.description}>
+  <Navbar />
+
+  <main class={styles.page}>
+    <div class={`container ${styles.card}`}>
+      <img src="/logo.webp" alt="" width={80} height={80} class={styles.logo} />
+      <h1 class={styles.name}>
+        {displayName}
+      </h1>
+      {username && <p class={styles.handle}>{username}</p>}
+      <p class={styles.description}>{description}</p>
+
+      <div class={styles.list}>
+        {socialLinks.map((link) => (
+          <a
+            class={styles.item}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class={styles.itemEmoji} aria-hidden="true">{link.emoji}</span>
+            <span class={styles.itemLabel}>{link.label}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class={styles.itemArrow} aria-hidden="true">
+              <path d="M7 17L17 7M7 7h10v10"/>
+            </svg>
+          </a>
+        ))}
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<script>
+  import { initRevealObserver } from '../scripts/reveal';
+  initRevealObserver();
+</script>

@@ -1,0 +1,46 @@
+{
+  "appName": "TechCalendar",
+  "tagline": "No te perdás más ningún evento tech",
+  "description": "TechCalendar es la app que centraliza conferencias, meetups, hackathons y workshops del mundo tech para que sigas todo tu calendario en un solo lugar.",
+  "cta": {
+    "primary": { "label": "Probar la app", "url": "" },
+    "secondary": { "label": "Ver eventos de la comunidad", "url": "/eventos" }
+  },
+  "features": [
+    {
+      "emoji": "💡",
+      "title": "Todo en un solo lugar",
+      "desc": "Conferencias, meetups, hackathons y workshops centralizados en una única agenda."
+    },
+    {
+      "emoji": "🔔",
+      "title": "Recordatorios inteligentes",
+      "desc": "Recibís avisos antes de cada evento para nunca llegar tarde ni olvidar una fecha."
+    },
+    {
+      "emoji": "📱",
+      "title": "Sincronizada con tu calendario",
+      "desc": "Exportá los eventos a tu calendario favorito con un toque."
+    },
+    {
+      "emoji": "🌍",
+      "title": "Eventos globales",
+      "desc": "Encontrá oportunidades y charlas de todo el mundo, online y presenciales."
+    },
+    {
+      "emoji": "🤝",
+      "title": "Networking incluido",
+      "desc": "Conectá con asistentes, speakers y organizadores del mismo sector."
+    },
+    {
+      "emoji": "⚡",
+      "title": "Gratis y sin fricción",
+      "desc": "Sin loguear, sin spam. Entrás, mirás la agenda y elegís qué seguir."
+    }
+  ],
+  "stats": [
+    { "value": "1000+", "label": "Eventos al mes" },
+    { "value": "50+", "label": "Comunidades aliadas" },
+    { "value": "100%", "label": "Gratis" }
+  ]
+}
