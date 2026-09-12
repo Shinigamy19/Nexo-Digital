@@ -7,7 +7,7 @@ import Footer from '../components/layout/Footer/index.astro';
 import appData from '../data/techcalendar.json';
 import styles from '../styles/techcalendar.module.css';
 
-const { appName, tagline, description, cta, features, stats } = appData;
+const { appName, tagline, description, philosophy, cta, features, stats } = appData;
 ---
 
 <Layout
@@ -26,9 +26,15 @@ const { appName, tagline, description, cta, features, stats } = appData;
         {description}
       </p>
 
+      {philosophy && (
+        <p class={`${styles.philosophy} reveal reveal-delay-2`}>
+          {philosophy}
+        </p>
+      )}
+
       <div class={`${styles.actions} reveal reveal-delay-3`}>
-        <a href={cta.primary.url} class={styles.btnPrimary}>{cta.primary.label}</a>
-        <a href={cta.secondary.url} class={styles.btnSecondary}>{cta.secondary.label}</a>
+        <a href={cta.primary.url} class={styles.btnPrimary} target="_blank" rel="noopener noreferrer">{cta.primary.label}</a>
+        <a href={cta.secondary.url} class={styles.btnSecondary} target="_blank" rel="noopener noreferrer">{cta.secondary.label}</a>
       </div>
 
       <div class={`${styles.stats} reveal reveal-delay-4`}>
@@ -44,10 +50,10 @@ const { appName, tagline, description, cta, features, stats } = appData;
     <section class="container">
       <div class={`${styles.sectionHeader} reveal`}>
         <h2 class={styles.sectionTitle}>
-          ¿Qué hace <span class="gradient-text">TechCalendar</span>?
+          ¿Qué hace <span class="gradient-text">{appName}</span>?
         </h2>
         <p class={styles.sectionSubtitle}>
-          Todo lo que un profesional digital necesita para armar su agenda tech en segundos.
+          Todo lo que necesitás para armar tu agenda tech en segundos.
         </p>
       </div>
 
@@ -66,9 +72,12 @@ const { appName, tagline, description, cta, features, stats } = appData;
       <div class={`${styles.ctaCard} reveal`}>
         <h2 class={styles.ctaTitle}>Empezá a armar tu agenda</h2>
         <p class={styles.ctaText}>
-          Sumate a la comunidad de Nexo Digital y no te perdás el próximo evento clave para tu carrera.
+          Si estás metido en el mundo tecnológico argentino, te invito a probarla.
         </p>
-        <a href={cta.primary.url} class={styles.btnPrimary}>{cta.primary.label}</a>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;">
+          <a href={cta.primary.url} class={styles.btnPrimary} target="_blank" rel="noopener noreferrer">{cta.primary.label}</a>
+          <a href={cta.secondary.url} class={styles.btnSecondary} target="_blank" rel="noopener noreferrer">{cta.secondary.label}</a>
+        </div>
       </div>
     </section>
   </main>

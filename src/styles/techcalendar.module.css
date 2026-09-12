@@ -40,7 +40,21 @@
   font-size: 1.1rem;
   line-height: 1.8;
   max-width: 640px;
+  margin-bottom: 1.5rem;
+}
+
+.philosophy {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.7;
+  max-width: 560px;
   margin-bottom: 2rem;
+  padding: 1rem 1.25rem;
+  background: rgba(168, 85, 247, 0.06);
+  border-left: 3px solid rgba(168, 85, 247, 0.4);
+  border-radius: 0 8px 8px 0;
+  text-align: left;
 }
 
 .actions {

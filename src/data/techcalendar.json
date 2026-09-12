@@ -1,36 +1,37 @@
 {
-  "appName": "TechCalendar",
-  "tagline": "No te perdás más ningún evento tech",
-  "description": "TechCalendar es la app que centraliza conferencias, meetups, hackathons y workshops del mundo tech para que sigas todo tu calendario en un solo lugar.",
+  "appName": "TechCalendAR",
+  "tagline": "Construí mi propia oportunidad",
+  "description": "Una aplicación que desarrollé para buscar, descubrir y gestionar eventos tecnológicos en Argentina: meetups, workshops, conferencias, hackathons y otros eventos relacionados con tecnología.",
+  "philosophy": "No sé si va a convertirse en un gran proyecto. No sé cuántas personas la van a usar. Pero hay algo que sí sé: prefiero construir algo propio antes que quedarme esperando a que alguien decida que soy suficientemente bueno para darme una oportunidad.",
   "cta": {
-    "primary": { "label": "Probar la app", "url": "" },
-    "secondary": { "label": "Ver eventos de la comunidad", "url": "/eventos" }
+    "primary": { "label": "Descargar en Google Play", "url": "https://play.google.com/store/apps/details?id=com.Shinigamy19.TechCalendAR" },
+    "secondary": { "label": "Abrir en web", "url": "https://ar.techcalend.com" }
   },
   "features": [
     {
-      "emoji": "💡",
-      "title": "Todo en un solo lugar",
-      "desc": "Conferencias, meetups, hackathons y workshops centralizados en una única agenda."
+      "emoji": "🔍",
+      "title": "Buscar eventos",
+      "desc": "Encontrá meetups, workshops, conferencias y hackathons tech en Argentina por categoría, fecha y ubicación."
+    },
+    {
+      "emoji": "📅",
+      "title": "Gestionar tu agenda",
+      "desc": "Armá tu calendario personal con los eventos que te interesan y no te pierdas ninguno."
     },
     {
       "emoji": "🔔",
-      "title": "Recordatorios inteligentes",
-      "desc": "Recibís avisos antes de cada evento para nunca llegar tarde ni olvidar una fecha."
-    },
-    {
-      "emoji": "📱",
-      "title": "Sincronizada con tu calendario",
-      "desc": "Exportá los eventos a tu calendario favorito con un toque."
+      "title": "Recordatorios",
+      "desc": "Recibís avisos antes de cada evento para llegar preparado."
     },
     {
       "emoji": "🌍",
-      "title": "Eventos globales",
-      "desc": "Encontrá oportunidades y charlas de todo el mundo, online y presenciales."
+      "title": "Online y presenciales",
+      "desc": "Encontrá eventos tanto presenciales en Argentina como online para conectarte desde donde sea."
     },
     {
-      "emoji": "🤝",
-      "title": "Networking incluido",
-      "desc": "Conectá con asistentes, speakers y organizadores del mismo sector."
+      "emoji": "📱",
+      "title": "Disponible en Android y web",
+      "desc": "Descargala gratis en Google Play o usala desde el navegador en ar.techcalend.com."
     },
     {
       "emoji": "⚡",
@@ -39,8 +40,8 @@
     }
   ],
   "stats": [
-    { "value": "1000+", "label": "Eventos al mes" },
-    { "value": "50+", "label": "Comunidades aliadas" },
-    { "value": "100%", "label": "Gratis" }
+    { "value": "100+", "label": "Eventos cargados" },
+    { "value": "GRATIS", "label": "Siempre" },
+    { "value": "AR", "label": "Enfoque Argentina" }
   ]
 }
