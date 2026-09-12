@@ -42,14 +42,14 @@ export const POST: APIRoute = async (context) => {
   if (!label) return new Response(JSON.stringify({ error: 'invalid_label' }), { status: 400 });
 
   const url = parseOptionalText(formValue(form, 'url'), 500) ?? '';
-  const emoji = parseOptionalText(formValue(form, 'emoji'), 20) ?? '';
+  const icon = parseOptionalText(formValue(form, 'icon'), 500) ?? '';
   const sortOrderRaw = parseInt(formValue(form, 'sort_order'));
   const sortOrder = sortOrderRaw === null || sortOrderRaw === undefined ? 0 : sortOrderRaw;
   const isActive = formValue(form, 'is_active') === 'true' || formValue(form, 'is_active') === '1';
 
   try {
     const link = await prisma.linkItem.create({
-      data: { label, url, emoji, sortOrder, isActive },
+      data: { label, url, icon, sortOrder, isActive },
     });
     return new Response(JSON.stringify(link), {
       status: 201,
@@ -76,14 +76,14 @@ export const PUT: APIRoute = async (context) => {
 
   const label = parseOptionalText(formValue(form, 'label'), 80);
   const url = parseOptionalText(formValue(form, 'url'), 500);
-  const emoji = parseOptionalText(formValue(form, 'emoji'), 20);
+  const icon = parseOptionalText(formValue(form, 'icon'), 500);
   const sortOrderRaw = parseInt(formValue(form, 'sort_order'));
   const isActiveRaw = formValue(form, 'is_active');
 
   const data: Record<string, unknown> = {};
   if (label) data.label = label;
   if (url !== null) data.url = url;
-  if (emoji !== null) data.emoji = emoji;
+  if (icon !== null) data.icon = icon;
   if (sortOrderRaw !== undefined && sortOrderRaw !== null) data.sortOrder = sortOrderRaw;
   if (isActiveRaw !== null) data.isActive = isActiveRaw === 'true' || isActiveRaw === '1';
 

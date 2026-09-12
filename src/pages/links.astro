@@ -8,15 +8,15 @@ import linksData from '../data/links.json';
 import { prisma } from '../lib/prisma';
 import styles from '../styles/links.module.css';
 
-let socialLinks: Array<{ label: string; url: string; emoji: string }> = linksData.links.filter((l) => l.url.trim() !== '');
+let socialLinks: Array<{ label: string; url: string; icon: string }> = linksData.links.filter((l) => l.url.trim() !== '');
 
 try {
   const dbLinks = await prisma.linkItem.findMany({
     where: { isActive: true },
     orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
-    select: { label: true, url: true, emoji: true },
+    select: { label: true, url: true, icon: true },
   });
-  const active = dbLinks.filter((l: { label: string; url: string; emoji: string }) => l.url.trim() !== '');
+  const active = dbLinks.filter((l: { label: string; url: string; icon: string }) => l.url.trim() !== '');
   if (active.length > 0) {
     socialLinks = active;
   }
@@ -38,20 +38,27 @@ const { displayName, username, description } = linksData;
       <p class={styles.description}>{description}</p>
 
       <div class={styles.list}>
-        {socialLinks.map((link) => (
-          <a
-            class={styles.item}
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span class={styles.itemEmoji} aria-hidden="true">{link.emoji}</span>
-            <span class={styles.itemLabel}>{link.label}</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class={styles.itemArrow} aria-hidden="true">
-              <path d="M7 17L17 7M7 7h10v10"/>
-            </svg>
-          </a>
-        ))}
+        {socialLinks.map((link) => {
+          const isImage = link.icon && (link.icon.startsWith('http') || link.icon.startsWith('/'));
+          return (
+            <a
+              class={styles.item}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {isImage ? (
+                <img src={link.icon} alt="" width={24} height={24} class={styles.itemIcon} />
+              ) : (
+                <span class={styles.itemEmoji} aria-hidden="true">{link.icon || '🔗'}</span>
+              )}
+              <span class={styles.itemLabel}>{link.label}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class={styles.itemArrow} aria-hidden="true">
+                <path d="M7 17L17 7M7 7h10v10"/>
+              </svg>
+            </a>
+          );
+        })}
       </div>
     </div>
   </main>

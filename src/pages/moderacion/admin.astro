@@ -146,7 +146,23 @@ const availableImages = ['alex.png', 'sofia.png', 'marcos.png', 'lucia.png', 'cr
           <form id="linksForm" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.8rem;">
             <div style="display:grid;grid-template-columns:2fr 1fr;gap:0.75rem;">
               <input type="text" name="label" placeholder="Nombre (Ej: WhatsApp)" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
-              <input type="text" name="emoji" placeholder="Emoji (Ej: 🟢)" maxlength="20" style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+              <input type="text" name="icon" placeholder="Emoji o URL de imagen" style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+              <button type="button" class="icon-preset" data-icon="📱" title="App genérica" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">📱</button>
+              <button type="button" class="icon-preset" data-icon="💬" title="WhatsApp" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">💬</button>
+              <button type="button" class="icon-preset" data-icon="🐙" title="GitHub" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">🐙</button>
+              <button type="button" class="icon-preset" data-icon="🐦" title="Twitter/X" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">🐦</button>
+              <button type="button" class="icon-preset" data-icon="📸" title="Instagram" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">📸</button>
+              <button type="button" class="icon-preset" data-icon="💼" title="LinkedIn" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">💼</button>
+              <button type="button" class="icon-preset" data-icon="📺" title="YouTube" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">📺</button>
+              <button type="button" class="icon-preset" data-icon="🎵" title="TikTok" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">🎵</button>
+              <button type="button" class="icon-preset" data-icon="🎮" title="Discord" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">🎮</button>
+              <button type="button" class="icon-preset" data-icon="🌐" title="Sitio web" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">🌐</button>
+              <button type="button" class="icon-preset" data-icon="📧" title="Email" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">📧</button>
+              <button type="button" class="icon-preset" data-icon="🔗" title="Link genérico" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">🔗</button>
+              <button type="button" class="icon-preset" data-icon="⭐" title="Favorito" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">⭐</button>
+              <button type="button" class="icon-preset" data-icon="🚀" title="Proyecto" style="padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-secondary);cursor:pointer;font-size:1rem;">🚀</button>
             </div>
             <input type="text" name="url" placeholder="URL" style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
             <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
@@ -504,7 +520,21 @@ const availableImages = ['alex.png', 'sofia.png', 'marcos.png', 'lucia.png', 'cr
       const res = await fetch('/api/admin/featured-candidates', { method, body: formData });
       if (res.ok) {
         cancelEdit();
-loadFeatured();
+        loadFeatured();
+        loadFeaturedCount();
+      } else {
+        const data = await res.json();
+        alert(`Error: ${data.error ?? 'No se pudo guardar.'}`);
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+
+  loadFeatured();
 
   // ══════════════════════════════════════════════════════════════════
   // LINKS
@@ -530,7 +560,7 @@ loadFeatured();
       const res = await fetch('/api/admin/links');
       if (!res.ok) throw new Error('fetch failed');
       const links: Array<{
-        id: string; label: string; url: string; emoji: string;
+        id: string; label: string; url: string; icon: string;
         sortOrder: number; isActive: boolean;
       }> = await res.json();
 
@@ -541,11 +571,17 @@ loadFeatured();
         return;
       }
 
-      linksList.innerHTML = links.map((l) => `
+      linksList.innerHTML = links.map((l) => {
+        const iconHtml = l.icon
+          ? (l.icon.startsWith('http') || l.icon.startsWith('/')
+            ? `<img src="${l.icon}" alt="" style="width:24px;height:24px;border-radius:6px;object-fit:cover;flex-shrink:0;" />`
+            : `<span style="font-size:1.3rem;flex-shrink:0;">${l.icon}</span>`)
+          : `<span style="font-size:1.3rem;flex-shrink:0;">🔗</span>`;
+        return `
         <article style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.6rem;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
             <div style="display:flex;align-items:center;gap:0.6rem;min-width:0;">
-              <span style="font-size:1.3rem;flex-shrink:0;">${l.emoji || '🔗'}</span>
+              ${iconHtml}
               <div style="min-width:0;">
                 <div style="font-weight:600;color:var(--text-primary);font-size:0.95rem;">${l.label}</div>
                 <div style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px;">${l.url || 'Sin URL'}</div>
@@ -568,7 +604,7 @@ loadFeatured();
             <button class="delete-link" data-id="${l.id}" style="padding:0.4rem 0.9rem;border-radius:8px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.1);color:#fca5a5;cursor:pointer;font-size:0.8rem;font-weight:600;">🗑️ Eliminar</button>
           </div>
         </article>
-      `).join('');
+      `}).join('');
 
       // Toggle active
       linksList.querySelectorAll<HTMLInputElement>('.toggle-link-active').forEach((cb) => {
@@ -594,7 +630,7 @@ loadFeatured();
           linksCancelEditBtn.style.display = '';
           (linksForm?.querySelector('[name="label"]') as HTMLInputElement).value = link.label;
           (linksForm?.querySelector('[name="url"]') as HTMLInputElement).value = link.url;
-          (linksForm?.querySelector('[name="emoji"]') as HTMLInputElement).value = link.emoji;
+          (linksForm?.querySelector('[name="icon"]') as HTMLInputElement).value = link.icon;
           (linksForm?.querySelector('[name="sort_order"]') as HTMLInputElement).value = String(link.sortOrder);
           (linksForm?.querySelector('[name="is_active"]') as HTMLInputElement).checked = link.isActive;
           (document.getElementById('linksFormDetails') as HTMLDetailsElement).open = true;
@@ -650,18 +686,12 @@ loadFeatured();
   });
 
   loadLinks();
-        loadFeaturedCount();
-      } else {
-        const data = await res.json();
-        alert(`Error: ${data.error ?? 'No se pudo guardar.'}`);
-      }
-    } catch {
-      alert('Error de conexión');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = originalText;
-    }
-  });
 
-  loadFeatured();
+  // Icon presets
+  document.querySelectorAll<HTMLButtonElement>('.icon-preset').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const iconInput = linksForm?.querySelector('[name="icon"]') as HTMLInputElement | null;
+      if (iconInput) iconInput.value = btn.dataset.icon ?? '';
+    });
+  });
 </script>

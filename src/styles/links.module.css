@@ -75,6 +75,14 @@
   text-align: center;
 }
 
+.itemIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 .itemLabel { flex: 1; text-align: left; }
 
 .itemArrow {

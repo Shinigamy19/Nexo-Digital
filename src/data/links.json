@@ -6,37 +6,37 @@
     {
       "label": "WhatsApp",
       "url": "https://chat.whatsapp.com/Hbm9wubODmw2ycWx5DTcMZ",
-      "emoji": "🟢"
+      "icon": "💬"
     },
     {
       "label": "Instagram",
       "url": "",
-      "emoji": "📸"
+      "icon": "📸"
     },
     {
       "label": "YouTube",
       "url": "",
-      "emoji": "📺"
+      "icon": "📺"
     },
     {
       "label": "TikTok",
       "url": "",
-      "emoji": "🎵"
+      "icon": "🎵"
     },
     {
       "label": "X / Twitter",
       "url": "",
-      "emoji": "𝕏"
+      "icon": "🐦"
     },
     {
       "label": "LinkedIn",
       "url": "",
-      "emoji": "💼"
+      "icon": "💼"
     },
     {
       "label": "GitHub",
       "url": "https://github.com/Shinigamy19/Nexo-Digital",
-      "emoji": "🐙"
+      "icon": "🐙"
     }
   ]
 }
