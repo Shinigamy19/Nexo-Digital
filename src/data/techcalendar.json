@@ -1,8 +1,8 @@
 {
   "appName": "TechCalendAR",
   "tagline": "Construí mi propia oportunidad",
-  "description": "Una aplicación que desarrollé para buscar, descubrir y gestionar eventos tecnológicos en Argentina: meetups, workshops, conferencias, hackathons y otros eventos relacionados con tecnología.",
-  "philosophy": "No sé si va a convertirse en un gran proyecto. No sé cuántas personas la van a usar. Pero hay algo que sí sé: prefiero construir algo propio antes que quedarme esperando a que alguien decida que soy suficientemente bueno para darme una oportunidad.",
+  "description": "Una aplicación que desarrollé para resolver un problema real en el ecosistema tech argentino: la fragmentación de información sobre eventos. No existe un solo lugar donde encontrar meetups, workshops, conferencias y hackathons de forma completa y actualizada. TechCalendAR centraliza esa información para que puedas enfocarte en aprender y conectar, no en buscar.",
+  "philosophy": "No sé si va a convertirse en un gran proyecto. No sé cuántas personas la van a usar. Pero hay algo que sí sé: prefiero construir algo propio antes que quedarme esperando a que alguien decida que soy suficientemente bueno para darme una oportunidad. Cada línea de código es una afirmación de que puedo crear valor, no solo consumirlo.",
   "cta": {
     "primary": { "label": "Descargar en Google Play", "url": "https://play.google.com/store/apps/details?id=com.Shinigamy19.TechCalendAR" },
     "secondary": { "label": "Abrir en web", "url": "https://ar.techcalend.com" }
@@ -10,33 +10,43 @@
   "features": [
     {
       "emoji": "🔍",
-      "title": "Buscar eventos",
-      "desc": "Encontrá meetups, workshops, conferencias y hackathons tech en Argentina por categoría, fecha y ubicación."
+      "title": "Búsqueda inteligente",
+      "desc": "Filtrá por categoría (frontend, backend, data, DevOps, diseño), fecha, ubicación y formato (online/presencial). Encontrá exactamente lo que buscás en segundos."
     },
     {
       "emoji": "📅",
-      "title": "Gestionar tu agenda",
-      "desc": "Armá tu calendario personal con los eventos que te interesan y no te pierdas ninguno."
+      "title": "Tu agenda personal",
+      "desc": "Armá un calendario propio con los eventos que te interesan. Visualizá tu semana de tech de un vistazo y planificá tu tiempo de aprendizaje."
     },
     {
       "emoji": "🔔",
-      "title": "Recordatorios",
-      "desc": "Recibís avisos antes de cada evento para llegar preparado."
+      "title": "Recordatorios inteligentes",
+      "desc": "Recibís notificaciones antes de cada evento para que puedas preparar preguntas, revisar el tema o simplemente no olvidarte. Sin spam, solo lo que importa."
     },
     {
       "emoji": "🌍",
       "title": "Online y presenciales",
-      "desc": "Encontrá eventos tanto presenciales en Argentina como online para conectarte desde donde sea."
+      "desc": "Desde meetups en Buenos Aires hasta conferencias internacionales online. Si existe en el ecosistema tech argentino, está en TechCalendAR."
     },
     {
       "emoji": "📱",
-      "title": "Disponible en Android y web",
-      "desc": "Descargala gratis en Google Play o usala desde el navegador en ar.techcalend.com."
+      "title": "Multiplataforma",
+      "desc": "Descargala gratis en Android o usala desde el navegador en ar.techcalend.com. La misma experiencia, sin importar cómo accedas."
     },
     {
       "emoji": "⚡",
-      "title": "Gratis y sin fricción",
-      "desc": "Sin loguear, sin spam. Entrás, mirás la agenda y elegís qué seguir."
+      "title": "Sin fricción",
+      "desc": "Completamente gratuita y sin anuncios. Sin registro obligatorio, sin spam, sin monetización oculta. Entrás, mirás la agenda y elegís a qué ir. Así de simple."
+    },
+    {
+      "emoji": "🎯",
+      "title": "Enfoque local",
+      "desc": "Diseñada específicamente para el ecosistema tech argentino. Conocemos las comunidades, los espacios y los eventos que realmente importan."
+    },
+    {
+      "emoji": "🔄",
+      "title": "Datos actualizados",
+      "desc": "La información se actualiza constantemente para que siempre veas eventos vigentes. Sin eventos fantasmas ni fechas obsoletas."
     }
   ],
   "stats": [
