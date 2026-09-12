@@ -18,6 +18,9 @@ const PUBLIC_PATHS = new Set([
   '/recursos',
   '/proyectos',
   '/eventos',
+  '/techcalendar',
+  '/invite',
+  '/links',
 ]);
 
 const isPublicPath = (pathname: string): boolean => {

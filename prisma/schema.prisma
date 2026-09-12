@@ -325,6 +325,20 @@ model ModerationLog {
   @@map("moderation_log")
 }
 
+model LinkItem {
+  id        String   @id @default(uuid()) @db.Uuid
+  label     String   @db.VarChar(80)
+  url       String   @db.VarChar(500)
+  emoji     String   @default("") @db.VarChar(20)
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz()
+
+  @@index([isActive, sortOrder], map: "link_items_active_sort_idx")
+  @@map("link_items")
+}
+
 model PortfolioItem {
   id           String   @id @default(uuid()) @db.Uuid
   authorId     String   @map("author_id") @db.Uuid

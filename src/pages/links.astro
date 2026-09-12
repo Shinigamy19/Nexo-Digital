@@ -5,9 +5,23 @@ import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/layout/Navbar/index.astro';
 import Footer from '../components/layout/Footer/index.astro';
 import linksData from '../data/links.json';
+import { prisma } from '../lib/prisma';
 import styles from '../styles/links.module.css';
 
-const socialLinks = linksData.links.filter((l) => l.url.trim() !== '');
+let socialLinks: Array<{ label: string; url: string; emoji: string }> = linksData.links.filter((l) => l.url.trim() !== '');
+
+try {
+  const dbLinks = await prisma.linkItem.findMany({
+    where: { isActive: true },
+    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+    select: { label: true, url: true, emoji: true },
+  });
+  const active = dbLinks.filter((l: { label: string; url: string; emoji: string }) => l.url.trim() !== '');
+  if (active.length > 0) {
+    socialLinks = active;
+  }
+} catch {}
+
 const { displayName, username, description } = linksData;
 ---
 

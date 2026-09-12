@@ -200,12 +200,6 @@
   gap: 0.4rem;
   font-size: 0.78rem;
   color: #bbb;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.card-author:hover {
-  color: var(--accent, #00f5ff);
 }
 
 .card-links {

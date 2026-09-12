@@ -44,6 +44,7 @@ const availableImages = ['alex.png', 'sofia.png', 'marcos.png', 'lucia.png', 'cr
       <nav class={styles.tabs} id="admin-tabs">
         <a href="#users" class={`${styles.tab} ${styles.tabActive}`} data-tab="users" data-active>👥 Usuarios</a>
         <a href="#featured" class={styles.tab} data-tab="featured">⭐ Perfiles destacados</a>
+        <a href="#links" class={styles.tab} data-tab="links">🔗 Links</a>
       </nav>
 
       <!-- ═══════════════ Users section ═══════════════ -->
@@ -131,6 +132,45 @@ const availableImages = ['alex.png', 'sofia.png', 'marcos.png', 'lucia.png', 'cr
         </div>
       </section>
 
+      <!-- ═══════════════ Links section ═══════════════ -->
+      <section id="links-section" style="display:none;">
+        <div class={styles.adminStats}>
+          <div class={styles.adminStat}>
+            <span class={styles.adminStatValue} id="linksCount">0</span>
+            <span class={styles.adminStatLabel}>Links de la comunidad</span>
+          </div>
+        </div>
+
+        <details id="linksFormDetails" style="margin-bottom:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--cyan);font-size:0.95rem;font-family:var(--font-display);">+ Agregar nuevo link</summary>
+          <form id="linksForm" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.8rem;">
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:0.75rem;">
+              <input type="text" name="label" placeholder="Nombre (Ej: WhatsApp)" required style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+              <input type="text" name="emoji" placeholder="Emoji (Ej: 🟢)" maxlength="20" style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+            </div>
+            <input type="text" name="url" placeholder="URL" style="padding:0.55rem 0.8rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;" />
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+              <label style="display:flex;flex-direction:column;gap:0.3rem;font-size:0.78rem;color:var(--text-muted);">
+                Orden (0 = primero)
+                <input type="number" name="sort_order" placeholder="Orden" value="0" style="padding:0.4rem 0.6rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.85rem;max-width:200px;" />
+              </label>
+              <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;color:var(--text-muted);cursor:pointer;margin-top:1.1rem;">
+                <input type="checkbox" name="is_active" checked /> Activo (visible en /links)
+              </label>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.3rem;">
+              <button type="submit" id="linksSubmitBtn" style="padding:0.55rem 1.2rem;border-radius:8px;border:1px solid rgba(34,197,94,0.45);background:rgba(34,197,94,0.18);color:#86efac;font-weight:600;font-size:0.9rem;cursor:pointer;">Guardar link</button>
+              <button type="button" id="linksCancelEdit" style="display:none;padding:0.55rem 1.2rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);font-weight:600;font-size:0.9rem;cursor:pointer;">Cancelar</button>
+              <input type="hidden" name="edit_id" id="linksEditId" value="" />
+            </div>
+          </form>
+        </details>
+
+        <div id="linksList" class={styles.list}>
+          <div class={styles.empty}>Cargando links...</div>
+        </div>
+      </section>
+
     </div>
   </main>
   <Footer />
@@ -141,6 +181,7 @@ const availableImages = ['alex.png', 'sofia.png', 'marcos.png', 'lucia.png', 'cr
   const tabLinks = document.querySelectorAll('#admin-tabs [data-tab]');
   const usersSection = document.getElementById('users-section')!;
   const featuredSection = document.getElementById('featured-section')!;
+  const linksSection = document.getElementById('links-section')!;
 
   tabLinks.forEach((link) => {
     link.addEventListener('click', (e) => {
@@ -150,13 +191,14 @@ const availableImages = ['alex.png', 'sofia.png', 'marcos.png', 'lucia.png', 'cr
       const tab = link.dataset.tab;
       usersSection.style.display = tab === 'users' ? '' : 'none';
       featuredSection.style.display = tab === 'featured' ? '' : 'none';
+      linksSection.style.display = tab === 'links' ? '' : 'none';
     });
   });
 
   const hash = location.hash.replace('#', '');
-  if (hash === 'featured') {
-    const featuredLink = document.querySelector('#admin-tabs [data-tab="featured"]');
-    if (featuredLink) featuredLink.dispatchEvent(new Event('click'));
+  if (hash === 'featured' || hash === 'links') {
+    const tabLink = document.querySelector(`#admin-tabs [data-tab="${hash}"]`);
+    if (tabLink) tabLink.dispatchEvent(new Event('click'));
   }
 
   // ══════════════════════════════════════════════════════════════════
@@ -462,7 +504,152 @@ const availableImages = ['alex.png', 'sofia.png', 'marcos.png', 'lucia.png', 'cr
       const res = await fetch('/api/admin/featured-candidates', { method, body: formData });
       if (res.ok) {
         cancelEdit();
-        loadFeatured();
+loadFeatured();
+
+  // ══════════════════════════════════════════════════════════════════
+  // LINKS
+  // ══════════════════════════════════════════════════════════════════
+
+  const linksList = document.getElementById('linksList')!;
+  const linksCountEl = document.getElementById('linksCount')!;
+  const linksForm = document.getElementById('linksForm') as HTMLFormElement | null;
+  const linksEditIdInput = document.getElementById('linksEditId') as HTMLInputElement;
+  const linksSubmitBtn = document.getElementById('linksSubmitBtn') as HTMLButtonElement;
+  const linksCancelEditBtn = document.getElementById('linksCancelEdit') as HTMLButtonElement;
+
+  function cancelLinksEdit() {
+    linksEditIdInput.value = '';
+    linksSubmitBtn.textContent = 'Guardar link';
+    linksCancelEditBtn.style.display = 'none';
+    linksForm?.reset();
+  }
+
+  async function loadLinks() {
+    if (!linksList) return;
+    try {
+      const res = await fetch('/api/admin/links');
+      if (!res.ok) throw new Error('fetch failed');
+      const links: Array<{
+        id: string; label: string; url: string; emoji: string;
+        sortOrder: number; isActive: boolean;
+      }> = await res.json();
+
+      linksCountEl.textContent = String(links.length);
+
+      if (!links.length) {
+        linksList.innerHTML = '<div style="background:var(--bg-card);border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;color:var(--text-muted);">No hay links. Agregá uno usando el formulario de arriba.</div>';
+        return;
+      }
+
+      linksList.innerHTML = links.map((l) => `
+        <article style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.6rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:0.6rem;min-width:0;">
+              <span style="font-size:1.3rem;flex-shrink:0;">${l.emoji || '🔗'}</span>
+              <div style="min-width:0;">
+                <div style="font-weight:600;color:var(--text-primary);font-size:0.95rem;">${l.label}</div>
+                <div style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px;">${l.url || 'Sin URL'}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;flex-wrap:wrap;">
+              <span style="font-size:0.75rem;color:var(--text-muted);">#${l.sortOrder}</span>
+              <span style="font-size:0.72rem;padding:0.15rem 0.5rem;border-radius:6px;border:1px solid;font-weight:600;${l.isActive
+                ? 'background:rgba(34,197,94,0.1);color:#86efac;border-color:rgba(34,197,94,0.3)'
+                : 'background:rgba(248,113,113,0.1);color:#fca5a5;border-color:rgba(248,113,113,0.3)'}">${l.isActive ? 'Activo' : 'Inactivo'}</span>
+              <label style="display:flex;align-items:center;gap:0.25rem;font-size:0.78rem;color:var(--text-muted);cursor:pointer;">
+                <input type="checkbox" class="toggle-link-active" data-id="${l.id}" ${l.isActive ? 'checked' : ''} />
+                Activo
+              </label>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:0.5rem;padding-top:0.3rem;border-top:1px solid var(--border);flex-wrap:wrap;">
+            <button class="edit-link" data-id="${l.id}" style="padding:0.4rem 0.9rem;border-radius:8px;border:1px solid rgba(99,102,241,0.3);background:rgba(99,102,241,0.12);color:#a5b4fc;cursor:pointer;font-size:0.8rem;font-weight:600;">✏️ Editar</button>
+            <button class="delete-link" data-id="${l.id}" style="padding:0.4rem 0.9rem;border-radius:8px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.1);color:#fca5a5;cursor:pointer;font-size:0.8rem;font-weight:600;">🗑️ Eliminar</button>
+          </div>
+        </article>
+      `).join('');
+
+      // Toggle active
+      linksList.querySelectorAll<HTMLInputElement>('.toggle-link-active').forEach((cb) => {
+        cb.addEventListener('change', async () => {
+          const formData = new FormData();
+          formData.append('id', cb.dataset.id ?? '');
+          formData.append('is_active', cb.checked ? 'true' : 'false');
+          try {
+            const res = await fetch('/api/admin/links', { method: 'PUT', body: formData });
+            if (res.ok) loadLinks();
+            else cb.checked = !cb.checked;
+          } catch { cb.checked = !cb.checked; }
+        });
+      });
+
+      // Edit
+      linksList.querySelectorAll<HTMLButtonElement>('.edit-link').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const link = links.find((x) => x.id === btn.dataset.id);
+          if (!link) return;
+          linksEditIdInput.value = link.id;
+          linksSubmitBtn.textContent = 'Actualizar link';
+          linksCancelEditBtn.style.display = '';
+          (linksForm?.querySelector('[name="label"]') as HTMLInputElement).value = link.label;
+          (linksForm?.querySelector('[name="url"]') as HTMLInputElement).value = link.url;
+          (linksForm?.querySelector('[name="emoji"]') as HTMLInputElement).value = link.emoji;
+          (linksForm?.querySelector('[name="sort_order"]') as HTMLInputElement).value = String(link.sortOrder);
+          (linksForm?.querySelector('[name="is_active"]') as HTMLInputElement).checked = link.isActive;
+          (document.getElementById('linksFormDetails') as HTMLDetailsElement).open = true;
+        });
+      });
+
+      // Delete
+      linksList.querySelectorAll<HTMLButtonElement>('.delete-link').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          if (!confirm('¿Eliminar este link?')) return;
+          try {
+            const res = await fetch(`/api/admin/links?id=${btn.dataset.id}`, { method: 'DELETE' });
+            if (res.ok) loadLinks();
+            else alert('Error al eliminar');
+          } catch { alert('Error de conexión'); }
+        });
+      });
+    } catch {
+      linksList.innerHTML = '<div style="background:var(--bg-card);border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;color:var(--text-muted);">Error al cargar links.</div>';
+    }
+  }
+
+  linksCancelEditBtn?.addEventListener('click', cancelLinksEdit);
+
+  linksForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = linksForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = 'Guardando...';
+
+    try {
+      const formData = new FormData(linksForm);
+      const isEdit = !!linksEditIdInput.value;
+      const method = isEdit ? 'PUT' : 'POST';
+      if (isEdit) {
+        formData.set('id', linksEditIdInput.value);
+      }
+      const res = await fetch('/api/admin/links', { method, body: formData });
+      if (res.ok) {
+        cancelLinksEdit();
+        loadLinks();
+      } else {
+        const data = await res.json();
+        alert(`Error: ${data.error ?? 'No se pudo guardar.'}`);
+      }
+    } catch {
+      alert('Error de conexión');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+
+  loadLinks();
         loadFeaturedCount();
       } else {
         const data = await res.json();
