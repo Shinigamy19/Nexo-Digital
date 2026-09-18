@@ -160,13 +160,23 @@ const [jobs, projects, events] = await Promise.all([
 
     <div id="portfolioManager">
       <h2 class={styles.sectionTitle} style="display:flex;align-items:center;gap:0.6rem;">
-        Portfolio
-        <button id="pfAddBtn" style="margin-left:auto;padding:0.35rem 0.8rem;border-radius:8px;border:1px solid rgba(0,245,255,0.3);background:rgba(0,245,255,0.06);color:var(--cyan);font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;">+ Agregar</button>
+        Portfolio — Desarrollo
+        <button id="pfAddBtn" data-type="desarrollo" style="margin-left:auto;padding:0.35rem 0.8rem;border-radius:8px;border:1px solid rgba(0,245,255,0.3);background:rgba(0,245,255,0.06);color:var(--cyan);font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;">+ Agregar</button>
       </h2>
-      <div id="pfList" class={styles.cardsGrid}></div>
-      <div id="pfEmpty" class={styles.empty} style="display:none;">
-        ¿Tenés proyectos personales? ¡Agregalos acá!
+      <div id="pfListDev" class={styles.cardsGrid}></div>
+      <div id="pfEmptyDev" class={styles.empty} style="display:none;">
+        ¿Tenés proyectos de desarrollo? ¡Agregalos acá!
       </div>
+
+      <h2 class={styles.sectionTitle} style="display:flex;align-items:center;gap:0.6rem;margin-top:2.5rem;">
+        Portfolio — Audiovisual
+        <button id="pfAddBtnAv" data-type="audiovisual" style="margin-left:auto;padding:0.35rem 0.8rem;border-radius:8px;border:1px solid rgba(236,72,153,0.3);background:rgba(236,72,153,0.06);color:var(--magenta);font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;">+ Agregar</button>
+      </h2>
+      <div id="pfListAv" class={styles.cardsGrid}></div>
+      <div id="pfEmptyAv" class={styles.empty} style="display:none;">
+        ¿Tenés contenido audiovisual? ¡Mostralo acá!
+      </div>
+
       <div id="pfFormWrap" style="display:none;margin-bottom:1.5rem;">
         <div style="padding:1.2rem;border-radius:14px;border:1px solid var(--border);background:var(--bg-card);">
           <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
@@ -175,6 +185,7 @@ const [jobs, projects, events] = await Promise.all([
           </div>
           <form id="pfForm" style="display:flex;flex-direction:column;gap:0.8rem;">
             <input type="hidden" name="id" id="pfId" />
+            <input type="hidden" name="type" id="pfType" value="desarrollo" />
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
               <div style="display:flex;flex-direction:column;gap:0.25rem;">
                 <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Nombre <span style="color:var(--magenta);">*</span></label>
@@ -197,26 +208,40 @@ const [jobs, projects, events] = await Promise.all([
               <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Descripción <span style="color:var(--magenta);">*</span></label>
               <textarea name="description" required minlength="10" maxlength="2000" rows="2" placeholder="¿Qué hace? ¿Qué aprendiste?" style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;resize:vertical;min-height:60px;"></textarea>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
-              <div style="display:flex;flex-direction:column;gap:0.25rem;">
-                <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Tecnologías <span style="color:var(--magenta);">*</span></label>
-                <input type="text" name="technologies" required placeholder="TypeScript, React…" style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+
+            <div id="pfDevFields">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+                <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                  <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Tecnologías <span style="color:var(--magenta);">*</span></label>
+                  <input type="text" name="technologies" placeholder="TypeScript, React…" style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                  <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Media URLs</label>
+                  <input type="text" name="media_urls" placeholder="https://... (un link)" style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+                </div>
               </div>
-              <div style="display:flex;flex-direction:column;gap:0.25rem;">
-                <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Media URLs</label>
-                <input type="text" name="media_urls" placeholder="https://... (un link)" style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.8rem;">
+                <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                  <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Repo</label>
+                  <input type="url" name="repo" placeholder="https://github.com/..." style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                  <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Demo</label>
+                  <input type="url" name="demo" placeholder="https://..." style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+                </div>
               </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
-              <div style="display:flex;flex-direction:column;gap:0.25rem;">
-                <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Repo</label>
-                <input type="url" name="repo" placeholder="https://github.com/..." style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
+
+            <div id="pfAvFields" style="display:none;">
+              <div style="display:flex;flex-direction:column;gap:0.25rem;margin-bottom:0.8rem;">
+                <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Media URLs (imágenes o video)</label>
+                <input type="text" name="media_urls_av" placeholder="https://... (un link)" style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
               </div>
-              <div style="display:flex;flex-direction:column;gap:0.25rem;">
-                <label style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">Demo</label>
-                <input type="url" name="demo" placeholder="https://..." style="width:100%;padding:0.55rem 0.75rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;" />
-              </div>
+              <div style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);margin-bottom:0.5rem;">Redes sociales / Links</div>
+              <div id="pfSocialLinks" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+              <button type="button" id="pfAddSocial" style="margin-top:0.5rem;padding:0.3rem 0.7rem;border-radius:6px;border:1px dashed rgba(236,72,153,0.3);background:transparent;color:var(--magenta);font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">+ Agregar link</button>
             </div>
+
             <div style="display:flex;gap:0.5rem;margin-top:0.2rem;">
               <button type="submit" id="pfSubmitBtn" style="flex:1;padding:0.6rem;border-radius:10px;background:var(--gradient-main);border:none;color:#fff;font-family:inherit;font-size:0.88rem;font-weight:600;cursor:pointer;">Agregar</button>
               <button type="button" id="pfCancelBtn2" style="padding:0.6rem 1rem;border-radius:10px;background:transparent;border:1px solid var(--border);color:var(--text-secondary);font-family:inherit;font-size:0.88rem;cursor:pointer;">Cancelar</button>
@@ -302,19 +327,32 @@ const [jobs, projects, events] = await Promise.all([
     iot: '🔌 IoT', edicion: '🎬 Edición', audio: '🎧 Audio', gamedev: '🕹️ Game Dev',
   };
 
-  const pfList = document.getElementById('pfList');
-  const pfEmpty = document.getElementById('pfEmpty');
+  const SOCIAL_ICONS: Record<string, string> = {
+    youtube: '▶️', behance: '🎨', instagram: '📷', vimeo: '🎬', tiktok: '🎵', custom: '🔗',
+  };
+
+  const pfListDev = document.getElementById('pfListDev');
+  const pfListAv = document.getElementById('pfListAv');
+  const pfEmptyDev = document.getElementById('pfEmptyDev');
+  const pfEmptyAv = document.getElementById('pfEmptyAv');
   const pfFormWrap = document.getElementById('pfFormWrap');
   const pfForm = document.getElementById('pfForm') as HTMLFormElement;
   const pfFormTitle = document.getElementById('pfFormTitle');
   const pfId = document.getElementById('pfId') as HTMLInputElement;
+  const pfType = document.getElementById('pfType') as HTMLInputElement;
   const pfAddBtn = document.getElementById('pfAddBtn');
+  const pfAddBtnAv = document.getElementById('pfAddBtnAv');
   const pfCancelBtn = document.getElementById('pfCancelBtn');
   const pfCancelBtn2 = document.getElementById('pfCancelBtn2');
   const pfSubmitBtn = document.getElementById('pfSubmitBtn');
+  const pfDevFields = document.getElementById('pfDevFields');
+  const pfAvFields = document.getElementById('pfAvFields');
+  const pfSocialLinks = document.getElementById('pfSocialLinks');
+  const pfAddSocial = document.getElementById('pfAddSocial');
 
   let items: any[] = [];
   let editingId: string | null = null;
+  let currentFormType: 'desarrollo' | 'audiovisual' = 'desarrollo';
 
   function ytEmbed(url: string): string {
     const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/);
@@ -325,15 +363,15 @@ const [jobs, projects, events] = await Promise.all([
     return /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/.test(url);
   }
 
-  function renderItems() {
-    if (!pfList || !pfEmpty) return;
-    if (items.length === 0) {
-      pfList.innerHTML = '';
-      pfEmpty.style.display = '';
+  function renderDevItems(devItems: any[]) {
+    if (!pfListDev || !pfEmptyDev) return;
+    if (devItems.length === 0) {
+      pfListDev.innerHTML = '';
+      pfEmptyDev.style.display = '';
       return;
     }
-    pfEmpty.style.display = 'none';
-    pfList.innerHTML = items.map(p => `
+    pfEmptyDev.style.display = 'none';
+    pfListDev.innerHTML = devItems.map(p => `
       <div class="portfolioCard" data-id="${p.id}">
         ${p.media_urls?.length > 0 ? `
           <div class="portfolioMedia">
@@ -362,14 +400,14 @@ const [jobs, projects, events] = await Promise.all([
       </div>
     `).join('');
 
-    pfList.querySelectorAll('.pfEdit').forEach(btn => {
+    pfListDev.querySelectorAll('.pfEdit').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = (btn as HTMLElement).dataset.id!;
         const item = items.find(i => i.id === id);
         if (item) showForm(item);
       });
     });
-    pfList.querySelectorAll('.pfDel').forEach(btn => {
+    pfListDev.querySelectorAll('.pfDel').forEach(btn => {
       btn.addEventListener('click', async () => {
         const id = (btn as HTMLElement).dataset.id!;
         if (!confirm('¿Eliminar este proyecto del portfolio?')) return;
@@ -377,25 +415,133 @@ const [jobs, projects, events] = await Promise.all([
         fd.append('id', id);
         await fetch('/api/portfolio', { method: 'DELETE', body: fd });
         items = items.filter(i => i.id !== id);
-        renderItems();
+        renderAll();
       });
     });
+  }
+
+  function renderAvItems(avItems: any[]) {
+    if (!pfListAv || !pfEmptyAv) return;
+    if (avItems.length === 0) {
+      pfListAv.innerHTML = '';
+      pfEmptyAv.style.display = '';
+      return;
+    }
+    pfEmptyAv.style.display = 'none';
+    pfListAv.innerHTML = avItems.map(p => `
+      <div class="avCard" data-id="${p.id}">
+        ${p.media_urls?.length > 0 ? `
+          <div class="avMedia">
+            ${isYT(p.media_urls[0])
+              ? `<iframe src="${ytEmbed(p.media_urls[0])}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" title="${p.title}" style="width:100%;height:100%;border:none;"></iframe>`
+              : `<img src="${p.media_urls[0]}" alt="${p.title}" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />`}
+          </div>` : ''}
+        <div class="avBody">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div style="flex:1;">
+              <h3 class="avTitle">${p.title}</h3>
+              <div class="avCategory">${CATEGORIES[p.category] ?? p.category}</div>
+            </div>
+            <div style="display:flex;gap:0.25rem;flex-shrink:0;">
+              <button class="pfEdit" data-id="${p.id}" style="padding:0.25rem 0.5rem;border-radius:6px;border:1px solid rgba(236,72,153,0.3);background:rgba(236,72,153,0.06);color:var(--magenta);cursor:pointer;font-size:0.72rem;font-family:inherit;">✏️</button>
+              <button class="pfDel" data-id="${p.id}" style="padding:0.25rem 0.5rem;border-radius:6px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);color:#f87171;cursor:pointer;font-size:0.72rem;font-family:inherit;">🗑️</button>
+            </div>
+          </div>
+          <p class="avDesc">${p.description}</p>
+          ${p.social_links?.length > 0 ? `
+            <div class="avSocialLinks">
+              ${p.social_links.map((l: any) => {
+                const label = l.platform === 'custom' ? new URL(l.value).hostname.replace('www.', '') : l.platform.charAt(0).toUpperCase() + l.platform.slice(1);
+                return `<a href="${l.value}" target="_blank" rel="noopener noreferrer" class="avSocialLink">${SOCIAL_ICONS[l.platform] ?? '🔗'} ${label}</a>`;
+              }).join('')}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `).join('');
+
+    pfListAv.querySelectorAll('.pfEdit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = (btn as HTMLElement).dataset.id!;
+        const item = items.find(i => i.id === id);
+        if (item) showForm(item);
+      });
+    });
+    pfListAv.querySelectorAll('.pfDel').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = (btn as HTMLElement).dataset.id!;
+        if (!confirm('¿Eliminar este proyecto del portfolio?')) return;
+        const fd = new FormData();
+        fd.append('id', id);
+        await fetch('/api/portfolio', { method: 'DELETE', body: fd });
+        items = items.filter(i => i.id !== id);
+        renderAll();
+      });
+    });
+  }
+
+  function renderAll() {
+    const devItems = items.filter(i => (i.type ?? 'desarrollo') === 'desarrollo');
+    const avItems = items.filter(i => i.type === 'audiovisual');
+    renderDevItems(devItems);
+    renderAvItems(avItems);
+  }
+
+  function addSocialRow(platform = '', value = '') {
+    if (!pfSocialLinks) return;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:130px 1fr auto;gap:0.4rem;align-items:center;';
+    row.innerHTML = `
+      <select class="socialPlatform" style="padding:0.45rem 0.6rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-family:inherit;font-size:0.82rem;">
+        <option value="youtube" ${platform === 'youtube' ? 'selected' : ''}>▶️ YouTube</option>
+        <option value="behance" ${platform === 'behance' ? 'selected' : ''}>🎨 Behance</option>
+        <option value="instagram" ${platform === 'instagram' ? 'selected' : ''}>📷 Instagram</option>
+        <option value="vimeo" ${platform === 'vimeo' ? 'selected' : ''}>🎬 Vimeo</option>
+        <option value="tiktok" ${platform === 'tiktok' ? 'selected' : ''}>🎵 TikTok</option>
+        <option value="custom" ${platform === 'custom' ? 'selected' : ''}>🔗 Otro</option>
+      </select>
+      <input type="url" class="socialValue" value="${value}" placeholder="https://..." style="padding:0.45rem 0.6rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-family:inherit;font-size:0.82rem;" />
+      <button type="button" class="pfRemoveSocial" style="padding:0.35rem 0.5rem;border-radius:6px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);color:#f87171;cursor:pointer;font-size:0.75rem;font-family:inherit;">×</button>
+    `;
+    pfSocialLinks.appendChild(row);
+    row.querySelector('.pfRemoveSocial')?.addEventListener('click', () => row.remove());
+  }
+
+  function setFormType(type: 'desarrollo' | 'audiovisual') {
+    currentFormType = type;
+    if (pfType) pfType.value = type;
+    if (pfDevFields) pfDevFields.style.display = type === 'desarrollo' ? '' : 'none';
+    if (pfAvFields) pfAvFields.style.display = type === 'audiovisual' ? '' : 'none';
   }
 
   function showForm(item?: any) {
     if (!pfFormWrap || !pfForm || !pfFormTitle || !pfSubmitBtn) return;
     editingId = item?.id ?? null;
+    const formType = (item?.type ?? currentFormType) as 'desarrollo' | 'audiovisual';
+    setFormType(formType);
+
     pfId.value = editingId ?? '';
-    pfFormTitle.textContent = editingId ? 'Editar proyecto' : 'Agregar proyecto';
+    pfFormTitle.textContent = editingId ? 'Editar proyecto' : (formType === 'audiovisual' ? 'Agregar audiovisual' : 'Agregar proyecto');
     pfSubmitBtn.textContent = editingId ? 'Guardar cambios' : 'Agregar';
 
     (pfForm.elements.namedItem('title') as HTMLInputElement).value = item?.title ?? '';
     (pfForm.elements.namedItem('description') as HTMLTextAreaElement).value = item?.description ?? '';
     (pfForm.elements.namedItem('category') as HTMLSelectElement).value = item?.category ?? 'desarrollo';
-    (pfForm.elements.namedItem('technologies') as HTMLInputElement).value = item?.technologies?.join(', ') ?? '';
-    (pfForm.elements.namedItem('media_urls') as HTMLInputElement).value = item?.media_urls?.[0] ?? '';
-    (pfForm.elements.namedItem('repo') as HTMLInputElement).value = item?.repo ?? '';
-    (pfForm.elements.namedItem('demo') as HTMLInputElement).value = item?.demo ?? '';
+
+    if (formType === 'desarrollo') {
+      (pfForm.elements.namedItem('technologies') as HTMLInputElement).value = item?.technologies?.join(', ') ?? '';
+      (pfForm.elements.namedItem('media_urls') as HTMLInputElement).value = item?.media_urls?.[0] ?? '';
+      (pfForm.elements.namedItem('repo') as HTMLInputElement).value = item?.repo ?? '';
+      (pfForm.elements.namedItem('demo') as HTMLInputElement).value = item?.demo ?? '';
+    } else {
+      (pfForm.elements.namedItem('media_urls_av') as HTMLInputElement).value = item?.media_urls?.[0] ?? '';
+      if (pfSocialLinks) {
+        pfSocialLinks.innerHTML = '';
+        const links = item?.social_links ?? [];
+        links.forEach((l: any) => addSocialRow(l.platform, l.value));
+        if (links.length === 0) addSocialRow();
+      }
+    }
 
     pfFormWrap.style.display = '';
     pfFormWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -405,11 +551,15 @@ const [jobs, projects, events] = await Promise.all([
     if (pfFormWrap) pfFormWrap.style.display = 'none';
     editingId = null;
     if (pfForm) pfForm.reset();
+    if (pfSocialLinks) pfSocialLinks.innerHTML = '';
+    setFormType('desarrollo');
   }
 
-  pfAddBtn?.addEventListener('click', () => showForm());
+  pfAddBtn?.addEventListener('click', () => { currentFormType = 'desarrollo'; showForm(); });
+  pfAddBtnAv?.addEventListener('click', () => { currentFormType = 'audiovisual'; showForm(); });
   pfCancelBtn?.addEventListener('click', hideForm);
   pfCancelBtn2?.addEventListener('click', hideForm);
+  pfAddSocial?.addEventListener('click', () => addSocialRow());
 
   pfForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -417,12 +567,38 @@ const [jobs, projects, events] = await Promise.all([
     const method = editingId ? 'PUT' : 'POST';
     if (editingId) fd.append('id', editingId);
 
+    fd.set('type', currentFormType);
+
+    if (currentFormType === 'desarrollo') {
+      const techs = fd.get('technologies') as string;
+      if (!techs || !techs.trim()) {
+        alert('Las tecnologías son requeridas para proyectos de desarrollo.');
+        return;
+      }
+    } else {
+      const mediaAv = fd.get('media_urls_av') as string;
+      if (mediaAv && mediaAv.trim()) {
+        fd.append('media_urls', mediaAv.trim());
+      }
+      fd.delete('media_urls_av');
+
+      const socialLinks: { platform: string; value: string }[] = [];
+      if (pfSocialLinks) {
+        pfSocialLinks.querySelectorAll('div').forEach(row => {
+          const platform = (row.querySelector('.socialPlatform') as HTMLSelectElement)?.value;
+          const value = (row.querySelector('.socialValue') as HTMLInputElement)?.value?.trim();
+          if (platform && value) socialLinks.push({ platform, value });
+        });
+      }
+      fd.append('social_links', JSON.stringify(socialLinks));
+    }
+
     const res = await fetch('/api/portfolio', { method, body: fd });
     const data = await res.json();
     if (data.success) {
       hideForm();
       await loadItems();
-      renderItems();
+      renderAll();
     } else {
       alert('No pudimos guardar. Probá de nuevo.');
     }
@@ -436,7 +612,7 @@ const [jobs, projects, events] = await Promise.all([
     } catch { items = []; }
   }
 
-  loadItems().then(() => renderItems());
+  loadItems().then(() => renderAll());
 
   document.getElementById('shareBtn')?.addEventListener('click', async (e) => {
     const username = (e.currentTarget as HTMLElement).dataset.username;

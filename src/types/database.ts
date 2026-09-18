@@ -272,9 +272,11 @@ export interface PortfolioItem {
   author_id: string;
   title: string;
   description: string;
+  type: ProjectType;
   category: ProjectCategory;
   technologies: string[];
   media_urls: string[];
+  social_links: SocialLink[];
   repo: string | null;
   demo: string | null;
   sort_order: number;
@@ -285,9 +287,11 @@ export interface PortfolioItem {
 export interface PortfolioItemCreate {
   title: string;
   description: string;
+  type?: ProjectType;
   category: ProjectCategory;
   technologies: string[];
   media_urls?: string[];
+  social_links?: SocialLink[];
   repo?: string | null;
   demo?: string | null;
   sort_order?: number;

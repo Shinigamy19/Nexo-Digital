@@ -3,7 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { isSameOrigin, publicErrorCode } from '../../lib/security';
 import { env } from '../../lib/env';
-import { prisma, toPrismaProjectCategory } from '../../lib/prisma';
+import { prisma, toPrismaProjectCategory, toPrismaProjectType } from '../../lib/prisma';
 import {
   LIMITS,
   formValue,
@@ -12,11 +12,29 @@ import {
   parseStringList,
   parseText,
 } from '../../lib/validation';
-import type { ProjectCategory } from '../../types/database';
+import type { ProjectCategory, ProjectType, SocialLink } from '../../types/database';
 
 const CATEGORIES: readonly ProjectCategory[] = [
   'desarrollo', 'diseño', 'ia', 'iot', 'edicion', 'audio', 'gamedev',
 ];
+
+const PROJECT_TYPES: readonly ProjectType[] = ['desarrollo', 'audiovisual'];
+
+const SOCIAL_PLATFORMS = ['youtube', 'behance', 'instagram', 'vimeo', 'tiktok', 'custom'];
+
+function parseSocialLinks(raw: string | null): SocialLink[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((l: any) => l && typeof l.platform === 'string' && typeof l.value === 'string' && l.value.trim())
+      .slice(0, 10)
+      .map((l: any) => ({ platform: l.platform, value: l.value.trim() }));
+  } catch {
+    return [];
+  }
+}
 
 function jsonError(status: number, code: string) {
   return new Response(JSON.stringify({ error: code }), {
@@ -41,9 +59,11 @@ export const GET: APIRoute = async (context) => {
       id: i.id,
       title: i.title,
       description: i.description,
+      type: i.type,
       category: i.category,
       technologies: i.technologies,
       media_urls: i.mediaUrls,
+      social_links: Array.isArray(i.socialLinks) ? i.socialLinks : [],
       repo: i.repo,
       demo: i.demo,
       sort_order: i.sortOrder,
@@ -68,8 +88,10 @@ export const POST: APIRoute = async (context) => {
   const category = parseEnum(formValue(form, 'category'), CATEGORIES);
   if (!category) return jsonError(400, 'invalid_category');
 
+  const projectType = parseEnum(formValue(form, 'type'), PROJECT_TYPES) ?? 'desarrollo';
+
   const technologies = parseStringList(formValue(form, 'technologies'));
-  if (technologies.length === 0) return jsonError(400, 'invalid_technologies');
+  if (projectType === 'desarrollo' && technologies.length === 0) return jsonError(400, 'invalid_technologies');
 
   const mediaUrls: string[] = [];
   const rawUrls = form.getAll('media_urls');
@@ -82,6 +104,8 @@ export const POST: APIRoute = async (context) => {
     if (mediaUrls.length >= 5) break;
   }
 
+  const socialLinks = parseSocialLinks(formValue(form, 'social_links'));
+
   const repo = parseOptionalText(formValue(form, 'repo'), LIMITS.MAX_URL_LENGTH);
   const demo = parseOptionalText(formValue(form, 'demo'), LIMITS.MAX_URL_LENGTH);
 
@@ -93,9 +117,11 @@ export const POST: APIRoute = async (context) => {
         authorId: user.id,
         title,
         description,
+        type: toPrismaProjectType(projectType) as any,
         category: toPrismaProjectCategory(category) as any,
         technologies,
         mediaUrls,
+        socialLinks: socialLinks as any,
         repo,
         demo,
         sortOrder: count,
@@ -134,6 +160,8 @@ export const PUT: APIRoute = async (context) => {
   const category = parseEnum(formValue(form, 'category'), CATEGORIES);
   if (!category) return jsonError(400, 'invalid_category');
 
+  const projectType = parseEnum(formValue(form, 'type'), PROJECT_TYPES) ?? 'desarrollo';
+
   const technologies = parseStringList(formValue(form, 'technologies'));
 
   const mediaUrls: string[] = [];
@@ -147,6 +175,8 @@ export const PUT: APIRoute = async (context) => {
     if (mediaUrls.length >= 5) break;
   }
 
+  const socialLinks = parseSocialLinks(formValue(form, 'social_links'));
+
   const repo = parseOptionalText(formValue(form, 'repo'), LIMITS.MAX_URL_LENGTH);
   const demo = parseOptionalText(formValue(form, 'demo'), LIMITS.MAX_URL_LENGTH);
 
@@ -156,9 +186,11 @@ export const PUT: APIRoute = async (context) => {
       data: {
         title,
         description,
+        type: toPrismaProjectType(projectType) as any,
         category: toPrismaProjectCategory(category) as any,
         technologies,
         mediaUrls,
+        socialLinks: socialLinks as any,
         repo,
         demo,
       },

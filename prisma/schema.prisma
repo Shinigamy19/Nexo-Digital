@@ -344,9 +344,11 @@ model PortfolioItem {
   authorId     String   @map("author_id") @db.Uuid
   title        String   @db.VarChar(120)
   description  String   @db.VarChar(2000)
+  type         ProjectType @default(desarrollo)
   category     ProjectCategory
   technologies String[] @default([]) @db.VarChar
   mediaUrls    String[] @default([]) @db.VarChar @map("media_urls")
+  socialLinks  Json     @default("[]") @map("social_links")
   repo         String?  @db.VarChar(500)
   demo         String?  @db.VarChar(500)
   sortOrder    Int      @default(0) @map("sort_order")

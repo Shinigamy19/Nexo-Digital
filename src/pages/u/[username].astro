@@ -194,10 +194,10 @@ const [jobs, projects, events, portfolioItems] = await Promise.all([
       )}
     </div>
 
-    {portfolioItems.length > 0 && (
-      <h2 class={styles.sectionTitle}>Portfolio</h2>
+    {portfolioItems.filter(p => (p.type ?? 'desarrollo') === 'desarrollo').length > 0 && (
+      <h2 class={styles.sectionTitle}>Portfolio — Desarrollo</h2>
       <div class={styles.cardsGrid}>
-        {portfolioItems.map((p) => (
+        {portfolioItems.filter(p => (p.type ?? 'desarrollo') === 'desarrollo').map((p) => (
           <div class={styles.portfolioCard}>
             {p.mediaUrls.length > 0 && (
               <div class={styles.portfolioMedia}>
@@ -225,6 +225,51 @@ const [jobs, projects, events, portfolioItems] = await Promise.all([
                 {p.repo && <a href={p.repo} target="_blank" rel="noopener noreferrer" class={styles.portfolioLink}>🐙 Repo</a>}
                 {p.demo && <a href={p.demo} target="_blank" rel="noopener noreferrer" class={styles.portfolioLink}>🚀 Demo</a>}
               </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {portfolioItems.filter(p => p.type === 'audiovisual').length > 0 && (
+      <h2 class={styles.sectionTitle}>Portfolio — Audiovisual</h2>
+      <div class={styles.cardsGrid}>
+        {portfolioItems.filter(p => p.type === 'audiovisual').map((p) => (
+          <div class={styles.avCard}>
+            {p.mediaUrls.length > 0 && (
+              <div class={styles.avMedia}>
+                {/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/.test(p.mediaUrls[0]) ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${p.mediaUrls[0].match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?#]+)/)?.[1] ?? ''}`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    loading="lazy"
+                    title={p.title}
+                    style="width:100%;height:100%;border:none;"
+                  />
+                ) : (
+                  <img src={p.mediaUrls[0]} alt={p.title} loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />
+                )}
+              </div>
+            )}
+            <div class={styles.avBody}>
+              <h3 class={styles.avTitle}>{p.title}</h3>
+              <p class={styles.avDesc}>{p.description}</p>
+              {Array.isArray(p.socialLinks) && p.socialLinks.length > 0 && (
+                <div class={styles.avSocialLinks}>
+                  {p.socialLinks.map((l: any) => {
+                    const label = l.platform === 'custom'
+                      ? new URL(l.value).hostname.replace('www.', '')
+                      : l.platform.charAt(0).toUpperCase() + l.platform.slice(1);
+                    const icon = l.platform === 'youtube' ? '▶️' : l.platform === 'behance' ? '🎨' : l.platform === 'instagram' ? '📷' : l.platform === 'vimeo' ? '🎬' : l.platform === 'tiktok' ? '🎵' : '🔗';
+                    return (
+                      <a href={l.value} target="_blank" rel="noopener noreferrer" class={styles.avSocialLink}>
+                        {icon} {label}
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         ))}
