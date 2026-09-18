@@ -122,6 +122,13 @@ Los empleos además filtran por `expiresAt`: se excluyen los que ya expiraron.
 | `npx prisma generate` | Regenerar cliente |
 | `npx prisma studio` | UI de datos |
 
+### Seguridad de base de datos (CRÍTICO)
+
+- **NUNCA** usar `prisma db push --accept-data-loss` — borra datos sin confirmación
+- **SIEMPRE** usar `prisma db push` sin flags — solo agrega columnas/tablas nuevas, nunca borra
+- Si se necesita un cambio destructivo (rename, drop column), **primero exportar** con `pg_dump` o desde el dashboard de Supabase
+- Supabase free tier NO tiene Point-in-Time Recovery — un borrado es irreversible
+
 ## Debugging
 
 - Si el dev server no arranca en 4321 (ocupado), usa el próximo disponible — revisar la terminal
