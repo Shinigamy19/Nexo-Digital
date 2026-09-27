@@ -108,6 +108,15 @@
   box-shadow: 0 8px 30px rgba(168, 85, 247, 0.5);
 }
 
+.btn-discord {
+  background: #5865F2;
+  box-shadow: 0 4px 20px rgba(88, 101, 242, 0.35);
+}
+
+.btn-discord:hover {
+  box-shadow: 0 8px 30px rgba(88, 101, 242, 0.5);
+}
+
 .invite-note {
   font-size: 0.82rem;
   color: var(--text-muted);
