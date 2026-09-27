@@ -26,6 +26,87 @@ Nexo Digital es una comunidad open source para desarrolladores, diseñadores, ed
 - **✏️ Edición inline** — Modal de edición para moderadores con campos dinámicos por tipo de contenido
 - **🔒 Seguridad** — CSRF por Origin, open redirect protection, reserved usernames, security headers, audit log
 
+## Diagramas de arquitectura
+
+### Flujo de autenticación
+
+```mermaid
+flowchart TD
+    A[Usuario ingresa email/usuario + password] --> B{¿Tiene @?}
+    B -- No --> C[Query username → email en DB]
+    B -- Sí --> D[signInWithPassword vía Supabase Auth API]
+    C --> D
+    D --> E{¿Login exitoso?}
+    E -- No --> F[Redirect /login?error=invalid_credentials]
+    E -- Sí --> G{¿2FA habilitado?}
+    G -- Sí --> H[Set cookie temporal sb-2fa-pending · 5 min]
+    H --> I[Redirect /verificar-2fa]
+    I --> J[Usuario ingresa código TOTP]
+    J --> K{¿Código válido?}
+    K -- No --> I
+    K -- Sí --> L[Set sesión real · cookie sb-ref-auth-token]
+    G -- No --> L
+    L --> M[Middleware inyecta context.locals.user]
+    M --> N[Redirigir a next o /]
+```
+
+### Flujo de moderación de contenido
+
+```mermaid
+flowchart TD
+    A[Usuario envía formulario\n/empleos/nuevo, /recursos/nuevo, etc.] --> B[API route valida datos\n+ CSRF Origin check]
+    B --> C[Prisma insert\nstatus: pending]
+    C --> D[Usuario ve en /mis-envios\nestado: pendiente]
+    D --> E[Moderador abre /moderacion\ntab: pendientes]
+    E --> F{Acción del moderador}
+    F -- Aprobar --> G[Prisma update\nstatus: approved]
+    F -- Rechazar --> H[Prisma update\nstatus: rejected\n+ motivo obligatorio]
+    F -- Editar --> I[Modal inline\ncampos dinámicos por tipo]
+    F -- Eliminar --> J[Prisma update\nstatus: removed]
+    G --> K[Contenido visible en\n/empleos, /recursos, /proyectos, /eventos]
+    H --> L[Autor ve resultado en\n/mis-envios]
+    J --> L
+    I --> M[PUT /api/admin/content]
+    M --> G
+    G --> N[Log en moderation_log\nmoderatorId, action, notes]
+    H --> N
+    J --> N
+```
+
+### Arquitectura general del sistema
+
+```mermaid
+flowchart LR
+    subgraph Browser["Navegador"]
+        UI[Páginas Astro · CSS Modules]
+    end
+
+    subgraph Vercel["Vercel Edge"]
+        MW[Middleware\nauth + security headers]
+        API["API Routes\n/api/*"]
+    end
+
+    subgraph Supabase["Supabase"]
+        Auth["Auth\nemail · OAuth · PKCE"]
+        PG[(PostgreSQL\nRLS enabled)]
+    end
+
+    subgraph Prisma["Prisma Client"]
+        ORM[PrismaClient singleton\nenum mapping ñ → en]
+    end
+
+    UI --> MW
+    MW --> API
+    API --> ORM
+    ORM --> PG
+    API --> Auth
+    MW --> Auth
+    Auth -->|session cookie| MW
+    PG -->|query results| ORM
+    ORM -->|data| API
+    API -->|JSON / redirect| UI
+```
+
 ## Stack tecnológico
 
 | Herramienta | Uso |
