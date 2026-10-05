@@ -9,7 +9,6 @@ import JobsHero from '../../components/jobs/JobsHero/index.astro';
 import JobsStats from '../../components/jobs/JobsStats/index.astro';
 import JobListings from '../../components/jobs/JobListings/index.astro';
 import logoImg from '../../assets/brand/logo.webp';
-import jobsData from '../../data/jobs.json';
 import { prisma } from '../../lib/prisma';
 
 const modalityOptions = [
@@ -28,7 +27,7 @@ const categoryOptions = [
   { value: 'rrhh',       label: '👥 RRHH' },
 ];
 
-let data = jobsData;
+let data: Array<any> = [];
 
 try {
   const now = new Date();

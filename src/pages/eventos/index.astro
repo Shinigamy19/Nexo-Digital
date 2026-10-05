@@ -6,7 +6,6 @@ import Navbar from '../../components/layout/Navbar/index.astro';
 import Footer from '../../components/layout/Footer/index.astro';
 import logoImg from '../../assets/brand/logo.webp';
 import { prisma } from '../../lib/prisma';
-import fallbackEvents from '../../data/eventos.json';
 import EventsHero from '../../components/events/EventsHero/index.astro';
 import EventsList from '../../components/events/EventsList/index.astro';
 
@@ -31,7 +30,7 @@ type DbEvent = {
   maxParticipants: number | null;
 };
 
-let eventsData = fallbackEvents;
+let eventsData: Array<any> = [];
 
 try {
   const dbEvents = await prisma.event.findMany({
@@ -70,9 +69,7 @@ try {
       max_participants: e.maxParticipants,
     }));
   }
-} catch {
-  // DB unavailable — using fallback JSON data
-}
+} catch {}
 ---
 
 <Layout

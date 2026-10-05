@@ -7,7 +7,6 @@ import Footer from '../../components/layout/Footer/index.astro';
 import ProjectsHero from '../../components/projects/ProjectsHero/index.astro';
 import ProjectsList from '../../components/projects/ProjectsList/index.astro';
 import logoImg from '../../assets/brand/logo.webp';
-import projectsData from '../../data/projects.json';
 import { prisma } from '../../lib/prisma';
 
 const NEW_PROJECT_URL = '/proyectos/nuevo';
@@ -22,7 +21,7 @@ const filterOptions = [
   { value: 'gamedev',    label: '🕹️ Game Dev' },
 ];
 
-let data = projectsData;
+let data: Array<any> = [];
 
 try {
   const dbProjects = await prisma.project.findMany({

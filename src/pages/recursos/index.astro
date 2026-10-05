@@ -7,7 +7,6 @@ import Footer from '../../components/layout/Footer/index.astro';
 import ResourcesHero from '../../components/resources/ResourcesHero/index.astro';
 import ResourcesList from '../../components/resources/ResourcesList/index.astro';
 import logoImg from '../../assets/brand/logo.webp';
-import resourcesData from '../../data/resources.json';
 import { prisma } from '../../lib/prisma';
 
 const NEW_RESOURCE_URL = '/recursos/nuevo';
@@ -22,7 +21,7 @@ const filterOptions = [
   { value: 'negocios',   label: '💼 Negocios' },
 ];
 
-let data = resourcesData;
+let data: Array<any> = [];
 
 try {
   const dbResources = await prisma.resource.findMany({
