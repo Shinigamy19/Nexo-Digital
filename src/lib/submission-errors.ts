@@ -20,6 +20,7 @@ const SUBMISSION_ERRORS: Record<string, string> = {
   invalid_author_github: 'El usuario de GitHub es demasiado largo.',
   invalid_repo: 'El link al repo no es válido.',
   invalid_demo: 'El link a la demo no es válido.',
+  invalid_media_urls: 'Agregá al menos un link válido a una imagen o video.',
   invalid_technologies: 'Agregá al menos una tecnología (separada por comas).',
   invalid_event_type: 'Elegí un tipo de evento.',
   invalid_event_category: 'Elegí una categoría de evento.',

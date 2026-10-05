@@ -133,11 +133,14 @@ const justCreated = Astro.url.searchParams.get('created') === 'project';
         </div>
 
         <div class={styles.field} data-audiovisual-only style="display: none;">
-          <label class={styles.label}>Links de media <span class={styles.required}>*</span></label>
-          <p class={styles.hint}>Agregá links a imágenes, videos o contenido relacionado con tu proyecto.</p>
+          <label class={styles.label}>Imágenes y videos <span class={styles.required}>*</span></label>
+          <p class={styles.hint}>
+            Agregá links a imágenes o videos de tu proyecto (YouTube, Vimeo, Imgur, Drive…).
+            Al menos uno es obligatorio.
+          </p>
           <div class={styles.dynamicList} id="mediaList">
-            <div class={styles.dynamicRow}>
-              <input class={styles.input} type="url" name="media_urls" maxlength="500" placeholder="https://youtube.com/watch?v=... o https://i.imgur.com/..." />
+            <div class={styles.dynamicRow} data-dynamic-row>
+              <input class={styles.input} type="url" name="media_urls" maxlength="500" placeholder="https://youtube.com/watch?v=… o https://i.imgur.com/…" />
               <button type="button" class={styles.removeBtn} data-remove aria-label="Quitar">×</button>
             </div>
           </div>
@@ -148,7 +151,7 @@ const justCreated = Astro.url.searchParams.get('created') === 'project';
           <label class={styles.label}>Redes sociales</label>
           <p class={styles.hint}>Mostrá dónde encontrarte. Opcional pero recomendado.</p>
           <div class={styles.dynamicList} id="socialList">
-            <div class={styles.dynamicRow} data-social-row>
+            <div class={styles.dynamicRow} data-dynamic-row data-social-row>
               <select class={styles.select} name="social_platform" style="max-width: 200px;">
                 {SOCIAL_PLATFORMS.map((p) => (
                   <option value={p.value}>{p.emoji} {p.label}</option>
@@ -193,7 +196,7 @@ const justCreated = Astro.url.searchParams.get('created') === 'project';
   document.getElementById('addMedia')?.addEventListener('click', () => {
     const list = document.getElementById('mediaList');
     if (!list) return;
-    const row = list.querySelector('.dynamic-row')?.cloneNode(true) as HTMLElement;
+    const row = list.querySelector('[data-dynamic-row]')?.cloneNode(true) as HTMLElement;
     if (!row) return;
     (row.querySelector('input') as HTMLInputElement).value = '';
     list.appendChild(row);
@@ -214,9 +217,9 @@ const justCreated = Astro.url.searchParams.get('created') === 'project';
   form.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest('[data-remove]');
     if (!btn) return;
-    const row = btn.closest('.dynamic-row');
+    const row = btn.closest('[data-dynamic-row]');
     const list = row?.parentElement;
-    if (list && list.querySelectorAll('.dynamic-row').length > 1) {
+    if (list && list.querySelectorAll('[data-dynamic-row]').length > 1) {
       row?.remove();
     }
   });

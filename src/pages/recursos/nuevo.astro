@@ -92,7 +92,7 @@ const justCreated = Astro.url.searchParams.get('created') === 'resource';
           <label class={styles.label}>Imágenes o videos del recurso</label>
           <p class={styles.hint}>Opcional. Mostrá capturas, demos o contenido relacionado.</p>
           <div class={styles.dynamicList} id="mediaList">
-            <div class={styles.dynamicRow}>
+            <div class={styles.dynamicRow} data-dynamic-row>
               <input class={styles.input} type="url" name="media_urls" maxlength="500" placeholder="https://youtube.com/watch?v=... o https://i.imgur.com/..." />
               <button type="button" class={styles.removeBtn} data-remove aria-label="Quitar">×</button>
             </div>
@@ -162,7 +162,7 @@ const justCreated = Astro.url.searchParams.get('created') === 'resource';
   document.getElementById('addMedia')?.addEventListener('click', () => {
     const list = document.getElementById('mediaList');
     if (!list) return;
-    const row = list.querySelector('.dynamic-row')?.cloneNode(true) as HTMLElement;
+    const row = list.querySelector('[data-dynamic-row]')?.cloneNode(true) as HTMLElement;
     if (!row) return;
     (row.querySelector('input') as HTMLInputElement).value = '';
     list.appendChild(row);
@@ -171,9 +171,9 @@ const justCreated = Astro.url.searchParams.get('created') === 'resource';
   form.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest('[data-remove]');
     if (!btn) return;
-    const row = btn.closest('.dynamic-row');
+    const row = btn.closest('[data-dynamic-row]');
     const list = row?.parentElement;
-    if (list && list.querySelectorAll('.dynamic-row').length > 1) {
+    if (list && list.querySelectorAll('[data-dynamic-row]').length > 1) {
       row?.remove();
     }
   });
