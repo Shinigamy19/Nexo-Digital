@@ -49,7 +49,7 @@ const justCreated = Astro.url.searchParams.get('created') === 'event';
         </p>
       )}
 
-      <form method="POST" action="/api/eventos" class={styles.form} novalidate>
+      <form method="POST" action="/api/eventos" enctype="multipart/form-data" class={styles.form} novalidate>
         <div class={styles.field}>
           <label class={styles.label} for="title">Título del evento <span class={styles.required}>*</span></label>
           <input class={styles.input} type="text" id="title" name="title" required minlength="4" maxlength="120" placeholder="Meetup de JavaScript" />
@@ -124,6 +124,12 @@ const justCreated = Astro.url.searchParams.get('created') === 'event';
           <label class={styles.label} for="max_participants">Cupo máximo</label>
           <input class={styles.input} type="number" id="max_participants" name="max_participants" min="0" step="1" placeholder="50" />
           <span class={styles.hint}>Opcional. Límite de participantes.</span>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="image">Imagen del evento</label>
+          <input class={styles.input} type="file" id="image" name="image" accept="image/jpeg,image/png,image/webp,image/gif" />
+          <span class={styles.hint}>Opcional. Formatos JPG, PNG, WebP o GIF, hasta 2 MB.</span>
         </div>
 
         <div class={styles.actions}>

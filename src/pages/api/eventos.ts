@@ -9,6 +9,7 @@ import {
   formValue,
   parseEnum,
   parseInt,
+  parseOptionalImage,
   parseOptionalText,
   parseText,
 } from '../../lib/validation';
@@ -80,6 +81,11 @@ export const POST: APIRoute = async (context) => {
     return fail(context.url, 'invalid_max_participants', 'max_participants');
   }
 
+  const image = await parseOptionalImage(form, 'image');
+  if (image.status === 'error') {
+    return fail(context.url, image.reason, 'image');
+  }
+
   let event;
   try {
     event = await prisma.event.create({
@@ -97,6 +103,7 @@ export const POST: APIRoute = async (context) => {
         url,
         contactInfo,
         maxParticipants: maxParticipantsRaw,
+        image: image.dataUri,
         status: 'pending',
       },
       select: { id: true },

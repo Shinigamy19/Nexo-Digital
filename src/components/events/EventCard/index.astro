@@ -15,6 +15,7 @@ interface Props {
   url: string | null;
   contact_info: string | null;
   max_participants: number | null;
+  image?: string | null;
 }
 
 const eventTypeIcons: Record<string, string> = {
@@ -44,13 +45,16 @@ const formatDateRange = (start: string, end: string | null): string => {
 const {
   id, title, description, event_type, category,
   start_date, end_date, start_time, location,
-  url, contact_info, max_participants,
+  url, contact_info, max_participants, image,
 } = Astro.props;
 
 const modalId = `event-modal-${id}`;
 ---
 
 <article class={styles.card} data-modal-trigger={modalId} style="cursor:pointer;">
+  {image && (
+    <img src={image} alt={title} class={styles.image} loading="lazy" />
+  )}
   <div class={styles.badges}>
     <span class={styles.categoryBadge}>{categoryLabels[category] ?? category}</span>
     <span class={styles.typeBadge}>{eventTypeIcons[event_type] ?? '📌'} {event_type.replace('_', ' ')}</span>
@@ -106,6 +110,10 @@ const modalId = `event-modal-${id}`;
         </div>
         <h2 class={modal.title}>{title}</h2>
       </div>
+
+      {image && (
+        <img src={image} alt={title} class={styles.modalImage} loading="lazy" />
+      )}
 
       <div class={modal.section}>
         <span class={modal.sectionTitle}>Descripción</span>
