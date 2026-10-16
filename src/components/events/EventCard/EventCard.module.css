@@ -140,6 +140,37 @@
   cursor: zoom-in;
 }
 
+.body {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+
+.bodyMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.previewBtn {
+  flex: 0 0 auto;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+}
+
+.previewImg {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  display: block;
+}
+
 .lightbox {
   position: fixed;
   inset: 0;
@@ -147,6 +178,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.lightbox[hidden] {
+  display: none;
 }
 
 .lightboxBackdrop {

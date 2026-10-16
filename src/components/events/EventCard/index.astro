@@ -52,37 +52,46 @@ const modalId = `event-modal-${id}`;
 ---
 
 <article class={styles.card} data-modal-trigger={modalId} style="cursor:pointer;">
-  <div class={styles.badges}>
-    <span class={styles.categoryBadge}>{categoryLabels[category] ?? category}</span>
-    <span class={styles.typeBadge}>{eventTypeIcons[event_type] ?? '📌'} {event_type.replace('_', ' ')}</span>
-  </div>
+  <div class={styles.body}>
+    {image && (
+      <button type="button" class={styles.previewBtn} data-lightbox-open={image} aria-label="Ver imagen en grande">
+        <img src={image} alt={title} class={styles.previewImg} loading="lazy" />
+      </button>
+    )}
+    <div class={styles.bodyMain}>
+      <div class={styles.badges}>
+        <span class={styles.categoryBadge}>{categoryLabels[category] ?? category}</span>
+        <span class={styles.typeBadge}>{eventTypeIcons[event_type] ?? '📌'} {event_type.replace('_', ' ')}</span>
+      </div>
 
-  <h3 class={styles.title}>{title}</h3>
-  <p class={styles.desc}>{description}</p>
+      <h3 class={styles.title}>{title}</h3>
+      <p class={styles.desc}>{description}</p>
 
-  <div class={styles.meta}>
-    <span class={styles.metaItem}>
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      {formatDateRange(start_date, end_date)}
-    </span>
-    {start_time && (
-      <span class={styles.metaItem}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        {start_time}
-      </span>
-    )}
-    {location && (
-      <span class={styles.metaItem}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        {location}
-      </span>
-    )}
-    {max_participants && (
-      <span class={styles.metaItem}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Cupo: {max_participants}
-      </span>
-    )}
+      <div class={styles.meta}>
+        <span class={styles.metaItem}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          {formatDateRange(start_date, end_date)}
+        </span>
+        {start_time && (
+          <span class={styles.metaItem}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {start_time}
+          </span>
+        )}
+        {location && (
+          <span class={styles.metaItem}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            {location}
+          </span>
+        )}
+        {max_participants && (
+          <span class={styles.metaItem}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Cupo: {max_participants}
+          </span>
+        )}
+      </div>
+    </div>
   </div>
 
   <div class={styles.footer}>
@@ -253,12 +262,14 @@ const modalId = `event-modal-${id}`;
     const stage = root.querySelector<HTMLElement>('[data-lb-stage]')!;
 
     root.addEventListener('click', (e) => {
-      const t = (e.target as HTMLElement).closest<HTMLElement>('button');
-      if (!t) return;
-      if (t.hasAttribute('data-lb-close')) close();
-      else if (t.hasAttribute('data-lb-in')) zoomTo(1.3, window.innerWidth / 2, window.innerHeight / 2);
-      else if (t.hasAttribute('data-lb-out')) zoomTo(1 / 1.3, window.innerWidth / 2, window.innerHeight / 2);
-      else if (t.hasAttribute('data-lb-reset')) resetView();
+      const t = e.target as HTMLElement;
+      if (t.closest('[data-lb-close]')) { close(); return; }
+      if (t === stage) { if (!dragged) close(); return; }
+      const b = t.closest<HTMLElement>('button');
+      if (!b) return;
+      if (b.hasAttribute('data-lb-in')) zoomTo(1.3, window.innerWidth / 2, window.innerHeight / 2);
+      else if (b.hasAttribute('data-lb-out')) zoomTo(1 / 1.3, window.innerWidth / 2, window.innerHeight / 2);
+      else if (b.hasAttribute('data-lb-reset')) resetView();
     });
 
     root.addEventListener('wheel', (e) => {
@@ -273,6 +284,7 @@ const modalId = `event-modal-${id}`;
 
     const pointers = new Map<number, { x: number; y: number }>();
     let lastDist = 0;
+    let dragged = false;
 
     const twoPointerDist = () => {
       const [a, b] = [...pointers.values()];
@@ -282,6 +294,7 @@ const modalId = `event-modal-${id}`;
     stage.addEventListener('pointerdown', (e) => {
       stage.setPointerCapture(e.pointerId);
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      dragged = false;
       if (pointers.size === 2) lastDist = twoPointerDist();
       else if (img) img.classList.add(styles.grabbing);
     });
@@ -302,6 +315,7 @@ const modalId = `event-modal-${id}`;
         return;
       }
       if (scale > MIN_SCALE && img) {
+        if (Math.abs(e.clientX - p.x) > 4 || Math.abs(e.clientY - p.y) > 4) dragged = true;
         tx += e.clientX - p.x;
         ty += e.clientY - p.y;
         apply();
