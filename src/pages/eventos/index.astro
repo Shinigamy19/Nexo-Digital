@@ -28,6 +28,7 @@ type DbEvent = {
   url: string | null;
   contactInfo: string | null;
   maxParticipants: number | null;
+  image: string | null;
 };
 
 let eventsData: Array<any> = [];
@@ -50,6 +51,7 @@ try {
       url: true,
       contactInfo: true,
       maxParticipants: true,
+      image: true,
     },
   });
 
@@ -67,6 +69,7 @@ try {
       url: e.url,
       contact_info: e.contactInfo,
       max_participants: e.maxParticipants,
+      image: e.image,
     }));
   }
 } catch {}

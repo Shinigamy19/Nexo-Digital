@@ -261,6 +261,7 @@ model Event {
   url             String?          @db.VarChar(500)
   contactInfo     String?          @map("contact_info") @db.VarChar(200)
   maxParticipants Int?             @map("max_participants")
+  image           String?          @db.Text
   featured        Boolean          @default(false)
   status          ModerationStatus @default(pending)
   moderatorId     String?          @map("moderator_id") @db.Uuid

@@ -24,6 +24,8 @@ const SUBMISSION_ERRORS: Record<string, string> = {
   invalid_technologies: 'Agregá al menos una tecnología (separada por comas).',
   invalid_event_type: 'Elegí un tipo de evento.',
   invalid_event_category: 'Elegí una categoría de evento.',
+  invalid_image_type: 'La imagen tiene que ser un archivo JPG, PNG, WebP o GIF.',
+  image_too_large: 'La imagen supera el máximo de 2 MB.',
   invalid_start_date: 'La fecha de inicio no es válida.',
   invalid_end_date: 'La fecha de fin no es válida.',
   invalid_start_time: 'El horario no es válido.',

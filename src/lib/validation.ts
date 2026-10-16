@@ -118,6 +118,44 @@ export function parseEnum<T extends string>(
   return allowed.includes(value as T) ? (value as T) : null;
 }
 
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const;
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+
+export type ImageParseResult =
+  | { status: 'ok'; dataUri: string | null }
+  | { status: 'error'; reason: 'invalid_image_type' | 'image_too_large' };
+
+/**
+ * Optional image upload from a multipart form. Returns the image as a
+ * base64 data-URI (same storage pattern as FeaturedCandidate.image),
+ * `null` when no file was sent, or an error reason when the type is
+ * not allowed or the file exceeds `maxBytes`.
+ */
+export async function parseOptionalImage(
+  form: FormData,
+  key: string,
+  maxBytes = MAX_IMAGE_BYTES,
+): Promise<ImageParseResult> {
+  const v = form.get(key);
+  if (v === null || (v instanceof File && v.size === 0)) {
+    return { status: 'ok', dataUri: null };
+  }
+  if (!(v instanceof File)) {
+    return { status: 'error', reason: 'invalid_image_type' };
+  }
+  if (!ALLOWED_IMAGE_TYPES.includes(v.type as (typeof ALLOWED_IMAGE_TYPES)[number])) {
+    return { status: 'error', reason: 'invalid_image_type' };
+  }
+  if (v.size > maxBytes) {
+    return { status: 'error', reason: 'image_too_large' };
+  }
+  const buf = Buffer.from(await v.arrayBuffer());
+  return {
+    status: 'ok',
+    dataUri: `data:${v.type};base64,${buf.toString('base64')}`,
+  };
+}
+
 // Limits re-exported for the API routes that need to compose them.
 export const LIMITS = {
   MAX_ITEMS,
@@ -130,4 +168,6 @@ export const LIMITS = {
   MAX_CONTACT_LENGTH,
   MAX_URL_LENGTH,
   MIN_URL_LENGTH,
+  ALLOWED_IMAGE_TYPES,
+  MAX_IMAGE_BYTES,
 } as const;
