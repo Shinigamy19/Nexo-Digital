@@ -52,9 +52,6 @@ const modalId = `event-modal-${id}`;
 ---
 
 <article class={styles.card} data-modal-trigger={modalId} style="cursor:pointer;">
-  {image && (
-    <img src={image} alt={title} class={styles.image} loading="lazy" />
-  )}
   <div class={styles.badges}>
     <span class={styles.categoryBadge}>{categoryLabels[category] ?? category}</span>
     <span class={styles.typeBadge}>{eventTypeIcons[event_type] ?? '📌'} {event_type.replace('_', ' ')}</span>

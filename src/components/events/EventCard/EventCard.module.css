@@ -27,17 +27,6 @@
 }
 .card:hover::before { opacity: 1; }
 
-.image {
-  width: calc(100% + 2.4rem);
-  margin: -1.2rem -1.2rem 0;
-  height: 160px;
-  object-fit: cover;
-  object-position: center top;
-  display: block;
-  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
-}
-
 .modalImage {
   width: 100%;
   max-height: 65vh;
