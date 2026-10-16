@@ -109,7 +109,9 @@ const modalId = `event-modal-${id}`;
       </div>
 
       {image && (
-        <img src={image} alt={title} class={styles.modalImage} loading="lazy" />
+        <button type="button" class={styles.imageBtn} data-lightbox-open={image} aria-label="Ver imagen en grande">
+          <img src={image} alt={title} class={styles.modalImage} loading="lazy" />
+        </button>
       )}
 
       <div class={modal.section}>
@@ -160,3 +162,173 @@ const modalId = `event-modal-${id}`;
     </div>
   </div>
 </div>
+
+<script>
+  import styles from './EventCard.module.css';
+
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 4;
+
+  let root: HTMLDivElement | null = null;
+  let img: HTMLImageElement | null = null;
+  let scale = 1;
+  let tx = 0;
+  let ty = 0;
+
+  function apply() {
+    if (img) img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+  }
+
+  function clampPan() {
+    if (!img) return;
+    const r = img.getBoundingClientRect();
+    const pad = 60;
+    if (r.right < pad) tx += pad - r.right;
+    if (r.left > window.innerWidth - pad) tx -= r.left - (window.innerWidth - pad);
+    if (r.bottom < pad) ty += pad - r.bottom;
+    if (r.top > window.innerHeight - pad) ty -= r.top - (window.innerHeight - pad);
+    apply();
+  }
+
+  function zoomTo(factor: number, cx: number, cy: number) {
+    if (!img) return;
+    const r = img.getBoundingClientRect();
+    const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * factor));
+    if (next === scale) return;
+    const u = (cx - r.left) / scale;
+    const v = (cy - r.top) / scale;
+    tx = cx - u * next - (r.left - tx);
+    ty = cy - v * next - (r.top - ty);
+    scale = next;
+    if (scale === MIN_SCALE) {
+      tx = 0;
+      ty = 0;
+      apply();
+      return;
+    }
+    apply();
+    clampPan();
+  }
+
+  function resetView() {
+    scale = 1;
+    tx = 0;
+    ty = 0;
+    apply();
+  }
+
+  function close() {
+    if (!root) return;
+    root.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  function open(src: string, alt: string) {
+    if (!root || !img) return;
+    resetView();
+    img.src = src;
+    img.alt = alt;
+    root.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function ensure() {
+    if (root) return;
+    root = document.createElement('div');
+    root.className = styles.lightbox;
+    root.hidden = true;
+    root.innerHTML = `
+      <div class="${styles.lightboxBackdrop}" data-lb-close></div>
+      <button type="button" class="${styles.lightboxClose}" data-lb-close aria-label="Cerrar">✕</button>
+      <div class="${styles.lightboxStage}" data-lb-stage>
+        <img class="${styles.lightboxImg}" alt="" draggable="false" />
+      </div>
+      <div class="${styles.lightboxControls}">
+        <button type="button" data-lb-out aria-label="Alejar">−</button>
+        <button type="button" data-lb-reset aria-label="Restablecer">⟲</button>
+        <button type="button" data-lb-in aria-label="Acercar">+</button>
+      </div>`;
+    document.body.appendChild(root);
+    img = root.querySelector('img')!;
+    const stage = root.querySelector<HTMLElement>('[data-lb-stage]')!;
+
+    root.addEventListener('click', (e) => {
+      const t = (e.target as HTMLElement).closest<HTMLElement>('button');
+      if (!t) return;
+      if (t.hasAttribute('data-lb-close')) close();
+      else if (t.hasAttribute('data-lb-in')) zoomTo(1.3, window.innerWidth / 2, window.innerHeight / 2);
+      else if (t.hasAttribute('data-lb-out')) zoomTo(1 / 1.3, window.innerWidth / 2, window.innerHeight / 2);
+      else if (t.hasAttribute('data-lb-reset')) resetView();
+    });
+
+    root.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      zoomTo(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX, e.clientY);
+    }, { passive: false });
+
+    img.addEventListener('dblclick', (e) => {
+      if (scale > MIN_SCALE) resetView();
+      else zoomTo(2.5, e.clientX, e.clientY);
+    });
+
+    const pointers = new Map<number, { x: number; y: number }>();
+    let lastDist = 0;
+
+    const twoPointerDist = () => {
+      const [a, b] = [...pointers.values()];
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    };
+
+    stage.addEventListener('pointerdown', (e) => {
+      stage.setPointerCapture(e.pointerId);
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size === 2) lastDist = twoPointerDist();
+      else if (img) img.classList.add(styles.grabbing);
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      const p = pointers.get(e.pointerId);
+      if (!p) return;
+      if (pointers.size === 2) {
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        const d = twoPointerDist();
+        if (lastDist > 0) {
+          const pts = [...pointers.values()];
+          const midX = (pts[0].x + pts[1].x) / 2;
+          const midY = (pts[0].y + pts[1].y) / 2;
+          zoomTo(d / lastDist, midX, midY);
+        }
+        lastDist = d;
+        return;
+      }
+      if (scale > MIN_SCALE && img) {
+        tx += e.clientX - p.x;
+        ty += e.clientY - p.y;
+        apply();
+        clampPan();
+      }
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    });
+
+    const release = (e: PointerEvent) => {
+      pointers.delete(e.pointerId);
+      if (pointers.size < 2) lastDist = 0;
+      if (pointers.size === 0 && img) img.classList.remove(styles.grabbing);
+    };
+    stage.addEventListener('pointerup', release);
+    stage.addEventListener('pointercancel', release);
+  }
+
+  document.addEventListener('click', (e) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-lightbox-open]');
+    if (!el) return;
+    const src = el.getAttribute('data-lightbox-open');
+    if (!src) return;
+    ensure();
+    open(src, el.querySelector('img')?.alt ?? '');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && root && !root.hidden) close();
+  });
+</script>
