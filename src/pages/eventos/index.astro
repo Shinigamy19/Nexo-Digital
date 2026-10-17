@@ -29,6 +29,7 @@ type DbEvent = {
   contactInfo: string | null;
   maxParticipants: number | null;
   image: string | null;
+  coverImage: string | null;
 };
 
 let eventsData: Array<any> = [];
@@ -52,6 +53,7 @@ try {
       contactInfo: true,
       maxParticipants: true,
       image: true,
+      coverImage: true,
     },
   });
 
@@ -70,6 +72,7 @@ try {
       contact_info: e.contactInfo,
       max_participants: e.maxParticipants,
       image: e.image,
+      cover_image: e.coverImage,
     }));
   }
 } catch {}

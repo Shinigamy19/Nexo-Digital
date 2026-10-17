@@ -134,8 +134,10 @@ export type ImageParseResult =
 export async function parseOptionalImage(
   form: FormData,
   key: string,
-  maxBytes = MAX_IMAGE_BYTES,
+  options: { maxBytes?: number; allowedTypes?: readonly string[] } = {},
 ): Promise<ImageParseResult> {
+  const maxBytes = options.maxBytes ?? MAX_IMAGE_BYTES;
+  const allowedTypes = options.allowedTypes ?? ALLOWED_IMAGE_TYPES;
   const v = form.get(key);
   if (v === null || (v instanceof File && v.size === 0)) {
     return { status: 'ok', dataUri: null };
@@ -143,7 +145,7 @@ export async function parseOptionalImage(
   if (!(v instanceof File)) {
     return { status: 'error', reason: 'invalid_image_type' };
   }
-  if (!ALLOWED_IMAGE_TYPES.includes(v.type as (typeof ALLOWED_IMAGE_TYPES)[number])) {
+  if (!allowedTypes.includes(v.type)) {
     return { status: 'error', reason: 'invalid_image_type' };
   }
   if (v.size > maxBytes) {

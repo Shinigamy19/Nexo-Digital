@@ -146,6 +146,25 @@
   align-items: flex-start;
 }
 
+.coverBtn {
+  display: block;
+  width: calc(100% + 2.4rem);
+  margin: -1.2rem -1.2rem 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+  line-height: 0;
+}
+
+.cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+  border-bottom: 1px solid var(--border);
+}
+
 .bodyMain {
   display: flex;
   flex-direction: column;

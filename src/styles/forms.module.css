@@ -364,3 +364,89 @@
   font-weight: 500;
   color: var(--text-secondary);
 }
+
+.cropOpen {
+  margin-top: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cyan);
+  background: rgba(0, 245, 255, 0.08);
+  border: 1px solid rgba(0, 245, 255, 0.25);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.cropOpen:hover:not(:disabled) {
+  background: rgba(0, 245, 255, 0.15);
+}
+
+.cropOpen:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cropOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.cropOverlay[hidden] {
+  display: none;
+}
+
+.cropModal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem;
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.cropTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.cropViewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.5);
+  cursor: grab;
+  touch-action: none;
+}
+
+.cropViewport:active {
+  cursor: grabbing;
+}
+
+.cropImg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.cropZoom {
+  width: 100%;
+  accent-color: var(--cyan);
+}

@@ -86,6 +86,13 @@ export const POST: APIRoute = async (context) => {
     return fail(context.url, image.reason, 'image');
   }
 
+  const cover = await parseOptionalImage(form, 'cover_image', {
+    allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+  });
+  if (cover.status === 'error') {
+    return fail(context.url, cover.reason, 'cover_image');
+  }
+
   let event;
   try {
     event = await prisma.event.create({
@@ -104,6 +111,7 @@ export const POST: APIRoute = async (context) => {
         contactInfo,
         maxParticipants: maxParticipantsRaw,
         image: image.dataUri,
+        coverImage: cover.dataUri,
         status: 'pending',
       },
       select: { id: true },

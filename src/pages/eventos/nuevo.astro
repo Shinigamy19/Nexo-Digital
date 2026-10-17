@@ -129,7 +129,18 @@ const justCreated = Astro.url.searchParams.get('created') === 'event';
         <div class={styles.field}>
           <label class={styles.label} for="image">Imagen del evento</label>
           <input class={styles.input} type="file" id="image" name="image" accept="image/jpeg,image/png,image/webp,image/gif" />
-          <span class={styles.hint}>Opcional. Formatos JPG, PNG, WebP o GIF, hasta 2 MB.</span>
+          <span class={styles.hint}>Opcional. Formatos JPG, PNG, WebP o GIF, hasta 2 MB. Se muestra como preview y se puede ver completa en grande.</span>
+        </div>
+
+        <div class={styles.field}>
+          <label class={styles.label} for="cover_image">Foto de portada</label>
+          <input class={styles.input} type="file" id="cover_image" name="cover_image" accept="image/jpeg,image/png,image/webp" />
+          <span class={styles.hint}>Opcional. Tamaño determinado: 1200×630 px (16:9), JPG/PNG/WebP hasta 2 MB. Se muestra como banner en la card.</span>
+          <button type="button" class={styles.cropOpen} id="crop-open" disabled>✂ Recortar de la imagen del evento</button>
+          <span class={styles.hint} id="cover-chip" hidden>
+            ✂ Portada generada por recorte, lista para enviar.
+            <button type="button" class={styles.cropOpen} id="cover-chip-clear">Quitar recorte</button>
+          </span>
         </div>
 
         <div class={styles.actions}>
@@ -137,6 +148,21 @@ const justCreated = Astro.url.searchParams.get('created') === 'event';
           <a href="/eventos" class={styles.cancel}>Cancelar</a>
         </div>
       </form>
+
+      <div class={styles.cropOverlay} id="crop-overlay" hidden>
+        <div class={styles.cropModal}>
+          <h2 class={styles.cropTitle}>Recortar portada (16:9)</h2>
+          <div class={styles.cropViewport} id="crop-viewport">
+            <img id="crop-img" class={styles.cropImg} alt="" draggable="false" />
+          </div>
+          <label class={styles.label} for="crop-zoom">Zoom</label>
+          <input type="range" id="crop-zoom" class={styles.cropZoom} min="1" max="4" step="0.05" value="1" />
+          <div class={styles.actions}>
+            <button type="button" class={styles.submit} id="crop-confirm">Usar recorte</button>
+            <button type="button" class={styles.cancel} id="crop-cancel">Cancelar</button>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
   <Footer />
@@ -179,4 +205,146 @@ const justCreated = Astro.url.searchParams.get('created') === 'event';
     }
     sessionStorage.setItem(key, JSON.stringify(data));
   });
+</script>
+
+<script>
+  const imageInput = document.getElementById('image') as HTMLInputElement | null;
+  const coverInput = document.getElementById('cover_image') as HTMLInputElement | null;
+  const cropOpenBtn = document.getElementById('crop-open') as HTMLButtonElement | null;
+  const cropOverlay = document.getElementById('crop-overlay') as HTMLDivElement | null;
+  const cropViewport = document.getElementById('crop-viewport') as HTMLDivElement | null;
+  const cropImgEl = document.getElementById('crop-img') as HTMLImageElement | null;
+  const cropZoom = document.getElementById('crop-zoom') as HTMLInputElement | null;
+  const cropConfirm = document.getElementById('crop-confirm') as HTMLButtonElement | null;
+  const cropCancel = document.getElementById('crop-cancel') as HTMLButtonElement | null;
+  const coverChip = document.getElementById('cover-chip') as HTMLSpanElement | null;
+  const coverChipClear = document.getElementById('cover-chip-clear') as HTMLButtonElement | null;
+
+  if (
+    imageInput && coverInput && cropOpenBtn && cropOverlay && cropViewport &&
+    cropImgEl && cropZoom && cropConfirm && cropCancel && coverChip && coverChipClear
+  ) {
+    const EXPORT_W = 1200;
+    const EXPORT_H = 630;
+    let natW = 0;
+    let natH = 0;
+    let viewW = 0;
+    let viewH = 0;
+    let zoom = 1;
+    let offX = 0;
+    let offY = 0;
+
+    const fitScale = () => Math.max(viewW / natW, viewH / natH);
+
+    const clamp = () => {
+      const s = fitScale() * zoom;
+      offX = Math.min(0, Math.max(viewW - natW * s, offX));
+      offY = Math.min(0, Math.max(viewH - natH * s, offY));
+    };
+
+    const render = () => {
+      const s = fitScale() * zoom;
+      cropImgEl.style.transform = `translate(${offX}px, ${offY}px) scale(${s})`;
+    };
+
+    const releaseUrl = () => {
+      if (cropImgEl.src.startsWith('blob:')) URL.revokeObjectURL(cropImgEl.src);
+    };
+
+    imageInput.addEventListener('change', () => {
+      cropOpenBtn.disabled = !(imageInput.files && imageInput.files.length > 0);
+    });
+
+    coverInput.addEventListener('change', () => {
+      coverChip.hidden = true;
+    });
+
+    cropOpenBtn.addEventListener('click', () => {
+      const file = imageInput.files && imageInput.files[0];
+      if (!file) return;
+      releaseUrl();
+      cropOverlay.hidden = false;
+      cropImgEl.onload = () => {
+        natW = cropImgEl.naturalWidth;
+        natH = cropImgEl.naturalHeight;
+        viewW = cropViewport.clientWidth;
+        viewH = cropViewport.clientHeight;
+        zoom = 1;
+        cropZoom.value = '1';
+        const s = fitScale();
+        offX = (viewW - natW * s) / 2;
+        offY = (viewH - natH * s) / 2;
+        clamp();
+        render();
+      };
+      cropImgEl.src = URL.createObjectURL(file);
+    });
+
+    cropZoom.addEventListener('input', () => {
+      zoom = Number(cropZoom.value);
+      clamp();
+      render();
+    });
+
+    let panning = false;
+    let panX = 0;
+    let panY = 0;
+
+    cropViewport.addEventListener('pointerdown', (e) => {
+      panning = true;
+      panX = e.clientX;
+      panY = e.clientY;
+      cropViewport.setPointerCapture(e.pointerId);
+    });
+
+    cropViewport.addEventListener('pointermove', (e) => {
+      if (!panning) return;
+      offX += e.clientX - panX;
+      offY += e.clientY - panY;
+      panX = e.clientX;
+      panY = e.clientY;
+      clamp();
+      render();
+    });
+
+    const stopPan = () => { panning = false; };
+    cropViewport.addEventListener('pointerup', stopPan);
+    cropViewport.addEventListener('pointercancel', stopPan);
+
+    cropCancel.addEventListener('click', () => {
+      releaseUrl();
+      cropOverlay.hidden = true;
+    });
+
+    cropOverlay.addEventListener('click', (e) => {
+      if (e.target === cropOverlay) {
+        releaseUrl();
+        cropOverlay.hidden = true;
+      }
+    });
+
+    cropConfirm.addEventListener('click', () => {
+      const s = fitScale() * zoom;
+      const canvas = document.createElement('canvas');
+      canvas.width = EXPORT_W;
+      canvas.height = EXPORT_H;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(cropImgEl, -offX / s, -offY / s, viewW / s, viewH / s, 0, 0, EXPORT_W, EXPORT_H);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const dt = new DataTransfer();
+        dt.items.add(new File([blob], 'portada.jpg', { type: 'image/jpeg' }));
+        coverInput.files = dt.files;
+        coverChip.hidden = false;
+        cropOverlay.hidden = true;
+        releaseUrl();
+      }, 'image/jpeg', 0.85);
+    });
+
+    coverChipClear.addEventListener('click', () => {
+      coverInput.value = '';
+      coverChip.hidden = true;
+    });
+  }
 </script>

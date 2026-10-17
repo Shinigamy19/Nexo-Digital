@@ -16,6 +16,7 @@ interface Props {
   contact_info: string | null;
   max_participants: number | null;
   image?: string | null;
+  cover_image?: string | null;
 }
 
 const eventTypeIcons: Record<string, string> = {
@@ -45,13 +46,18 @@ const formatDateRange = (start: string, end: string | null): string => {
 const {
   id, title, description, event_type, category,
   start_date, end_date, start_time, location,
-  url, contact_info, max_participants, image,
+  url, contact_info, max_participants, image, cover_image,
 } = Astro.props;
 
 const modalId = `event-modal-${id}`;
 ---
 
 <article class={styles.card} data-modal-trigger={modalId} style="cursor:pointer;">
+  {cover_image && (
+    <button type="button" class={styles.coverBtn} data-lightbox-open={cover_image} aria-label="Ver portada en grande">
+      <img src={cover_image} alt={title} class={styles.cover} loading="lazy" />
+    </button>
+  )}
   <div class={styles.body}>
     {image && (
       <button type="button" class={styles.previewBtn} data-lightbox-open={image} aria-label="Ver imagen en grande">
