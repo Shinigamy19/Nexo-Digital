@@ -17,7 +17,7 @@ Nexo Digital es una comunidad open source para desarrolladores, diseñadores, ed
 - **📂 Proyectos** — Biblioteca de proyectos open source impulsados por la comunidad (DB + JSON fallback)
 - **📚 Recursos** — Herramientas, tutoriales y recursos curados por la comunidad
 - **💼 Empleos** — Búsquedas laborales tech con publicación directa, expiración automática y modo archivado
-- **📅 Eventos** — Calendario de eventos, workshops, hackathons y encuentros
+- **📅 Eventos** — Calendario de eventos con flyer, portada 16:9 y zoom en las imágenes
 - **⭐ Candidatos destacados** — Carrusel coverflow con candidatos de la comunidad
 - **👤 Perfiles** — Login, registro, edición de perfil, OAuth (Google + GitHub + Discord), redes sociales
 - **🔐 Verificación en dos pasos (2FA)** — TOTP con Google Authenticator / Authy
@@ -389,6 +389,19 @@ Los usuarios pueden subir una foto de perfil directamente desde la edición:
 - Compresión automática a 150×150 px (JPEG quality 0.6)
 - Preview en tiempo real antes de guardar
 - También se acepta URL externa como fallback
+
+### 🖼️ Imágenes y portadas en eventos
+
+Al publicar un evento se pueden adjuntar dos imágenes opcionales:
+- **Imagen del evento** — flyer o póster (JPG, PNG, WebP o GIF, hasta 2 MB)
+- **Foto de portada** — banner 16:9 (target 1200×630 px, JPG/PNG/WebP). Puede subirse directa o **recortarse desde el flyer ya subido** con un editor inline (pan + zoom, exportación por canvas a 1200×630)
+
+En la lista pública (`/eventos`):
+- La card muestra la portada como banner a todo el ancho y el flyer como preview clickeable
+- Al tocar cualquier imagen se abre un **lightbox con zoom** (rueda del mouse o pinch, doble clic, pan, botones +/−/reset, Esc o clic afuera para cerrar)
+- El modal del evento muestra el flyer completo, sin recorte
+
+Las imágenes se guardan como data-URI base64 en la DB (`Event.image` / `Event.coverImage`), con validación server-side (whitelist MIME + límite de tamaño) en `POST /api/eventos`. La moderación las preserva: los edits desde el panel no las tocan.
 
 ### ✏️ Edición inline en moderación
 

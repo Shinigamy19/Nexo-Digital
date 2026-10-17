@@ -100,6 +100,15 @@ Todas las listas públicas (`/empleos`, `/recursos`, `/proyectos`, `/eventos`) c
 
 Los empleos además filtran por `expiresAt`: se excluyen los que ya expiraron.
 
+### Imágenes en eventos
+
+- `Event.image` (flyer: JPG/PNG/WebP/GIF, ≤2 MB) y `Event.coverImage` (portada 16:9 target 1200×630: JPG/PNG/WebP, ≤2 MB) — data-URI base64 en columnas `Text`, mismo patrón que `FeaturedCandidate.image`
+- Validación server-side con `parseOptionalImage` (`src/lib/validation.ts`): whitelist MIME configurable por campo + `MAX_IMAGE_BYTES`
+- El recorte de portada se hace en el cliente (canvas → 1200×630 JPEG) desde el formulario `/eventos/nuevo`; el server valida tipo y tamaño, no dimensiones
+- El whitelist de `src/pages/api/admin/content.ts` **no incluye** `image`/`coverImage` a propósito: los edits de moderación no tocan las imágenes
+- UI: banner 16:9 + preview en `EventCard`, lightbox con zoom propio (sin dependencias) en el `<script>` de `EventCard/index.astro`
+- Ojo con `prisma db push` mientras la rama `feat/prompt-card` no esté mergeada: la DB tiene el valor `prompt` en el enum `ResourceType` que main no declara, y un push desde main intentaría borrarlo (usar `prisma db execute` para cambios aditivos)
+
 ### Seguridad
 
 - `SUPABASE_SERVICE_ROLE_KEY` es **server-only** (nunca en bundle del cliente)
